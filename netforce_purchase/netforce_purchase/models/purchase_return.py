@@ -253,6 +253,40 @@ class PurchaseReturn(Model):
         data = self.update_amounts(context)
         return data
 
+    def copy(self, ids, context):
+        seq_id = get_model("sequence").find_sequence(type="purchase_return")
+        if not seq_id:
+            raise Exception("Missing sequence type 'Purchase Return'")
+        obj = self.browse(ids)[0]
+        vals = {
+            "contact_id": obj.contact_id.id,
+            "date": obj.date,
+            "ref": obj.ref,
+            "currency_id": obj.currency_id.id,
+            "tax_type": obj.tax_type,
+            "lines": [],
+        }
+        for line in obj.lines:
+            line_vals = {
+                "product_id": line.product_id.id,
+                "description": line.description,
+                "qty": line.qty,
+                "uom_id": line.uom_id.id,
+                "unit_price": line.unit_price,
+                "tax_id": line.tax_id.id,
+            }
+            vals["lines"].append(("create", line_vals))
+        new_id = self.create(vals)
+        new_obj = self.browse(new_id)
+        return {
+            "next": {
+                "name": "purchase_return",
+                "mode": "form",
+                "active_id": new_id,
+            },
+            "flash": "Purchase Return %s copied to %s" % (obj.number, new_obj.number),
+        }
+
     def copy_to_picking(self, ids, context):
         settings=get_model("settings").browse(1)
         id = ids[0]
