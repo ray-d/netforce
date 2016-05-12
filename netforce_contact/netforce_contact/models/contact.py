@@ -137,7 +137,7 @@ class Contact(Model):
         "code": _get_number,
     }
     _order = "name"
-    _constraints=["check_email","check_duplicate_code"]
+    _constraints=["check_email"]
 
     def create(self, vals, **kw):
         if not vals.get("type"):
@@ -150,10 +150,12 @@ class Contact(Model):
                 vals["name"] = vals["first_name"] + " " + vals["last_name"]
             else:
                 vals["name"] = vals["last_name"]
+        self.check_duplicate_code(vals.get('code'))
         new_id = super().create(vals, **kw)
         return new_id
 
     def write(self, ids, vals, set_name=True, **kw):
+        self.check_duplicate_code(vals.get('code'))
         super().write(ids, vals, **kw)
         if set_name:
             for obj in self.browse(ids):
@@ -244,12 +246,10 @@ class Contact(Model):
             if not utils.check_email_syntax(obj.email):
                 raise Exception("Invalid email for contact '%s'"%obj.name)
 
-    def check_duplicate_code(self,ids,context={}):
-        for obj in self.browse(ids):
-            if not obj.code:
-                continue
-            res=self.search([['code','=',obj.code]])
+    def check_duplicate_code(self,code,context={}):
+        if code:
+            res=self.search([['code','=',code]])
             if res:
-                raise Exception("Duplicate code for contact '%s'"%obj.name)
+                raise Exception("Duplicate code!")
 
 Contact.register()
