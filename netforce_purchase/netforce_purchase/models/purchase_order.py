@@ -391,8 +391,8 @@ class PurchaseOrder(Model):
                 if categ and not purch_acc_id:
                     purch_acc_id= categ.purchase_account_id and categ.purchase_account_id.id and None
 
-            if not purch_acc_id:
-                raise Exception("Missing purchase account configure for product [%s]" % prod.name)
+            #if not purch_acc_id:
+                #raise Exception("Missing purchase account configure for product [%s]" % prod.name)
 
             line_vals = {
                 "product_id": prod.id,
@@ -416,6 +416,7 @@ class PurchaseOrder(Model):
             },
             "flash": "Invoice %s created from purchase order %s" % (inv.number, obj.number),
         }
+
 
     def get_delivered(self, ids, context={}):
         vals = {}
