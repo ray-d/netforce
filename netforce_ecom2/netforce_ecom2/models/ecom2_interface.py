@@ -84,6 +84,12 @@ class EcomInterface(Model):
             raise Exception("Email Not Found");
         return 
 
+    def check_reset_code_exist(self,reset_code,context={}):
+        print("EcomInterface.checkResetCodeExist",reset_code)
+        res = get_model("base.user").search([["password_reset_code","=",reset_code]])
+        if not res:
+            raise Exception("Invalid Code")
+
     def set_new_password(self,reset_code,new_password,context={}):
         print("EcomInterface.set_new_password",reset_code,new_password) 
         res = get_model("base.user").search([["password_reset_code","=",reset_code]])

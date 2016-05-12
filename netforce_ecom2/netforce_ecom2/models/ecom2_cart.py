@@ -35,7 +35,7 @@ class Cart(Model):
         "comments": fields.Text("Comments"),
         "transaction_no": fields.Char("Payment Transaction No.",search=True),
         "currency_id": fields.Many2One("currency","Currency",required=True),
-        "invoices": fields.One2Many("account.invoice","related_id","Invoices"),
+        "INvoices": fields.One2Many("account.invoice","related_id","Invoices"),
         "company_id": fields.Many2One("company","Company"),
         "voucher_id": fields.Many2One("sale.voucher","Voucher"),
         "ship_addresses": fields.Json("Shipping Addresses",function="get_ship_addresses"),
@@ -95,7 +95,7 @@ class Cart(Model):
             delivs=[]
             for line in obj.lines:
                 date=line.delivery_date
-                meth_id=line.ship_method_id.id
+                meth_id=line.ship_method_id.id or line.cart_id.ship_method_id.id
                 addr_id=line.ship_address_id.id or line.cart_id.ship_address_id.id
                 if not date or not meth_id or not addr_id:
                     continue
@@ -104,6 +104,7 @@ class Cart(Model):
             details=[]
             for date,meth_id,addr_id in delivs:
                 ctx={
+                    "contact_id": obj.customer_id.id,
                     "ship_address_id": addr_id,
                 }
                 meth=get_model("ship.method").browse(meth_id,context=ctx)
@@ -297,7 +298,7 @@ class Cart(Model):
                 get_model("ecom2.cart.line").write([line_id],{"qty":qty})
         else:
             if qty!=0:
-                ctx={"cart_id":obj.id,"delivery_date":due_date}
+                ctx={"cart_id":obj.id,"delivery_date":due_date,"product_id":prod_id}
                 get_model("ecom2.cart.line").create({"cart_id": obj.id, "product_id": prod_id, "qty": qty, "delivery_date": due_date},context=ctx)
 
     def add_lot(self,ids,prod_id,lot_id,context={}):
@@ -322,6 +323,18 @@ class Cart(Model):
         if not line_id:
             raise Exception("Lot not found in cart")
         get_model("ecom2.cart.line").delete([line_id])
+
+    def set_qty_auto_select_lot(self,ids,prod_id,qty,context={}):
+        print("Cart.set_qty_auto_select_lot",ids,prod_id,qty)
+        obj=self.browse(ids[0])
+        cur_qty=0
+        for line in obj.lines:
+            if line.product_id.id==prod_id:
+                cur_qty+=line.qty
+        diff_qty=qty-cur_qty
+        if diff_qty>0:
+            self.add_lots_auto_select()
+        elif diff_qty<0:
 
     def add_product(self,ids,prod_id,context={}):
         print("Cart.add_product",ids,prod_id)

@@ -14,18 +14,20 @@ class SaleOrder(Model):
                 state="canceled"
             elif not obj.invoices:
                 state="wait_packing"
-            elif not obj.is_paid:
-                state="wait_payment"
             else:
-                ship_states={}
-                for pick in obj.pickings:
-                    ship_states.setdefault(pick.ship_state,[]).append(pick.id)
-                if None in ship_states or "wait_pick" in ship_states:
-                    state="wait_ship"
-                elif "in_transit" in ship_states:
-                    state="wait_delivery"
+                inv=obj.invoices[0]
+                if inv.amount_due>0: 
+                    state="wait_payment"
                 else:
-                    state="done"
+                    ship_states={}
+                    for pick in obj.pickings:
+                        ship_states.setdefault(pick.ship_state,[]).append(pick.id)
+                    if None in ship_states or "wait_pick" in ship_states:
+                        state="wait_ship"
+                    elif "in_transit" in ship_states:
+                        state="wait_delivery"
+                    else:
+                        state="done"
             vals[obj.id]=state
         return vals
 

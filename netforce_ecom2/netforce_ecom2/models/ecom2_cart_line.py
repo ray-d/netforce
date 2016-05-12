@@ -34,7 +34,7 @@ class CartLine(Model):
         prod_id=vals["product_id"]
         prod=get_model("product").browse(prod_id)
         vals["uom_id"]=prod.uom_id.id
-        if prod.ecom_select_lot:
+        if prod.sale_invoice_uom_id.name=="KG": # XXX: too specific
             lot_id=vals.get("lot_id")
             if lot_id:
                 lot=get_model("stock.lot").browse(lot_id)

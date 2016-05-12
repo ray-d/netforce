@@ -778,20 +778,22 @@ class Picking(Model):
             meth=obj.ship_method_id
             if not meth:
                 raise Exception("Missing shipping method for picking %s"%obj.number)
-            from_coords=obj.from_coords
-            if not from_coords:
-                raise Exception("Missing source coordinates for picking %s"%obj.number)
-            to_coords=obj.to_coords
-            if not to_coords:
-                raise Exception("Missing destination coordinates for picking %s"%obj.number)
             item_desc=", ".join(["%sx%s"%(int(l.qty),l.product_id.code) for l in obj.lines])
             delivery_date=obj.date[:10] # XXX
+            contact=obj.contact_id
+            if not contact:
+                raise Exception("Missing contact")
+            addr=obj.ship_address_id
+            if not addr:
+                raise Exception("Missing shipping address")
             ctx={
-                "from_coords": from_coords,
-                "to_coords": to_coords,
-                "item_desc": item_desc,
                 "delivery_date": delivery_date,
-                "contact_id": obj.contact_id.id,
+                "time_from": obj.delivery_slot_id.time_from if obj.delivery_slot_id else None,
+                "time_to": obj.delivery_slot_id.time_to if obj.delivery_slot_id else None,
+                "item_desc": item_desc,
+                "recipient_name": contact.name,
+                "postal_code": addr.postal_code,
+                "street_address": addr.address_text,
             }
             if obj.delivery_slot_id:
                 ctx["time_slot"]=obj.delivery_slot_id.name

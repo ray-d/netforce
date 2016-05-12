@@ -49,6 +49,8 @@ class ShipMethod(Model):
 
     def get_ship_amount(self,ids,context={}):
         vals={}
+        contact_id=context.get("contact_id")
+        contact=get_model("contact").browse(contact_id) if contact_id else None
         addr_id=context.get("ship_address_id")
         if addr_id:
             addr=get_model("address").browse(addr_id)
@@ -57,6 +59,9 @@ class ShipMethod(Model):
         order_amount=context.get("order_amount")
         order_weight=context.get("order_weight")
         for obj in self.browse(ids):
+            if contact and contact.ship_free:
+                vals[obj.id]=0
+                continue
             amt = None
             for rate in obj.rates:
                 print("try rate",rate.id)
@@ -64,7 +69,7 @@ class ShipMethod(Model):
                     print("  skip country")
                     continue
                 if rate.province_id and (not addr or addr.province_id.id!=rate.province_id.id):
-                    print("  skip province")
+                    print("  skip province (%s / %s %s)"%(rate.province_id.id,addr.id,addr.province_id.id if addr else None))
                     continue
                 if rate.district_id and (not addr or addr.district_id.id!=rate.district_id.id):
                     print("  skip district")

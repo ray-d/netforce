@@ -174,7 +174,6 @@
             <field name="ecom_hide_unavail"/>
             <field name="ecom_no_order_unavail"/>
             <field name="ecom_select_lot"/>
-            <field name="ecom_lot_before_invoice"/>
             <newline/>
             <field name="product_origin"/>
         </tab>
