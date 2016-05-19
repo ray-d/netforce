@@ -63,10 +63,10 @@ class SaleOrder(Model):
         "location_id": fields.Many2One("stock.location", "Warehouse", search=True),  # XXX: deprecated
         "price_list_id": fields.Many2One("price.list", "Price List", condition=[["type", "=", "sale"]]),
         "payment_terms": fields.Text("Payment Terms"),
-        "delivery_date": fields.Date("Due Date"),  # XXX; deprecated
+        "delivery_date": fields.Date("Due Date"),
         "due_date": fields.Date("Due Date"),
         "team_id": fields.Many2One("mfg.team", "Production Team"),
-        "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),  # XXX: deprecated
+        "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),
         "emails": fields.One2Many("email.message", "related_id", "Emails"),
         "documents": fields.One2Many("document", "related_id", "Documents"),
         "addresses": fields.One2Many("address", "related_id", "Addresses"),
@@ -266,8 +266,9 @@ class SaleOrder(Model):
         settings = get_model("settings").browse(1)
         if settings.sale_copy_picking:
             res=obj.copy_to_picking()
-            picking_id=res["picking_id"]
-            get_model("stock.picking").pending([picking_id])
+            picking_ids=res.get("picking_ids")
+            if picking_ids:
+                get_model("stock.picking").pending(picking_ids)
         if settings.sale_copy_invoice:
             obj.copy_to_invoice()
         if settings.sale_copy_production:
@@ -454,18 +455,19 @@ class SaleOrder(Model):
             qty_remain = (line.qty_stock or line.qty) - line.qty_delivered
             if qty_remain <= 0:
                 continue
+            ship_address_id = line.ship_address_id.id or obj.ship_address_id.id
             ship_method_id = line.ship_method_id.id or obj.ship_method_id.id
             due_date = line.due_date or obj.due_date
             if not due_date:
                 raise Exception("Missing due date for sales order %s"%obj.number)
-            pick_key = (ship_method_id,due_date)
+            pick_key = (ship_address_id,ship_method_id,due_date)
             if pick_key not in pick_vals:
                 pick_vals[pick_key] = {
                     "type": "out",
                     "ref": obj.number,
                     "related_id": "sale.order,%s" % obj.id,
                     "contact_id": contact.id,
-                    "ship_address_id": obj.ship_address_id.id,
+                    "ship_address_id": ship_address_id,
                     "lines": [],
                     "state": "draft",
                     "ship_method_id": ship_method_id,

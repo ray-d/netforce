@@ -35,7 +35,7 @@ class Cart(Model):
         "comments": fields.Text("Comments"),
         "transaction_no": fields.Char("Payment Transaction No.",search=True),
         "currency_id": fields.Many2One("currency","Currency",required=True),
-        "INvoices": fields.One2Many("account.invoice","related_id","Invoices"),
+        "invoices": fields.One2Many("account.invoice","related_id","Invoices"),
         "company_id": fields.Many2One("company","Company"),
         "voucher_id": fields.Many2One("sale.voucher","Voucher"),
         "ship_addresses": fields.Json("Shipping Addresses",function="get_ship_addresses"),
@@ -155,6 +155,7 @@ class Cart(Model):
         vals={
             "contact_id": obj.customer_id.id,
             "ship_address_id": obj.ship_address_id.id,
+            "ship_method_id": obj.ship_method_id.id,
             "bill_address_id": obj.bill_address_id.id,
             "due_date": obj.delivery_date,
             "lines": [],
@@ -180,6 +181,7 @@ class Cart(Model):
                 "location_id": location_id,
                 "lot_id": line.lot_id.id,
                 "due_date": line.delivery_date,
+                "delivery_slot_id": obj.delivery_slot_id.id,
                 "ship_address_id": line.ship_address_id.id,
             }
             vals["lines"].append(("create",line_vals))
@@ -333,66 +335,74 @@ class Cart(Model):
                 cur_qty+=line.qty
         diff_qty=qty-cur_qty
         if diff_qty>0:
-            self.add_lots_auto_select()
+            self.add_lots_auto_select(ids,prod_id,diff_qty,context=context)
         elif diff_qty<0:
+            self.remove_lots_auto_select(ids,prod_id,-diff_qty,context=context)
 
-    def add_product(self,ids,prod_id,context={}):
-        print("Cart.add_product",ids,prod_id)
+    def add_lots_auto_select(self,ids,prod_id,add_qty,context={}):
+        print("Cart.add_lots_auto_select",ids,prod_id,add_qty)
         obj=self.browse(ids[0])
         exclude_lot_ids=[]
         for line in obj.lines:
-            if line.lot_id:
+            if line.product_id.id==prod_id and line.lot_id:
                 exclude_lot_ids.append(line.lot_id.id)
         prod=get_model("product").browse(prod_id)
-        found_lot_id=None
+        add_lot_ids=[]
         for lot in prod.stock_lots:
             if lot.id not in exclude_lot_ids:
-                found_lot_id=lot.id
-                break
-        if found_lot_id:
+                add_lot_ids.append(lot.id)
+                if len(add_lot_ids)>=add_qty:
+                    break
+        print("add_lot_ids",add_lot_ids)
+        for lot_id in add_lot_ids:
             get_model("ecom2.cart.line").create({
                 "cart_id": obj.id,
                 "product_id": prod_id,
-                "lot_id": found_lot_id,
+                "lot_id": lot_id,
                 "qty": 1
             })
-        else:
+        remain_qty=add_qty-len(add_lot_ids)
+        print("remain_qty",remain_qty)
+        if remain_qty>0:
             found_line=None
             for line in obj.lines:
                 if line.product_id.id==prod_id and not line.lot_id:
                     found_line=line
                     break
             if found_line:
-                found_line.write({"qty":found_line.qty+1})
+                found_line.write({"qty":found_line.qty+remain_qty})
             else:
-                get_model("ecom2.cart.line").create({"cart_id": obj.id, "product_id": prod_id, "qty": 1})
+                get_model("ecom2.cart.line").create({"cart_id": obj.id, "product_id": prod_id, "qty": remain_qty})
 
-    def remove_product(self,ids,prod_id,context={}):
-        print("Cart.remove_product",ids,prod_id)
+    def remove_lots_auto_select(self,ids,prod_id,remove_qty,context={}):
+        print("Cart.remove_lots_auto_select",ids,prod_id,remove_qty)
         obj=self.browse(ids[0])
-        del_line=None
-        max_date=None
+        remain_qty=remove_qty
         for line in obj.lines:
-            if line.product_id.id!=prod_id:
-                continue
-            lot=line.lot_id
-            if lot:
-                d=lot.received_date or "1900-01-01"
-                if max_date is None or d>max_date:
-                    max_date=d
-                    del_line=line
-            else:
-                del_line=line
-                break
-        if not del_line:
-            raise Exception("No cart line found to remove")
-        if del_line.qty>1:
-            del_line.write({"qty":del_line.qty-1})
-        else:
-            del_line.delete()
+            if line.product_id.id==prod_id and not line.lot_id:
+                if line.qty<=remain_qty:
+                    remain_qty-=line.qty
+                    line.delete()
+                else:
+                    line.write({"qty":line.qty-remain_qty})
+                    remain_qty=0
+        print("remain_qty",remain_qty)
+        if remain_qty>0:
+            lots=[]
+            for line in obj.lines:
+                if line.product_id.id==prod_id and line.lot_id:
+                    d=line.lot_id.received_date or "1900-01-01"
+                    lots.append((d,line.id))
+            lots.sort()
+            del_ids=[]
+            for d,line_id in lots:
+                del_ids.append(line_id)
+                if len(del_ids)>=remain_qty:
+                    break
+            print("del_ids",del_ids)
+            get_model("ecom2.cart.line").delete(del_ids)
 
     def get_delivery_delay(self,ids,context={}):
-        settings=get_model("ecom2.settings").browse(1)
         vals={}
         for obj in self.browse(ids):
             vals[obj.id]=max(l.delivery_delay for l in obj.lines) if obj.lines else 0
@@ -413,14 +423,16 @@ class Cart(Model):
         for slot in get_model("delivery.slot").search_browse([]):
             slots.append([slot.id,slot.name,slot.time_from])
         slot_num_sales={}
-        for sale in get_model("sale.order").search_browse([["date",">=",time.strftime("%Y-%m-%d")]]):
+        for sale in get_model("sale.order").search_browse([["plr_order_type","=","grocery"],["date",">=",time.strftime("%Y-%m-%d")]]):
             k=(sale.due_date,sale.delivery_slot_id.id)
             slot_num_sales.setdefault(k,0)
             slot_num_sales[k]+=1
+        print("slot_num_sales",slot_num_sales)
         slot_caps={}
         for cap in get_model("delivery.slot.capacity").search_browse([]):
             k=(cap.slot_id.id,int(cap.weekday))
             slot_caps[k]=cap.capacity
+        print("slot_caps",slot_caps)
         delivery_weekdays=None
         for line in obj.lines:
             prod=line.product_id
@@ -432,6 +444,18 @@ class Cart(Model):
                     delivery_weekdays=[d for d in delivery_weekdays if d in days]
         days=[]
         now=datetime.now()
+        tomorrow=now+timedelta(days=1)
+        tomorrow_seconds=0
+        if settings.work_time_start and settings.work_time_end:
+            today_end=datetime.strptime(date.today().strftime("%Y-%m-%d")+" "+settings.work_time_end,"%Y-%m-%d %H:%M")
+            tomorrow_start=datetime.strptime(tomorrow.strftime("%Y-%m-%d")+" "+settings.work_time_start,"%Y-%m-%d %H:%M")
+            if now<today_end:
+                remain_seconds=(today_end-now).total_seconds()
+            else:
+                remain_seconds=0
+            if remain_seconds<min_hours*3600:
+                tomorrow_seconds=min_hours*3600-remain_seconds
+        print("tomorrow_seconds=%s"%tomorrow_seconds)
         while d<=d_to:
             ds=d.strftime("%Y-%m-%d")
             res=get_model("hr.holiday").search([["date","=",ds]])
@@ -448,8 +472,12 @@ class Cart(Model):
                 capacity=slot_caps.get((slot_id,w))
                 num_sales=slot_num_sales.get((ds,slot_id),0)
                 state="avail"
-                if t_from<now or (t_from-now).seconds<min_hours*3600:
-                    state="full"
+                if d==now.date():
+                    if t_from<now or (t_from-now).total_seconds()<min_hours*3600:
+                        state="full"
+                elif d==tomorrow.date() and tomorrow_seconds:
+                    if (t_from-tomorrow_start).total_seconds()<tomorrow_seconds:
+                        state="full"
                 if capacity is not None and num_sales>=capacity:
                     state="full"
                 day_slots.append([slot_id,slot_name,state,num_sales,capacity])

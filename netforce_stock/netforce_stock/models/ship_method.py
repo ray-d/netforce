@@ -64,35 +64,35 @@ class ShipMethod(Model):
                 continue
             amt = None
             for rate in obj.rates:
-                print("try rate",rate.id)
+                #print("try rate",rate.id)
                 if rate.country_id and (not addr or addr.country_id.id!=rate.country_id.id):
-                    print("  skip country")
+                    #print("  skip country")
                     continue
                 if rate.province_id and (not addr or addr.province_id.id!=rate.province_id.id):
-                    print("  skip province (%s / %s %s)"%(rate.province_id.id,addr.id,addr.province_id.id if addr else None))
+                    #print("  skip province (%s / %s %s)"%(rate.province_id.id,addr.id,addr.province_id.id if addr else None))
                     continue
                 if rate.district_id and (not addr or addr.district_id.id!=rate.district_id.id):
-                    print("  skip district")
+                    #print("  skip district")
                     continue
                 if rate.postal_code and (not addr or addr.postal_code!=rate.postal_code):
-                    print("  skip postal code")
+                    #print("  skip postal code")
                     continue
                 if rate.address_name and (not addr or addr.name!=rate.address_name):
-                    print("  skip address name")
+                    #print("  skip address name")
                     continue
                 if rate.min_amount and (order_amount is None or order_amount<rate.min_amount):
-                    print("  skip min amount")
+                    #print("  skip min amount")
                     continue
                 if rate.min_weight and (order_weight is None or order_weight<rate.min_weight):
-                    print("  skip min weight")
+                    #print("  skip min weight")
                     continue
-                print("  OK ship_price=%s"%rate.ship_price)
+                #print("  OK ship_price=%s"%rate.ship_price)
                 if amt is None or rate.ship_price < amt:
                     amt = rate.ship_price
-            if amt is not None:
-                print("=> shipping price found: %s"%amt)
-            else:
-                print("=> no shipping price found")
+            #if amt is not None:
+                #print("=> shipping price found: %s"%amt)
+            #else:
+                #print("=> no shipping price found")
             vals[obj.id]=amt
         return vals
 

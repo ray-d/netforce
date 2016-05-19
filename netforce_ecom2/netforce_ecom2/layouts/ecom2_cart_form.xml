@@ -55,12 +55,10 @@
     </tabs>
     <foot>
         <button string="Confirm Order" method="confirm" type="success" icon="arrow-right" states="draft"/>
-        <button string="Payment Received" method="payment_received" type="success" icon="ok" states="waiting_payment"/>
         <button string="Cancel Order" method="cancel_order" type="danger" icon="remove" states="waiting_payment,paid" confirm="Are you sure?"/>
     </foot>
     <related>
         <field name="sale_orders"/>
-        <field name="invoices"/>
         <field name="logs"/>
     </related>
 </form>

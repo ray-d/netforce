@@ -50,9 +50,12 @@ class CartLine(Model):
         vals={}
         for obj in self.browse(ids):
             prod=obj.product_id
+            cond=[["product_id","=",prod.id]]
+            if obj.lot_id:
+                cond.append(["lot_id","=",obj.lot_id.id])
             qty=0
-            for bal in get_model("stock.balance").search_browse([["product_id","=",prod.id]]):
-                qty+=bal.qty_virt # XXX: chek this
+            for bal in get_model("stock.balance").search_browse(cond):
+                qty+=bal.qty_virt
             vals[obj.id]=qty
         return vals
 

@@ -19,10 +19,11 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from netforce.model import Model, fields, get_model
-import time
 from netforce.utils import get_data_path
 from netforce.access import get_active_company, get_active_user, set_active_user
-
+from netforce import database
+from datetime import *
+import time
 
 class Picking(Model):
     _name = "stock.picking"
@@ -169,10 +170,13 @@ class Picking(Model):
                 raise Exception("Lot %s is out of stock (product %s)"%(move.lot_id.number,prod.code))
 
     def approve(self, ids, context={}):
+        settings=get_model("settings").browse(1)
         for obj in self.browse(ids):
             for move in obj.lines:
                 move.write({"state": "approved", "date": obj.date})
             obj.write({"state": "approved"})
+            if obj.type=="out" and settings.auto_create_delivery_order and obj.ship_method_id and not obj.ship_tracking:
+                obj.create_delivery_order()
 
     def void(self, ids, context={}):
         for obj in self.browse(ids):
@@ -782,10 +786,10 @@ class Picking(Model):
             delivery_date=obj.date[:10] # XXX
             contact=obj.contact_id
             if not contact:
-                raise Exception("Missing contact")
+                raise Exception("Missing contact for picking %s"%obj.number)
             addr=obj.ship_address_id
             if not addr:
-                raise Exception("Missing shipping address")
+                raise Exception("Missing shipping address for picking %s"%obj.number)
             ctx={
                 "delivery_date": delivery_date,
                 "time_from": obj.delivery_slot_id.time_from if obj.delivery_slot_id else None,
@@ -794,6 +798,8 @@ class Picking(Model):
                 "recipient_name": contact.name,
                 "postal_code": addr.postal_code,
                 "street_address": addr.address_text,
+                "email": contact.email,
+                "mobile": addr.mobile,
             }
             if obj.delivery_slot_id:
                 ctx["time_slot"]=obj.delivery_slot_id.name
@@ -803,10 +809,23 @@ class Picking(Model):
                     raise Exception("No handler found")
                 tracking_no=res["tracking_no"]
                 obj.write({"ship_tracking": tracking_no,"ship_state": "wait_pick"})
-                return {
-                    "flash": "Delivery order %s created successfully for picking %s"%(tracking_no,obj.number),
-                }
+                db=database.get_connection()
+                db.commit()
             except Exception as e:
                 raise Exception("Failed to create delivery order for picking %s: %s"%(obj.number,e))
+        return {
+            "flash": "%d delivery orders created"%len(ids),
+        }
+
+
+    def create_delivery_order_batch(self,context={}):
+        today=datetime.today().strftime("%Y-%m-%d")
+        tomorrow=(datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+        cond=[["date",">=",today+" 00:00:00"],["date","<=",tomorrow+" 23:59:59"],["state","=","approved"],["ship_tracking","=",None]]
+        ids=self.search(cond)
+        self.create_delivery_order(ids)
+        return {
+            "flash": "%d delivery orders created"%len(ids),
+        }
 
 Picking.register()

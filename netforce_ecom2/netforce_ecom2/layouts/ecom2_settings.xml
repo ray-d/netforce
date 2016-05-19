@@ -9,6 +9,9 @@
     <newline/>
     <field name="sale_lead_time_nostock"/>
     <newline/>
+    <field name="work_time_start"/>
+    <field name="work_time_end"/>
+    <newline/>
     <field name="ecom_return_url"/>
     <related>
         <field name="extra_ship_addresses"/>

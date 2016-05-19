@@ -60,12 +60,15 @@ var InlineForm=NFView.extend({
         var model_name=this.options.model;
         var field_names=[];
         this.$form.find("field").each(function() {
-            if ($(this).parents("field").length>0) {
+            var name=$(this).attr("name");
+            /*if ($(this).parents("field").length>0) {
+                console.log("skip1");    
                 return;
             }
             if ($(this).parents("related").length>0) {
+                console.log("skip2");    
                 return;
-            }
+            }*/ // comment because PLR meal preselection
             field_names.push($(this).attr("name"));
         });
         if (this.options.active_id) {
