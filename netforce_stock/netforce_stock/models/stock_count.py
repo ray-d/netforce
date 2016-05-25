@@ -208,13 +208,13 @@ class StockCount(Model):
             if prod.type!="stock":
                 raise Exception("Invalid product type in stock count: %s"%prod.code)
             prod_ids.append(line.product_id.id)
-            if line.new_qty <= line.prev_qty:
+            if line.new_qty < line.prev_qty:
                 qty_diff = line.prev_qty - line.new_qty
                 amount_diff = (line.prev_cost_amount or 0) - (line.new_cost_amount or 0)
                 price_diff = amount_diff / qty_diff if qty_diff else 0
                 loc_from_id = obj.location_id.id
                 loc_to_id = invent_loc_id
-            elif line.new_qty > line.prev_qty:
+            elif line.new_qty >= line.prev_qty:
                 qty_diff = line.new_qty - line.prev_qty
                 amount_diff = line.new_cost_amount - (line.prev_cost_amount or 0)
                 price_diff = amount_diff / qty_diff if qty_diff else 0
