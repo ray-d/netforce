@@ -819,7 +819,7 @@ class Picking(Model):
                     raise Exception("Missing currency rate for %s" % settings.currency_id.code)
                 currency_rate = rate_from / rate_to
         cost_price=get_model("currency").convert(cost_price_cur,currency_id,settings.currency_id.id,rate=currency_rate)
-        cost_amount=cost_price*qty
+        cost_amount=cost_price*(qty or 1)
         line["cost_price"]=cost_price
         line["cost_amount"]=cost_amount
         return data
