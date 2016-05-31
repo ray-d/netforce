@@ -60,7 +60,7 @@ class StockBalance(Model):
         return res
 
     def update_balances(self, context={}):
-        print("UPDATE_BALANCES")
+        #print("UPDATE_BALANCES")
         user_id=access.get_active_user()
         access.set_active_user(1)
         try:

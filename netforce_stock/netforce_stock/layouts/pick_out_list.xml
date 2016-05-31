@@ -13,6 +13,7 @@
     <field name="related_id"/>
     <field name="ship_method_id"/>
     <field name="ship_tracking"/>
+    <field name="ship_route"/>
     <field name="ship_state"/>
     <field name="state"/>
 </list>

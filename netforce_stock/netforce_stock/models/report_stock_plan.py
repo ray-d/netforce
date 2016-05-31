@@ -75,7 +75,7 @@ class ReportStockPlan(Model):
             plan_days=prod.stock_plan_horizon
             qty_unlim=qtys_unlim.get(prod.id,0)
             if plan_days is not None:
-                qty_horiz=qtys_horiz.get(prod.id)
+                qty_horiz=qtys_horiz.get(prod.id,0)
             else:
                 qty_horiz=qty_unlim
             min_qty=min_qtys.get(prod.id,0)

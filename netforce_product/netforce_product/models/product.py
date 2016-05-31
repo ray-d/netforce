@@ -193,6 +193,7 @@ class Product(Model):
         return vals
 
     def name_search(self, name, condition=None, context={}, limit=None, **kw):
+        print("condition",condition)
         search_mode = context.get("search_mode")
         print("##############################")
         print("search_mode", search_mode)
@@ -235,13 +236,25 @@ class Product(Model):
             #"parent_id": obj.parent_id.id, XXX
             "description": obj.description,
             "image": obj.image,
+            "categ_id": obj.categ_id.id,
             "categs": [("set", [c.id for c in obj.categs])],
+            "supply_method": obj.supply_method,
+            "procure_method": obj.procure_method,
+            "can_sell": obj.can_sell,
+            "can_purchase": obj.can_purchase,
+            "sale_uom_id": obj.sale_uom_id.id,
+            "sale_invoice_uom_id": obj.sale_invoice_uom_id.id,
+            "sale_to_stock_uom_factor": obj.sale_to_stock_uom_factor,
+            "sale_to_invoice_uom_factor": obj.sale_to_invoice_uom_factor,
+            "purchase_uom_id": obj.purchase_uom_id.id,
+            "purchase_invoice_uom_id": obj.purchase_invoice_uom_id.id,
+            "purchase_to_stock_uom_factor": obj.purchase_to_stock_uom_factor,
+            "purchase_to_invoice_uom_factor": obj.purchase_to_invoice_uom_factor,
             "purchase_price": obj.purchase_price,
             "purchase_account_id": obj.purchase_account_id.id,
             "purchase_tax_id": obj.purchase_tax_id.id,
             "supplier_id": obj.supplier_id.id,
             "sale_price": obj.sale_price,
-            "categ_id": obj.categ_id.id,
             "sale_account_id": obj.sale_account_id.id,
             "sale_tax_id": obj.sale_tax_id.id,
             "sale_return_account_id": obj.sale_return_account_id.id,

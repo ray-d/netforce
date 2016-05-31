@@ -537,7 +537,7 @@ class Cart(Model):
         for a in settings.extra_ship_addresses:
             addr_vals={
                 "id": a.id,
-                "name": a.company+", "+a.address,
+                "name": a.company or ""+", "+a.address or "", #### FIX ME 
             }
             if obj.ship_method_id:
                 meth_id=obj.ship_method_id.id

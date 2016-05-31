@@ -24,6 +24,7 @@ from netforce import database
 from netforce import access
 import json
 import sys
+from datetime import *
 import time
 import random
 from netforce.locale import translate
@@ -176,12 +177,13 @@ class JsonRpc(Controller):
             resp = {
                 "result": None,
                 "error": err,
-                "id": req["id"],
+                "id": self.get_argument("id",None),
             }
         access.clear_active_user()
         try:
             data = json_dumps(resp)
             self.add_header("Access-Control-Allow-Origin","*")
+            self.add_header("Last-Modified",datetime.utcnow())
             self.write(data)
         except:
             print("JSONRPC ERROR: invalid response")

@@ -58,6 +58,7 @@ class Picking(Model):
         "employee_id": fields.Many2One("hr.employee", "Employee"),
         "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),
         "ship_tracking": fields.Char("Tracking Number"),
+        "ship_route": fields.Char("Delivery Route"),
         "documents": fields.One2Many("document", "related_id", "Documents"),
         "ship_cost": fields.Decimal("Shipping Cost"),
         "ship_pay_by": fields.Selection([["company", "Company"], ["customer", "Customer"], ["supplier", "Supplier"]], "Shipping Paid By"),

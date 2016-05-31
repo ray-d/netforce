@@ -73,7 +73,7 @@ class EcomInterface(Model):
             vals = {
             "body":"Please click the link to reset the code: http://localhost/reset_password?code=%s"%reset_code,
             "from_addr":"demo@netforce.com",
-            "subject" : "Paleo Reset Code",
+            "subject" : "Reset Code",
             "type": "out",
             "state":"to_send",
             "to_addrs":login,

@@ -56,6 +56,7 @@
         <tab string="Shipping">
             <field name="ship_method_id"/>
             <field name="ship_tracking" readonly="0"/>
+            <field name="ship_route" readonly="0"/>
             <field name="ship_state"/>
             <separator/>
             <field name="ship_cost"/>

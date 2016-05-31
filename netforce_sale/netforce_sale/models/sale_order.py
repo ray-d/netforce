@@ -502,17 +502,19 @@ class SaleOrder(Model):
                     pick_vals[pick_key]["lines"].append(("create", line_vals))
         if not pick_vals:
             Exception("Nothing left to deliver")
+        pick_ids=[]
         for pick_key, pick_val in pick_vals.items():
             pick_id = get_model("stock.picking").create(pick_val, context={"pick_type": "out"})
-            pick = get_model("stock.picking").browse(pick_id)
+            pick_ids.append(pick_id)
         return {
             "next": {
                 "name": "pick_out",
                 "mode": "form",
                 "active_id": pick_id,
             },
-            "flash": "Picking %s created from sales order %s" % (pick.number, obj.number),
-            "picking_id": pick_id,
+            "flash": "Picking created from sales order %s" % obj.number,
+            "picking_ids": pick_ids,
+            "picking_id": pick_ids[0] if pick_ids else None, # XXX: remove later
         }
 
     def copy_to_invoice(self, ids, context={}):

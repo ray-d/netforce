@@ -43,6 +43,8 @@ class PrintWizard(Model):
             ids = [int(refer_id)]
         else:
             ids = ctx.get("ids")
+        if not ids:
+            return
         return ",".join([str(x) for x in ids])
 
     _defaults = {
