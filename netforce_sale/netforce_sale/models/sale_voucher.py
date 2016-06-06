@@ -100,7 +100,7 @@ class Voucher(Model):
                     raise Exception(msg)
             disc_amt=0
             if obj.benefit_type=="fixed_discount_order":
-                disc_amt=obj.discount_amount
+                disc_amt=min(obj.discount_amount,amount_total or 0)
             return {
                 "discount_amount": disc_amt,
             }

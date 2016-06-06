@@ -12,7 +12,7 @@
             <item string="Copy" method="copy"/>
             <divider/>
             <item string="To Draft" method="to_draft" states="pending,approved,done,voided"/>
-            <item string="Void" method="void" confirm="Are you sure you want to void this goods receipt?" states="done"/>
+            <item string="Void" method="void" confirm="Are you sure you want to void this goods receipt?" states="done,draft,pending,approved"/>
             <divider/>
             <item string="View Journal Entry" method="view_journal_entry" states="done"/>
         </button>

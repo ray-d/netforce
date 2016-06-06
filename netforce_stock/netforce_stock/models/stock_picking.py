@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2015 Netforce Co. Ltd.
+# copyright (c) 2012-2015 Netforce Co. Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -796,7 +796,8 @@ class Picking(Model):
                 "time_from": obj.delivery_slot_id.time_from if obj.delivery_slot_id else None,
                 "time_to": obj.delivery_slot_id.time_to if obj.delivery_slot_id else None,
                 "item_desc": item_desc,
-                "recipient_name": contact.name,
+                "cust_name": contact.name,
+                "cust_code": contact.code,
                 "postal_code": addr.postal_code,
                 "street_address": addr.address_text,
                 "email": contact.email,

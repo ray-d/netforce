@@ -7,7 +7,7 @@
             <item string="Copy" method="copy"/>
             <item string="Copy To Credit Note" method="copy_to_credit_note" states="paid,waiting_payment"/>
             <item string="Void" method="void" confirm="Are you sure you want to void this invoice?" states="draft,waiting_payment"/>
-            <item string="To Draft" method="to_draft" states="waiting_payment"/>
+            <item string="To Draft" method="to_draft" states="waiting_payment,voided"/>
             <divider/>
             <item string="Online Payment" method="pay_online" states="waiting_payment"/>
             <divider/>

@@ -449,7 +449,7 @@ class Cart(Model):
         if settings.work_time_start and settings.work_time_end:
             today_end=datetime.strptime(date.today().strftime("%Y-%m-%d")+" "+settings.work_time_end,"%Y-%m-%d %H:%M")
             tomorrow_start=datetime.strptime(tomorrow.strftime("%Y-%m-%d")+" "+settings.work_time_start,"%Y-%m-%d %H:%M")
-            if now<today_end:
+            if now<today_end and now.weekday()!=6:
                 remain_seconds=(today_end-now).total_seconds()
             else:
                 remain_seconds=0
@@ -537,7 +537,7 @@ class Cart(Model):
         for a in settings.extra_ship_addresses:
             addr_vals={
                 "id": a.id,
-                "name": a.company or ""+", "+a.address or "", #### FIX ME 
+                "name": a.address or "",
             }
             if obj.ship_method_id:
                 meth_id=obj.ship_method_id.id
@@ -604,5 +604,14 @@ class Cart(Model):
     def empty_cart(self,ids,context={}):
         obj=self.browse(ids[0])
         obj.write({"lines":[("delete_all",)]})
+
+    def check_due_dates(self,ids,context={}):
+        obj=self.browse(ids[0])
+        today=time.strftime("%Y-%m-%d")
+        if obj.delivery_date and obj.delivery_date<today:
+            raise Exception("Delivery date is in the past %s"%obj.delivery_date)
+        for line in obj.lines:
+            if line.delivery_date and line.delivery_date<today:
+                raise Exception("Delivery date is in the past %s for product %s"%(line.delivery_date,line.product_id.name))
 
 Cart.register()

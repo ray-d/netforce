@@ -1,4 +1,6 @@
 from netforce.model import Model,fields,get_model
+from netforce import utils
+from netforce import database
 
 class EcomInterface(Model):
     _name="ecom2.interface"
@@ -38,7 +40,7 @@ class EcomInterface(Model):
             "postal_code" : vals["postal_code_id"], 
             "address": vals["address"],
             "contact_id": contact_id,
-            "mobile":vals["mobile"],
+            "mobile": vals["mobile"],
             "instructions_messenger" :vals['messenger'],
         }
         if vals.get("subdistrict_id"):
@@ -47,8 +49,10 @@ class EcomInterface(Model):
                 addr_vals['subdistrict_id'] = subdistrict_id
         get_model("address").create(addr_vals)
         get_model("contact").trigger([contact_id],"ecom_sign_up")
+        dbname=database.get_active_db()
         return {
             "user_id": user_id,
+            "token": utils.new_token(dbname,user_id),
             "contact_id" : contact_id,
         }
 
@@ -59,8 +63,10 @@ class EcomInterface(Model):
             raise Exception("Invalid login")
         user=get_model("base.user").browse(user_id)
         contact=user.contact_id
+        dbname=database.get_active_db()
         return {
             "user_id": user_id,
+            "token": utils.new_token(dbname,user_id),
             "contact_id": contact.id,
         }
 
