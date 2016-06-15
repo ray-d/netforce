@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2015 Netforce Co. Ltd.
+# copyright (c) 2012-2015 Netforce Co. Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,7 @@
 
 from netforce.model import Model, fields, get_model
 from netforce import database
-from netforce.database import get_active_db
 from netforce import utils
-import os.path
-from PIL import Image, ImageChops
 from netforce import access
 from decimal import Decimal
 import time
@@ -508,8 +505,8 @@ class Product(Model):
         vals={}
         for obj in self.browse(ids):
             qty=0
-            for bal in get_model("stock.balance").search_browse([["product_id","=",obj.id]]):
-                qty+=bal.qty_virt # XXX: check this
+            for loc in obj.locations:
+                qty+=loc.stock_qty
             vals[obj.id]=qty
         return vals
 

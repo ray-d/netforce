@@ -19,9 +19,8 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from netforce.model import Model, fields, get_model
-from netforce.utils import get_data_path
 from netforce.database import get_connection
-import time
+from netforce import access
 
 
 class ProductionPlan(Model):
@@ -36,7 +35,8 @@ class ProductionPlan(Model):
         "date_to": fields.Date("To Date", required=True, search=True),
         "plan_qty": fields.Decimal("Planned Production Qty", required=True),
         "uom_id": fields.Many2One("uom", "UoM", required=True),
-        "location_id": fields.Many2One("stock.location", "To Warehouse", required=True),
+        "location_id": fields.Many2One("stock.location", "To Warehouse"), # XXX: deprecated
+        "bom_id": fields.Many2One("bom", "BoM", required=True, search=True),
         "priority": fields.Selection([["high", "High"], ["medium", "Medium"], ["low", "Low"]], "Priority", search=True),
         "state": fields.Selection([["open", "Open"], ["closed", "Closed"]], "Status", required=True, search=True),
         "description": fields.Text("Description"),
@@ -54,7 +54,25 @@ class ProductionPlan(Model):
         "actual_qty": fields.Decimal("Actual Production Qty", function="get_actual_qty"),
     }
     _order = "date_to"
+
+    def _get_number(self, context={}):
+        seq_id = get_model("sequence").find_sequence(type="production_plan",context=context)
+        if not seq_id:
+            return None
+        while 1:
+            num = get_model("sequence").get_next_number(seq_id, context=context)
+            if not num:
+                return None
+            user_id = access.get_active_user()
+            access.set_active_user(1)
+            res = self.search([["number", "=", num]])
+            access.set_active_user(user_id)
+            if not res:
+                return num
+            get_model("sequence").increment_number(seq_id, context=context)
+
     _defaults = {
+        "number": _get_number,
         "state": "open",
     }
 
@@ -106,24 +124,42 @@ class ProductionPlan(Model):
         res = get_model("stock.location").search([["type", "=", "production"]])
         if not res:
             raise Exception("Production location not found")
-        loc_from_id = res[0]
+        mfg_loc_id = res[0]
         for obj in self.browse(ids):
             obj.stock_moves.delete()
             diff_qty = obj.plan_qty - obj.plan_in_qty
             if diff_qty <= 0:
                 continue
+            bom=obj.bom_id
+            if not bom:
+                raise Exception("Missing BoM")
             vals = {
                 "date": obj.date_to + " 23:59:59",
                 "journal_id": settings.pick_in_journal_id.id,
                 "related_id": "production.plan,%s" % obj.id,
-                "location_from_id": loc_from_id,
-                "location_to_id": obj.location_id.id,
+                "location_from_id": mfg_loc_id,
+                "location_to_id": bom.location_id.id,
                 "product_id": obj.product_id.id,
                 "qty": diff_qty,
                 "uom_id": obj.uom_id.id,
                 "state": "pending",
             }
-            move_id = get_model("stock.move").create(vals)
+            get_model("stock.move").create(vals)
+            ratio=diff_qty/bom.qty
+            for line in bom.lines:
+                line_qty=line.qty*ratio
+                vals = {
+                    "date": obj.date_to + " 23:59:59",
+                    "journal_id": settings.pick_out_journal_id.id,
+                    "related_id": "production.plan,%s" % obj.id,
+                    "location_from_id": line.location_id.id,
+                    "location_to_id": mfg_loc_id,
+                    "product_id": line.product_id.id,
+                    "qty": line_qty,
+                    "uom_id": line.uom_id.id,
+                    "state": "pending",
+                }
+                get_model("stock.move").create(vals)
 
     def close(self, ids, context={}):
         for obj in self.browse(ids):

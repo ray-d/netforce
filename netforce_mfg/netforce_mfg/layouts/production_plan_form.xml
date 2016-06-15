@@ -13,7 +13,7 @@
     <field name="date_to"/>
     <field name="plan_qty"/>
     <field name="uom_id"/>
-    <field name="location_id"/>
+    <field name="bom_id" condition='[["product_id","=",product_id]]'/>
     <field name="priority"/>
     <field name="description"/>
     <field name="actual_qty"/>

@@ -50,7 +50,8 @@ class CartLine(Model):
         vals={}
         for obj in self.browse(ids):
             prod=obj.product_id
-            cond=[["product_id","=",prod.id]]
+            loc_ids=[loc.location_id.id for loc in prod.locations]
+            cond=[["product_id","=",prod.id],["location_id","in",loc_ids]]
             if obj.lot_id:
                 cond.append(["lot_id","=",obj.lot_id.id])
             qty=0
@@ -65,7 +66,7 @@ class CartLine(Model):
         for obj in self.browse(ids):
             delay=0
             prod=obj.product_id
-            if obj.qty_avail<=0:
+            if obj.qty_avail<=0 and not prod.sale_lead_time_nostock == 0: ### REVIEW 
                 delay=max(delay,prod.sale_lead_time_nostock or settings.sale_lead_time_nostock or 0)
             vals[obj.id]=delay
         return vals

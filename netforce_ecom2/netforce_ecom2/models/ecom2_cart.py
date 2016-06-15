@@ -165,6 +165,7 @@ class Cart(Model):
             "other_info": obj.comments,
             "ref": obj.comments, # XXX
         }
+        print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Ship Method Id ",ship_method_id)
         for line in obj.lines:
             prod=line.product_id
             if line.lot_id and line.qty_avail<=0:

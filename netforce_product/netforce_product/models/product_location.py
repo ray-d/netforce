@@ -37,29 +37,12 @@ class ProductLocation(Model):
     }
 
     def get_stock_qty(self,ids,context={}):
-        keys = []
-        for obj in self.browse(ids):
-            if obj.product_id.type == "bundle":
-                for comp in obj.product_id.components:
-                    key = (comp.component_id.id, None, obj.location_id.id, None)
-                    keys.append(key)
-            else:
-                key = (obj.product_id.id, None, obj.location_id.id, None)
-                keys.append(key)
-        bals = get_model("stock.balance").compute_key_balances(keys,context={"virt_stock":True})
         vals = {}
         for obj in self.browse(ids):
-            if obj.product_id.type == "bundle":
-                comps_qty = []
-                for comp in obj.product_id.components:
-                    key = (comp.component_id.id, None, obj.location_id.id, None) 
-                    qty = bals[key][0]
-                    comps_qty.append(int(qty/comp.qty))
-                vals[obj.id] = min(comps_qty or [0])
-            else:
-                key = (obj.product_id.id, None, obj.location_id.id, None)
-                qty = bals[key][0]
-                vals[obj.id] = qty
+            qty=0
+            for bal in get_model("stock.balance").search_browse([["product_id","=",obj.product_id.id],["location_id","=",obj.location_id.id]]):
+                qty+=bal.qty_virt
+            vals[obj.id]=qty
         return vals
 
 ProductLocation.register()

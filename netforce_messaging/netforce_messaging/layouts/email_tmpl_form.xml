@@ -20,6 +20,9 @@
             <newline/>
             <field name="related"/>
         </tab>
+        <tab string="Other">
+            <field name="body" width="800" height="400"/>
+        </tab>
     </tabs>
     <related>
         <field name="comments"/>

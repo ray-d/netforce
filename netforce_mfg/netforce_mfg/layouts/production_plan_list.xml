@@ -9,7 +9,7 @@
     <field name="date_to"/>
     <field name="plan_qty"/>
     <field name="uom_id"/>
-    <field name="location_id"/>
+    <field name="bom_id"/>
     <field name="priority"/>
     <field name="state"/>
     <field name="actual_qty"/>

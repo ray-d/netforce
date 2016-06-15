@@ -21,6 +21,7 @@
 from netforce.model import Model, fields, get_model
 from netforce.utils import get_data_path
 from netforce.database import get_connection
+from datetime import *
 import time
 
 
@@ -52,7 +53,25 @@ class SaleForecast(Model):
         "actual_qty": fields.Decimal("Actual Sale Qty", function="get_actual_qty"),
     }
     _order = "date_to"
+
+    def _get_number(self, context={}):
+        seq_id = get_model("sequence").find_sequence(type="sale_forecast",context=context)
+        if not seq_id:
+            return None
+        while 1:
+            num = get_model("sequence").get_next_number(seq_id, context=context)
+            if not num:
+                return None
+            user_id = access.get_active_user()
+            access.set_active_user(1)
+            res = self.search([["number", "=", num]])
+            access.set_active_user(user_id)
+            if not res:
+                return num
+            get_model("sequence").increment_number(seq_id, context=context)
+
     _defaults = {
+        "number": _get_number,
         "state": "open",
     }
 
@@ -149,5 +168,27 @@ class SaleForecast(Model):
                 "state": "open",
             }
             self.create(vals)
+
+    def copy_to_production_plan(self,ids,context={}):
+        n=0
+        for obj in self.browse(ids):
+            d=datetime.strptime(obj.date_from,"%Y-%m-%d")-timedelta(days=obj.product_id.mfg_lead_time or 0)
+            mfg_date=d.strftime("%Y-%m-%d")
+            res=get_model("bom").search([["product_id","=",obj.product_id.id]])
+            if not res:
+                raise Exception("BoM not found for product %s"%obj.product_id.code)
+            bom_id=res[0]
+            vals={
+                "product_id": obj.product_id.id,
+                "date_from": mfg_date,
+                "date_to": mfg_date,
+                "plan_qty": obj.plan_qty,
+                "uom_id": obj.uom_id.id,
+                "bom_id": bom_id,
+            }
+            n+=get_model("production.plan").create(vals)
+        return {
+            "flash": "%d production plans created from sales forecast"%n,
+        }
 
 SaleForecast.register()
