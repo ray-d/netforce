@@ -67,10 +67,11 @@ class CreditAlloc(Model):
                 "journal_id": cred.journal_id.id,
                 "date": obj.date,
                 "narration": desc,
+                "related_id": "account.invoice,%d"%inv.id,
                 "lines": [],
             }
             move_id = get_model("account.move").create(move_vals)
-            cur_total = get_model("currency").convert(obj.amount, cred.currency_id.id, settings.currency_id.id)
+            cur_total = get_model("currency").convert(obj.amount, cred.currency_id.id, settings.currency_id.id, rate=cred.currency_rate)
             if inv.type == "in":
                 sign = 1
             else:
