@@ -1036,7 +1036,6 @@ class Invoice(Model):
             "number": inv.number or "-",
             "ref": inv.ref or "-",
             "memo": inv.memo or "",
-            "amount_total_words": inv.amount_total_words,
             "lines": [],
         }
         if settings.logo:
