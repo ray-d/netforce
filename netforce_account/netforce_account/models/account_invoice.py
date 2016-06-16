@@ -891,6 +891,8 @@ class Invoice(Model):
                 "sale_id": line.sale_id.id,
                 "purch_id": line.purch_id.id,
                 "amount": line.amount,
+                "track_id": line.track_id.id,
+                "track2_id": line.track2_id.id,
             }
             vals["lines"].append(("create", line_vals))
         new_id = self.create(vals, context={"type": vals["type"], "inv_type": vals["inv_type"]})
