@@ -22,14 +22,15 @@
                 <field name="bill_address_id" span="2" condition='[["contact_id", "=", contact_id], ["contact_id", "!=", null]]'/>
                 <field name="date" span="2" onchange="onchange_date"/>
                 <field name="number" span="2"/>
+                <field name="due_date" span="2"/>
                 <field name="ref" span="2"/>
-                <field name="related_id" span="2"/>
                 <newline/>
                 <field name="currency_id" span="2"/>
                 <field name="tax_type" span="2" onchange="update_amounts"/>
                 <field name="memo" span="2"/>
                 <field name="tax_no" span="2"/>
                 <field name="tax_branch_no" span="2"/>
+                <field name="related_id" span="2"/>
             </group>
             <field name="lines" count="10" nolabel="1">
                 <list onchange="update_amounts">
@@ -40,6 +41,8 @@
                     <field name="unit_price" onchange="update_amounts"/>
                     <field name="account_id" condition='[["type","!=","view"]]'/>
                     <field name="tax_id" onchange="update_amounts"/>
+                    <field name="track_id"/>
+                    <field name="track2_id"/>
                     <field name="amount"/>
                 </list>
             </field>

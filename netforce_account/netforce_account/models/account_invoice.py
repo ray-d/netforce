@@ -839,6 +839,8 @@ class Invoice(Model):
                 "unit_price": line.unit_price,
                 "tax_id": line.tax_id.id,
                 "account_id": line.account_id.id,
+                "track_id": line.track_id.id,
+                "track2_id": line.track2_id.id,
                 "sale_id": line.sale_id.id,
                 "purch_id": line.purch_id.id,
                 "amount": line.amount,
