@@ -601,7 +601,9 @@ class Payment(Model):
                         total_over += get_model("currency").convert(over_amt, inv.currency_id.id,
                                                                     settings.currency_id.id, rate=inv.currency_rate)
                     pay_ratio = inv_pay_amt / inv.amount_total
-                    cur_inv_amt=abs(inv.move_id.lines[0].debit-inv.move_id.lines[0].credit)*pay_ratio # to avoid rounding issue (in invoice convert currency separately for each line)
+                    cur_inv_amt=inv_pay_amt
+                    if inv.move_id:
+                        cur_inv_amt=abs(inv.move_id.lines[0].debit-inv.move_id.lines[0].credit)*pay_ratio # to avoid rounding issue (in invoice convert currency separately for each line)
                     if inv.type == "in":
                         amt = cur_inv_amt
                     else:
