@@ -43,8 +43,9 @@ def get_totals(date_from, date_to, product_id=None, lot_id=None, location_id=Non
         q += " AND m.lot_id=%s"
         q_args.append(lot_id)
     if location_id:
-        q += " AND (m.location_from_id=%s OR m.location_to_id=%s)"
-        q_args += [location_id, location_id]
+        loc_ids=get_model('stock.location').search(['id','child_of',location_id])
+        q += " AND (m.location_from_id in %s OR m.location_to_id in %s)"
+        q_args += [tuple(loc_ids), tuple(loc_ids)]
     if container_id:
         q += " AND (m.container_from_id=%s OR m.container_to_id=%s)"
         q_args += [container_id, container_id]
@@ -125,6 +126,7 @@ class ReportStockSummary(Model):
         t1 = time.time()
         print("get totals in %.3f s" % (t1-t0))
         prod_locs = set([])
+        print("OK ", len(totals['open']), len(totals['period']), len(totals['close']))
         for prod_id, lot_id, loc_from_id, cont_from_id, loc_to_id, cont_to_id in list(totals["open"].keys()) + list(totals["period"].keys()) + list(totals["close"].keys()):
             if not params.get("show_lot"):
                 lot_id = -1
@@ -186,6 +188,7 @@ class ReportStockSummary(Model):
                 "uom_name": prod.uom_id.name,
             }
         locs = {}
+        print("yes ", len(loc_ids))
         for loc in get_model("stock.location").browse(loc_ids):
             locs[loc.id]={
                 "name": loc.name,
@@ -207,6 +210,11 @@ class ReportStockSummary(Model):
 
         lines = []
         print("num prod_locs", len(prod_locs))
+
+        # if search location is view, get all child ids
+        search_loc = get_model("stock.location").browse(params["location_id"])
+        if search_loc.type == "view":
+            child_loc_ids=get_model('stock.location').search(['id','child_of',params["location_id"]])
         for prod_id, lot_id, loc_id, cont_id in prod_locs:
             if loc_id not in perm_loc_ids:
                 continue
@@ -214,7 +222,9 @@ class ReportStockSummary(Model):
                 continue
             if params.get("lot_id") and lot_id != params["lot_id"]:
                 continue
-            if params.get("location_id") and loc_id != params["location_id"]:
+            if params.get("location_id") and loc_id != params["location_id"] and search_loc.type != "view":
+                continue
+            if search_loc.type == "view" and loc_id not in child_loc_ids:
                 continue
             if params.get("container_id") and cont_id != params["container_id"]:
                 continue
