@@ -402,7 +402,7 @@ class PurchaseOrder(Model):
                 "unit_price": line.unit_price,
                 "account_id": purch_acc_id,
                 "tax_id": line.tax_id.id,
-                "amount": line.amount,
+                "amount": remain_qty*line.unit_price,
             }
             inv_vals["lines"].append(("create", line_vals))
         if not inv_vals["lines"]:
