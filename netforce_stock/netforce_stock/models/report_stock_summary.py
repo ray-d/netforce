@@ -212,9 +212,11 @@ class ReportStockSummary(Model):
         print("num prod_locs", len(prod_locs))
 
         # if search location is view, get all child ids
-        search_loc = get_model("stock.location").browse(params["location_id"])
-        if search_loc.type == "view":
-            child_loc_ids=get_model('stock.location').search(['id','child_of',params["location_id"]])
+        search_loc=None
+        if params.get("location_id"):
+            search_loc = get_model("stock.location").browse(params["location_id"])
+            if search_loc.type == "view":
+                child_loc_ids=get_model('stock.location').search(['id','child_of',params["location_id"]])
         for prod_id, lot_id, loc_id, cont_id in prod_locs:
             if loc_id not in perm_loc_ids:
                 continue
@@ -224,7 +226,7 @@ class ReportStockSummary(Model):
                 continue
             if params.get("location_id") and loc_id != params["location_id"] and search_loc.type != "view":
                 continue
-            if search_loc.type == "view" and loc_id not in child_loc_ids:
+            if search_loc and search_loc.type == "view" and loc_id not in child_loc_ids:
                 continue
             if params.get("container_id") and cont_id != params["container_id"]:
                 continue
