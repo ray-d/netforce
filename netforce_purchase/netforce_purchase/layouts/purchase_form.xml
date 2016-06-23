@@ -8,8 +8,8 @@
             <item string="Copy To Supplier Invoice" method="copy_to_invoice" states="confirmed"/>
             <item string="Copy" method="copy"/>
             <divider/>
-            <item string="To Draft" method="to_draft" states="confirmed,done"/>
-            <item string="Void" method="void" confirm="Are you sure you want to void this purchase order?" states="confirmed,done"/>
+            <item string="To Draft" method="to_draft" states="confirmed,done" perm="draft_purchase_order"/>
+            <item string="Void" method="void" confirm="Are you sure you want to void this purchase order?" states="confirmed,done" perm="void_purchase_order"/>
         </button>
     </head>
     <tabs>

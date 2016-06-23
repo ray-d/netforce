@@ -530,6 +530,9 @@ class Payment(Model):
             line_vals["move_id"] = move_id
             if not line_vals.get("description",""):
                 line_vals["description"] = desc
+            # prepayment must have contact for aging balance
+            # if obj.pay_type == "prepay":
+                # line_vals["contact_id"]=obj.contact_id.id
             get_model("account.move.line").create(line_vals)
 
         taxes = {}

@@ -168,6 +168,7 @@ class CreditAlloc(Model):
                     "account_id": acc_id,
                     "credit": amt > 0 and amt or 0,
                     "debit": amt < 0 and -amt or 0,
+                    "contact_id": contact.id,
                     "track_id": line.track_id.id,
                 }
                 lines.append(line_vals)

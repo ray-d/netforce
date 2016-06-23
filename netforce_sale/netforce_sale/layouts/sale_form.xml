@@ -15,8 +15,8 @@
             <item string="Copy Estimated Costs To Purchase Orders" method="copy_cost_to_purchase"/>
             <item string="Copy To Production Orders" method="copy_to_production"/>
             <item string="Copy To Service Order" method="copy_to_job"/>
-            <item string="To Draft" method="to_draft"/>
-            <item string="Void" method="void" confirm="Are you sure you want to void this sales order?" states="confirmed,done"/>
+            <item string="To Draft" method="to_draft" perm="draft_sale_order"/>
+            <item string="Void" method="void" confirm="Are you sure you want to void this sales order?" states="confirmed,done" perm="void_sale_order"/>
             <divider/>
             <item string="Create Estimated Costs" method="create_est_costs"/>
             <item string="Create Tracking Codes" method="create_track"/>
