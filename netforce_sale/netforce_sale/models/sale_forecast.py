@@ -186,7 +186,8 @@ class SaleForecast(Model):
                 "uom_id": obj.uom_id.id,
                 "bom_id": bom_id,
             }
-            n+=get_model("production.plan").create(vals)
+            get_model("production.plan").create(vals)
+            n+=1
         return {
             "flash": "%d production plans created from sales forecast"%n,
         }

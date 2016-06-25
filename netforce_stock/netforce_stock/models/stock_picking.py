@@ -69,7 +69,7 @@ class Picking(Model):
         "product_id2": fields.Many2One("product","Product",store=False,function_search="search_product2",search=True), #XXX ICC
         "sequence": fields.Decimal("Sequence",function="_get_related",function_context={"path":"ship_address_id.sequence"}),
         "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
-        "ship_state": fields.Selection([["wait_pick","Waiting Pickup"],["in_transit","In Transit"],["delivered","Delivered"]],"Shipping Status"),
+        "ship_state": fields.Selection([["wait_pick","Waiting Pickup"],["in_transit","In Transit"],["delivered","Delivered"],["error","Can not deliver"]],"Shipping Status"),
         "from_coords": fields.Char("Source Coordinates",function="get_from_coords"),
         "to_coords": fields.Char("Destination Coordinates",function="get_to_coords"),
     }

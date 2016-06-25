@@ -108,7 +108,15 @@ class EcomInterface(Model):
         print("Ecom2Interface.add_request_product_group",contact_id,prod_group_id)
         #contact_id=context.get("contact_id")
         contact=get_model("contact").browse(contact_id)
-        contact.write({"request_product_groups":[("add",[prod_group_id])]})
+        if len(contact.request_product_groups) >=3:
+            raise Exception("Maximum 3 ")
+        update = True
+        for group in contact.request_product_groups:
+            print("group",group.id)
+            if group.id == prod_group_id:
+                update = False
+        if update:
+            contact.write({"request_product_groups":[("add",[prod_group_id])]})
 
     def remove_request_product_groups(self,contact_id,prod_group_id,context={}):
         print("Ecom2Interface.remove_request_product_group",contact_id,prod_group_id)
@@ -120,7 +128,15 @@ class EcomInterface(Model):
         print("Ecom2Interface.exclude_product_groups",contact_id,prod_group_id)
         #contact_id=context.get("contact_id")
         contact=get_model("contact").browse(contact_id)
-        contact.write({"exclude_product_groups":[("add",[prod_group_id])]})
+        if len(contact.exclude_product_groups) >=3:
+            raise Exception("Maximum 3 ")
+        update = True
+        for group in contact.exclude_product_groups:
+            print("group",group.id)
+            if group.id == prod_group_id:
+                update = False
+        if update:
+            contact.write({"exclude_product_groups":[("add",[prod_group_id])]})
 
     def remove_exclude_product_groups(self,contact_id,prod_group_id,context={}):
         print("Ecom2Interface.remove_request_product_group",contact_id,prod_group_id)
