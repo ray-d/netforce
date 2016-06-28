@@ -269,7 +269,7 @@ class Payment(Model):
                                     for comp_id, tax_amt in tax_comps.items():
                                         comp = get_model("account.tax.component").browse(comp_id)
                                         if comp.type == "vat":
-                                            inv_vat += tax_amt
+                                            inv_vat += get_model("currency").round(obj.currency_id.id, tax_amt)
                                         elif comp.type == "wht":
                                             inv_wht -= tax_amt
                                 else:
@@ -298,8 +298,8 @@ class Payment(Model):
                                     subtotal -= base_amt
                         elif inv.inv_type == "overpay":
                             subtotal += line.amount
-                    inv_vat = get_model("currency").round(obj.currency_id.id, inv_vat)
-                    inv_wht = get_model("currency").round(obj.currency_id.id, inv_wht)
+                    # inv_vat = get_model("currency").round(obj.currency_id.id, inv_vat)
+                    # inv_wht = get_model("currency").round(obj.currency_id.id, inv_wht)
                     vat += inv_vat
                     wht += inv_wht
                     total += line.amount
@@ -1249,7 +1249,8 @@ class Payment(Model):
             data["journal_id"] = contact.pay_in_journal_id.id
         elif data["type"] == "out":
             data["journal_id"] = contact.pay_out_journal_id.id
-        self.onchange_journal(context=context)
+        if data["journal_id"]:
+            self.onchange_journal(context=context)
         return data
 
     def onchange_journal(self, context={}):
