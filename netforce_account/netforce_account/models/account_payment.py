@@ -269,7 +269,7 @@ class Payment(Model):
                                     for comp_id, tax_amt in tax_comps.items():
                                         comp = get_model("account.tax.component").browse(comp_id)
                                         if comp.type == "vat":
-                                            inv_vat += get_model("currency").round(obj.currency_id.id, tax_amt)
+                                            inv_vat += tax_amt
                                         elif comp.type == "wht":
                                             inv_wht -= tax_amt
                                 else:
@@ -298,7 +298,7 @@ class Payment(Model):
                                     subtotal -= base_amt
                         elif inv.inv_type == "overpay":
                             subtotal += line.amount
-                    # inv_vat = get_model("currency").round(obj.currency_id.id, inv_vat)
+                    inv_vat = get_model("currency").round(obj.currency_id.id, inv_vat)
                     # inv_wht = get_model("currency").round(obj.currency_id.id, inv_wht)
                     vat += inv_vat
                     wht += inv_wht
@@ -641,6 +641,9 @@ class Payment(Model):
                             tax_comps = get_model("account.tax.rate").compute_taxes(
                                 tax.id, base_amt, when="invoice_payment_inv")
                             for comp_id, tax_amt in tax_comps.items():
+                                if inv.inv_type == "credit":
+                                    base_amt = base_amt*-1 # base amount is positive so we have to use abs to deduct base amount
+                                    tax_amt = abs(tax_amt) # tax amount is negative so we have to use abs to deduct tax amount
                                 if comp_id in inv_taxes:
                                     tax_vals = inv_taxes[comp_id]
                                     tax_vals["amount_base"] += base_amt
@@ -659,6 +662,9 @@ class Payment(Model):
                             tax_comps = get_model("account.tax.rate").compute_taxes(
                                 tax.id, base_amt, when="invoice_payment_pmt")
                             for comp_id, tax_amt in tax_comps.items():
+                                if inv.inv_type == "credit":
+                                    base_amt = base_amt*-1 # base amount is positive so we have to use abs to deduct base amount
+                                    tax_amt = abs(tax_amt) # tax amount is negative so we have to use abs to deduct tax amount
                                 if comp_id in inv_taxes:
                                     tax_vals = inv_taxes[comp_id]
                                     tax_vals["amount_base"] += base_amt
