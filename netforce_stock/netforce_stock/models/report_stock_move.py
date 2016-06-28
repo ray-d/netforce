@@ -134,6 +134,8 @@ class ReportStockMove(Model):
             "location_from": obj.location_from_id.name,
             "qty": obj.qty,
             "uom": obj.uom_id.name,
+            "cost_price": obj.cost_price,
+            "cost_amount": obj.cost_amount,
             "location_to": obj.location_to_id.name,
             "qty2": obj.qty2,
             "container_from": obj.container_from_id.number,
