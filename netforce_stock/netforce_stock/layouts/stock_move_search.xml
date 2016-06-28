@@ -1,5 +1,6 @@
 <search model="stock.move">
     <field name="date"/>
+    <field name="number"/>
     <field name="location_from_id" select="1"/>
     <field name="location_to_id" select="1"/>
     <field name="journal_id"/>
