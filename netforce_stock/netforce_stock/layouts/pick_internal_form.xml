@@ -21,7 +21,7 @@
         <tab string="General">
             <field name="type" invisible="1"/>
             <group form_layout="stacked">
-                <field name="journal_id" span="2" onchange="onchange_journal"/>
+                <field name="journal_id" span="2" onchange="onchange_journal" condition='[["sequence_id.type","=","pick_internal"]]'/>
                 <field name="number" span="2"/>
                 <field name="date" onchange="onchange_date" span="2"/>
                 <newline/>
