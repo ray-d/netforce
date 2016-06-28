@@ -5,6 +5,7 @@
             Allocate oustanding credit to <a href="#name=view_invoice&amp;active_id={{context.data.invoice_id.0.}}"> {{context.data.invoice_id.1.}}</a>
         </h5>
     </template>
+    <field name="date"/>
     <field name="lines" nolabel="1">
         <list>
             <field name="credit_id" action="view_invoice"/>
