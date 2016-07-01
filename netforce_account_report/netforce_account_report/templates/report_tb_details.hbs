@@ -14,9 +14,11 @@
             <th>
                 Account
             </th>
-            <th>
-                Contact
-            </th>
+            {{#if show_contact}}
+                <th>
+                    Contact
+                </th>
+            {{/if}}
             <th>
                 Tracking
             </th>
@@ -49,9 +51,11 @@
                 <td>
                     {{account_code}} - {{account_name}}
                 </td>
-                <td>
-                    {{contact_name}}
-                </td>
+                {{#if ../show_contact}}
+                    <td>
+                        {{contact_name}}
+                    </td>
+                {{/if}}
                 <td>
                     {{track_code}}
                 </td>
@@ -117,7 +121,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <th colspan="4">
+            <th colspan="{{#if show_contact}}4{{else}}3{{/if}}">
                 Totals
             </th>
             <th style="text-align:right">

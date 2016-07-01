@@ -25,8 +25,7 @@ from pprint import pprint
 from netforce.access import get_active_company
 from netforce.database import get_connection
 
-
-def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, track2_id=None, contact_id=None, acc_type=None):
+def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, track2_id=None, contact_id=None, acc_type=None, account_id=None ,hide_contact=None, hide_zero=None):
     pl_types = ("revenue", "other_income", "cost_sales", "expense", "other_expense")
     db = get_connection()
     q = "SELECT l.account_id,l.contact_id,l.track_id,l.track2_id,SUM(l.debit) AS total_debit,SUM(l.credit) AS total_credit FROM account_move_line l JOIN account_move m ON m.id=l.move_id JOIN account_account a ON a.id=l.account_id WHERE m.state='posted'"
@@ -49,6 +48,9 @@ def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, 
     if contact_id:
         q += " AND l.contact_id=%s"
         args.append(contact_id)
+    if account_id:
+        q += " AND l.account_id=%s"
+        args.append(account_id)
     if acc_type == "pl":
         q += " AND a.type IN %s"
         args.append(pl_types)
@@ -69,7 +71,6 @@ def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, 
         })
     return totals
 
-
 class ReportTBDetails(Model):
     _name = "report.tb.details"
     _transient = True
@@ -78,6 +79,9 @@ class ReportTBDetails(Model):
         "track_id": fields.Many2One("account.track.categ", "Tracking"),
         "track2_id": fields.Many2One("account.track.categ", "Tracking-2"),
         "contact_id": fields.Many2One("contact", "Contact"),
+        "account_id": fields.Many2One("account.account", "Account"),
+        "hide_contact": fields.Boolean("Hide Contact"),
+        "hide_zero": fields.Boolean("Hide Zero Lines"),
     }
 
     _defaults = {
@@ -86,6 +90,7 @@ class ReportTBDetails(Model):
 
     def get_report_data(self, ids, context={}):
         company_id = get_active_company()
+        is_show_contact=True
         comp = get_model("company").browse(company_id)
         if ids:
             params = self.read(ids, load_m2o=False)[0]
@@ -98,22 +103,32 @@ class ReportTBDetails(Model):
         track_id = params.get("track_id")
         track2_id = params.get("track2_id")
         contact_id = params.get("contact_id")
+        account_id = params.get("account_id")
+        hide_contact = params.get("hide_contact")
+        hide_zero = params.get("hide_zero")
         month_date_from = datetime.strptime(date_to, "%Y-%m-%d").strftime("%Y-%m-01")
         month_begin_date_to = (
             datetime.strptime(date_to, "%Y-%m-%d") + relativedelta(day=1) - timedelta(days=1)).strftime("%Y-%m-%d")
         year_date_from = get_model("settings").get_fiscal_year_start(date_to)
+
         totals_begin_bs = get_totals(date_from=None, date_to=month_begin_date_to,
-                                     track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="bs")
+                                     track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="bs",
+                                     account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_begin_pl = get_totals(date_from=year_date_from, date_to=month_begin_date_to,
-                                     track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl")
+                                     track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl",
+                                     account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_period = get_totals(
-            date_from=month_date_from, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id)
+            date_from=month_date_from, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id,
+            account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_ytd_bs = get_totals(
-            date_from=None, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="bs")
+            date_from=None, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="bs",
+            account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_ytd_pl = get_totals(
-            date_from=year_date_from, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl")
+            date_from=year_date_from, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl",
+            account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_pl_prev = get_totals(date_from=None, date_to=year_date_from, excl_date_to=True,
-                                    track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl")
+                                    track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl",
+                                    account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals = {}
         for tot in totals_begin_bs:
             k = (tot["account_id"], tot["contact_id"], tot["track_id"], tot["track2_id"])
@@ -147,7 +162,8 @@ class ReportTBDetails(Model):
             vals["ytd_credit"] = amt < 0 and -amt or 0
         settings = get_model("settings").browse(1)
         ret_acc_id = settings.retained_earnings_account_id.id
-        if ret_acc_id:
+        #if ret_acc_id:
+        if not params.get("account_id") and not params.get("contact_id") and ret_acc_id: ##
             ret_amt = 0
             for tot in totals_pl_prev:
                 ret_amt += tot["debit"] - tot["credit"]
@@ -164,6 +180,9 @@ class ReportTBDetails(Model):
             vals["no_link"] = True
         lines = []
         for (account_id, contact_id, track_id, track2_id), vals in totals.items():
+            ## check zero line
+            if hide_zero and vals.get("begin_debit", 0) == 0 and vals.get("begin_credit", 0) == 0 and vals.get("period_debit", 0) == 0 and vals.get("period_credit", 0) == 0 and vals.get("ytd_debit", 0) == 0 and vals.get("ytd_credit", 0) == 0:
+                continue
             lines.append({
                 "account_id": account_id,
                 "contact_id": contact_id,
@@ -200,6 +219,67 @@ class ReportTBDetails(Model):
             line["contact_name"] = contact.name if contact else None
             line["track_code"] = track.code if track else None
             line["track2_code"] = track2.code if track2 else None
+        ## group line contact
+        if hide_contact:
+            group={}
+            lines_con=[]
+            for line_con in lines:
+                key=(line_con["account_id"],line_con["track_id"])
+                if not group.get(key):
+                    group[key]=[]
+                group[key].append({
+                      'account_code': line_con["account_code"],
+                      'account_id': line_con["account_id"],
+                      'account_name': line_con["account_name"],
+                      'begin_credit': line_con["begin_credit"],
+                      'begin_debit': line_con["begin_debit"],
+                      'contact_id': line_con["contact_id"],
+                      'contact_name': line_con["contact_name"],
+                      'no_link': line_con["no_link"],
+                      'period_credit': line_con["period_credit"],
+                      'period_debit': line_con["period_debit"],
+                      'track2_code': line_con["track2_code"],
+                      'track2_id': line_con["track2_id"],
+                      'track_code': line_con["track_code"],
+                      'track_id': line_con["track_id"],
+                      'ytd_credit': line_con["ytd_credit"],
+                      'ytd_debit': line_con["ytd_debit"],
+                })
+            for key,vals in group.items():
+                begin_credit=0
+                begin_debit=0
+                period_credit=0
+                period_debit=0
+                ytd_credit=0
+                ytd_debit=0
+                for qty in vals:
+                    begin_credit+=qty["begin_credit"]
+                    begin_debit+=qty["begin_debit"]
+                    period_credit+=qty["period_credit"]
+                    period_debit+=qty["period_debit"]
+                    ytd_credit+=qty["ytd_credit"]
+                    ytd_debit+=qty["ytd_debit"]
+                line_vals={
+                      'account_code': vals[0]["account_code"],
+                      'account_id': vals[0]["account_id"],
+                      'account_name': vals[0]["account_name"],
+                      'begin_credit': begin_credit,
+                      'begin_debit': begin_debit,
+                      'contact_id': None,
+                      'contact_name': None,
+                      'no_link': vals[0]["no_link"],
+                      'period_credit': period_credit,
+                      'period_debit': period_debit,
+                      'track2_code': vals[0]["track2_code"],
+                      'track2_id': vals[0]["track2_id"],
+                      'track_code': vals[0]["track_code"],
+                      'track_id': vals[0]["track_id"],
+                      'ytd_credit': ytd_credit,
+                      'ytd_debit': ytd_debit,
+                }
+                lines_con.append(line_vals)
+            lines=lines_con
+            is_show_contact = False
         lines.sort(
             key=lambda l: (l["account_code"], l["contact_name"] or "", l["track_code"] or "", l["track2_code"] or ""))
         totals = {
@@ -217,6 +297,7 @@ class ReportTBDetails(Model):
             "month_begin_date_to": month_begin_date_to,
             "lines": lines,
             "totals": totals,
+            "show_contact" : is_show_contact,
         }
         return data
 
