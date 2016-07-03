@@ -169,6 +169,11 @@ class TaxRate(Model):
                 tax = -tax
             elif comp.type == "vat_defer" and when in ("invoice_payment", "invoice_payment_inv"):
                 tax = -tax
+            ## conversion to float for round right
+            ## and conversion back to Decimal
+            ## XXX: check function
+            float_tax=round(float(tax),2)
+            tax=Decimal(str(float_tax))
             comps[comp.id] = tax
         return comps
 
