@@ -163,7 +163,7 @@ class ReportTBDetails(Model):
         settings = get_model("settings").browse(1)
         ret_acc_id = settings.retained_earnings_account_id.id
         #if ret_acc_id:
-        if not params.get("account_id") and not params.get("contact_id") and ret_acc_id: ##
+        if not params.get("account_id") and not params.get("contact_id") and not params.get("track_id") and not params.get("track2_id") and ret_acc_id: ##
             ret_amt = 0
             for tot in totals_pl_prev:
                 ret_amt += tot["debit"] - tot["credit"]
