@@ -131,6 +131,9 @@ class Picking(Model):
         for obj in self.browse(ids):
             for line in obj.lines:
                 move_ids.append(line.id)
+            for move in get_model("account.move").search_browse([["related_id","=","stock.picking,%d"%obj.id]]):
+                move.void()
+                move.delete()
         get_model("stock.move").delete(move_ids)  # to update stored functions
         super().delete(ids, **kw)
 
