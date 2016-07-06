@@ -6,46 +6,35 @@
         {{company_name}}
     </h3>
 </center>
-<style>
-tr.nf-below-min td {
-    /*background-color: #fcc !important;*/
-}
-</style>
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th style="width:20px"><input type="checkbox" class="nf-select-all"/></th>
             <th>Product Code</th>
             <th>Product Name</th>
-            <th>Planning Horizon (days)</th>
-            <th>Planned Qty Within Horizon</th>
-            <th>Planned Qty Unlimited</th>
-            <th>Minimum Stock</th>
-            <th>Required Qty</th>
+            <th>Forecast Qty In {{plan_horizon}} days</th>
+            <th>Minimum Qty</th>
+            <th>Missing Qty</th>
             <th>Stock UoM</th>
-            <th>Required Date</th>
             <th>Order Qty</th>
             <th>Order UoM</th>
-            <th>Order Date</th>
+            <th>Order Lead Time</th>
             <th>Supply Method</th>
             <th>Supplier Name</th>
         </tr>
     <tbody>
         {{#each lines context=context}}
-            <tr {{#if below_min}}class="nf-below-min"{{/if}}>
+            <tr>
                 <td><input type="checkbox" class="nf-prod-select" data-product-id="{{product_id}}"/></td>
                 <td><a href="#name=product&amp;mode=form&amp;active_id={{product_id}}">{{product_code}}</a></td>
                 <td>{{product_name}}</td>
-                <td>{{plan_days}}</td>
                 <td>{{plan_qty_horiz}}</td>
-                <td>{{plan_qty_unlim}}</td>
                 <td>{{min_qty}}</td>
                 <td>{{req_qty}}</td>
                 <td>{{stock_uom_name}}</td>
-                <td>{{req_date}}</td>
                 <td>{{order_qty}}</td>
                 <td>{{order_uom_name}}</td>
-                <td>{{order_date}}</td>
+                <td>{{order_lead_time}}</td>
                 <td>{{supply_method}}</td>
                 <td>{{supplier_name}}</td>
             </tr>

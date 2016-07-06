@@ -81,6 +81,7 @@ class EmailMessage(Model):
         "open_detect": fields.Boolean("Open Detect", function="get_open_detect"),
         "num_attach": fields.Integer("# Attach.", function="get_num_attach"),
         "error_message": fields.Text("Error Message"),
+        "template_id": fields.Many2One("email.template","Email Template"),
     }
     _order = "date desc"
 

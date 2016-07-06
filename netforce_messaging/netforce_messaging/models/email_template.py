@@ -42,6 +42,7 @@ class Template(Model):
     }
 
     def create_email(self, ids, data={}, name_id=None, related_id=None, mailbox_id=None, context={}):
+        print("EmailTemplate.create_email",ids)
         obj = self.browse(ids)[0]
         try:
             from_addr = render_template(obj.from_addr or "", data)
@@ -56,6 +57,8 @@ class Template(Model):
                 cc_addrs = render_template(obj.cc_addrs or "", data)
             except:
                 raise Exception("Failed to render 'Cc Addresses' in template: %s" % obj.name)
+        else:
+                cc_addrs=None
         try:
             subject = render_template(obj.subject, data)
         except:
@@ -69,6 +72,13 @@ class Template(Model):
                 related_id = render_template(obj.related or "", data)
             except:
                 raise Exception("Failed to render 'Related To' in template: %s" % obj.name)
+        if obj.contact and not name_id:
+            try:
+                name_id = render_template(obj.contact or "", data)
+            except:
+                raise Exception("Failed to render 'Contact' in template: %s" % obj.name)
+        else:
+            name_id=None
         attachments = []
         if obj.attachments:
             try:
@@ -88,13 +98,16 @@ class Template(Model):
             "date": time.strftime("%Y-%m-%d %H:%M:%S"),
             "from_addr": from_addr,
             "to_addrs": to_addrs,
+            "cc_addrs": cc_addrs,
             "subject": subject,
             "body": body,
             "state": "to_send",
             "attachments": attachments,
             "name_id": name_id,
             "related_id": related_id,
+            "template_id": obj.id,
         }
+        print("vals",vals)
         if mailbox_id:
             vals["mailbox_id"] = mailbox_id
         email_id = get_model("email.message").create(vals)

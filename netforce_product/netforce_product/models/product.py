@@ -157,7 +157,7 @@ class Product(Model):
         "approve_date": fields.DateTime("Approve Date"),
         "service_items": fields.One2Many("service.item","product_id","Service Items"),
         "lots": fields.One2Many("stock.lot","product_id","Lots"),
-        "stock_plan_horizon": fields.Integer("Inventory Planning Horizon (days)"),
+        "stock_plan_horizon": fields.Integer("Inventory Planning Horizon (days)"), # XXX: deprecated
         "ecom_hide_qty": fields.Boolean("Hide Stock Qty From Website"),
         "ecom_hide_unavail": fields.Boolean("Hide From Website When Out Of Stock"),
         "ecom_no_order_unavail": fields.Boolean("Prevent Orders When Out Of Stock"),

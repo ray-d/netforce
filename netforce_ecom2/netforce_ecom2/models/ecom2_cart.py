@@ -41,6 +41,7 @@ class Cart(Model):
         "ship_addresses": fields.Json("Shipping Addresses",function="get_ship_addresses"),
         "amount_voucher": fields.Decimal("Voucher Amount",function="get_amount_voucher",function_multi=True),
         "voucher_error_message": fields.Text("Voucher Error Message",function="get_amount_voucher",function_multi=True),
+        "free_ship_address": fields.Boolean("Is free Ship",function="free_ship_address"),
     }
     _order="date desc"
 
@@ -598,9 +599,16 @@ class Cart(Model):
     def update_date_delivery(self,ids,date,vals,context={}):
         print("cart.update_date_delivery",ids,date,vals)
         obj=self.browse(ids[0])
+        settings=get_model("ecom2.settings").browse(1)
         for line in obj.lines:
             if line.delivery_date==date:
                 line.write(vals)
+        for a in settings.extra_ship_addresses:
+            if a.id == vals['ship_address_id']:
+                print(">>>>>>>>>>>>>>>Free")
+                return {'free_ship':True}
+            print(">>>>>>>>>>>>>>>Not Free")
+        return {'free_ship':False}
 
     def empty_cart(self,ids,context={}):
         obj=self.browse(ids[0])
@@ -614,5 +622,17 @@ class Cart(Model):
         for line in obj.lines:
             if line.delivery_date and line.delivery_date<today:
                 raise Exception("Delivery date is in the past %s for product %s"%(line.delivery_date,line.product_id.name))
+
+    def free_ship_address(self,ids,context={}):
+        obj=self.browse(ids[0])
+        settings=get_model("ecom2.settings").browse(1)
+        data=[]
+        for a in settings.extra_ship_addresses:
+            if obj.ship_method_id:
+                data["is_free"]=False
+            else:
+                data["is_free"]=True
+            data.append(data)
+        return {obj.id: addrs}
 
 Cart.register()

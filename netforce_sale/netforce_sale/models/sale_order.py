@@ -796,11 +796,12 @@ class SaleOrder(Model):
                     continue
                 if line.production_id:
                     raise Exception("Production order already created for sales order %s, product %s"%(obj.number,prod.code))
-                if not obj.due_date:
+                due_date=line.due_date or obj.due_date
+                if due_date:
                     raise Exception("Missing due date in sales order %s"%obj.number)
                 if not prod.mfg_lead_time:
                     raise Exception("Missing manufacturing lead time in product %s"%prod.code)
-                k=(prod.id,obj.due_date)
+                k=(prod.id,due_date)
                 mfg_orders.setdefault(k,[]).append(line.id)
         for (prod_id,due_date),sale_line_ids in mfg_orders.items():
             prod=get_model("product").browse(prod_id)
