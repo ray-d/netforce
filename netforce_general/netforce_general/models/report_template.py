@@ -47,7 +47,7 @@ class ReportTemplate(Model):
             ["hr_expense", "HR Expense"],
             ["landed_cost","Landed Cost"],
             ["other", "Other"]], "Template Type", required=True, search=True),
-        "format": fields.Selection([["odt", "ODT (old)"], ["odt2", "ODT"], ["ods", "ODS"], ["docx", "DOCX (old)"], ["xlsx", "XLSX"], ["jrxml", "JRXML (old)"], ["jrxml2", "JRXML"]], "Template Format", required=True, search=True),
+        "format": fields.Selection([["odt", "ODT (old)"], ["odt2", "ODT"], ["ods", "ODS"], ["docx", "DOCX (old)"], ["xlsx", "XLSX"], ["jrxml", "JRXML (old)"], ["jrxml2", "JRXML"],["jsx","JSX"]], "Template Format", required=True, search=True),
         "file": fields.File("Template File"),
         "company_id": fields.Many2One("company", "Company"),
         "model_id": fields.Many2One("model", "Model"),
