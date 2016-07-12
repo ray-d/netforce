@@ -25,6 +25,7 @@ from pprint import pprint
 from netforce.access import get_active_company
 from netforce.database import get_connection
 
+
 def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, track2_id=None, contact_id=None, acc_type=None, account_id=None ,hide_contact=None, hide_zero=None):
     pl_types = ("revenue", "other_income", "cost_sales", "expense", "other_expense")
     db = get_connection()
@@ -82,6 +83,7 @@ class ReportTBDetails(Model):
         "account_id": fields.Many2One("account.account", "Account"),
         "hide_contact": fields.Boolean("Hide Contact"),
         "hide_zero": fields.Boolean("Hide Zero Lines"),
+        "hide_zero_ytd": fields.Boolean("Hide Zero Lines YTD"),
     }
 
     _defaults = {
@@ -106,11 +108,11 @@ class ReportTBDetails(Model):
         account_id = params.get("account_id")
         hide_contact = params.get("hide_contact")
         hide_zero = params.get("hide_zero")
+        hide_zero_ytd = params.get("hide_zero_ytd")
         month_date_from = datetime.strptime(date_to, "%Y-%m-%d").strftime("%Y-%m-01")
         month_begin_date_to = (
             datetime.strptime(date_to, "%Y-%m-%d") + relativedelta(day=1) - timedelta(days=1)).strftime("%Y-%m-%d")
         year_date_from = get_model("settings").get_fiscal_year_start(date_to)
-
         totals_begin_bs = get_totals(date_from=None, date_to=month_begin_date_to,
                                      track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="bs",
                                      account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
@@ -182,6 +184,8 @@ class ReportTBDetails(Model):
         for (account_id, contact_id, track_id, track2_id), vals in totals.items():
             ## check zero line
             if hide_zero and vals.get("begin_debit", 0) == 0 and vals.get("begin_credit", 0) == 0 and vals.get("period_debit", 0) == 0 and vals.get("period_credit", 0) == 0 and vals.get("ytd_debit", 0) == 0 and vals.get("ytd_credit", 0) == 0:
+                continue
+            if hide_zero_ytd and vals.get("ytd_debit", 0) == 0 and vals.get("ytd_credit", 0) == 0:
                 continue
             lines.append({
                 "account_id": account_id,

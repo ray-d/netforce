@@ -273,6 +273,7 @@ class Picking(Model):
 
     def onchange_date(self, context={}):
         data = context["data"]
+        self.onchange_currency(context)
         data = self.update_number(data)
         return data
 
