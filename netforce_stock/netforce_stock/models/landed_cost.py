@@ -62,6 +62,14 @@ class LandedCost(Model):
         "number": _get_number,
     }
 
+    def delete(self, ids, **kw):
+        for obj in self.browse(ids):
+            if obj.move_id:
+                move = get_model("account.move").browse(obj.move_id.id)
+                move.void()
+                move.delete()
+        super().delete(ids, **kw)
+
     def post(self, ids, context={}):
         settings=get_model("settings").browse(1)
         obj=self.browse(ids[0])

@@ -84,6 +84,7 @@ class ReportTBDetails(Model):
         "hide_contact": fields.Boolean("Hide Contact"),
         "hide_zero": fields.Boolean("Hide Zero Lines"),
         "hide_zero_ytd": fields.Boolean("Hide Zero Lines YTD"),
+        "show_net": fields.Boolean("Show Net"),
     }
 
     _defaults = {
@@ -109,6 +110,7 @@ class ReportTBDetails(Model):
         hide_contact = params.get("hide_contact")
         hide_zero = params.get("hide_zero")
         hide_zero_ytd = params.get("hide_zero_ytd")
+        show_net = params.get("show_net")
         month_date_from = datetime.strptime(date_to, "%Y-%m-%d").strftime("%Y-%m-01")
         month_begin_date_to = (
             datetime.strptime(date_to, "%Y-%m-%d") + relativedelta(day=1) - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -263,6 +265,20 @@ class ReportTBDetails(Model):
                     period_debit+=qty["period_debit"]
                     ytd_credit+=qty["ytd_credit"]
                     ytd_debit+=qty["ytd_debit"]
+                if show_net:
+                    sum_begin = abs(begin_credit - begin_debit)
+                    sum_period = abs(period_credit - period_debit)
+                    sum_ytd = abs(ytd_credit - ytd_debit)
+                    begin_credit = sum_begin if begin_credit > begin_debit else 0
+                    begin_debit = sum_begin if begin_credit < begin_debit else 0
+                    period_credit= sum_period if period_credit > period_debit else 0
+                    period_debit= sum_period if period_credit < period_debit else 0
+                    ytd_credit= sum_ytd if ytd_credit > ytd_debit else 0
+                    ytd_debit= sum_ytd if ytd_credit < ytd_debit else 0
+                    if hide_zero and begin_credit == 0 and begin_debit == 0 and period_credit == 0 and period_debit == 0 and ytd_credit == 0 and ytd_debit == 0:
+                        continue
+                    if hide_zero_ytd and ytd_credit == 0 and ytd_debit == 0:
+                        continue
                 line_vals={
                       'account_code': vals[0]["account_code"],
                       'account_id': vals[0]["account_id"],

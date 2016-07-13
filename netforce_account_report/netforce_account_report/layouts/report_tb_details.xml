@@ -9,5 +9,6 @@
         <field name="hide_contact" span="2"/>
         <field name="hide_zero" span="2"/>
         <field name="hide_zero_ytd" span="2"/>
+        <field name="show_net" span="2"/>
     </group>
 </form>
