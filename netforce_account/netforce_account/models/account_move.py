@@ -439,6 +439,8 @@ class Move(Model):
             "narration": obj.narration,
             "lines": [],
         }
+        if context.get("reverse_date"):
+            vals["date"] = context.get("reverse_date")
         for line in obj.lines:
             line_vals = {
                 "description": line.description,
