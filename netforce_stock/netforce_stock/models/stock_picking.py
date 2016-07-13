@@ -845,9 +845,10 @@ class Picking(Model):
 
     def onchange_currency(self,context={}):
         data=context['data']
-        currency_rate=get_model("currency").get_rate([data['currency_id']],date=data['date'],rate_type='buy',context=context) or 1
-        data['currency_rate']=currency_rate
-        data=self.update_cost_price(context)
+        if data.get('currency_id'):
+            currency_rate=get_model("currency").get_rate([data['currency_id']],date=data['date'],rate_type='buy',context=context) or 1
+            data['currency_rate']=currency_rate
+            data=self.update_cost_price(context)
         return data
 
     def onchange_rate(self,context={}):

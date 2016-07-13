@@ -16,7 +16,7 @@
         <tab string="General">
             <group form_layout="stacked">
                 <field name="location_id" span="2" condition='[["type","=","internal"]]'/>
-                <field name="date" span="2"/>
+                <field name="date" span="2" onchange="onchange_date"/>
                 <field name="number" span="2"/>
             </group>
             <field name="lines" nolabel="1">

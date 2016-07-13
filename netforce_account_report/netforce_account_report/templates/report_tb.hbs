@@ -85,6 +85,14 @@
                     <td style="border-top: 1px solid #999;{{#if padding}}padding-left:{{padding}}px{{/if}}">
                         {{string}}
                     </td>
+                    {{#if ../../show_all_tracking}}
+                        <td style="text-align:right;border-top: 1px solid #999">
+                            {{track_code}}
+                        </td>
+                        <td style="text-align:right;border-top: 1px solid #999">
+                            {{track2_code}}
+                        </td>
+                    {{/if}}
                     <td style="text-align:right;border-top: 1px solid #999">
                         {{currency debit_begin zero=""}}
                     </td>

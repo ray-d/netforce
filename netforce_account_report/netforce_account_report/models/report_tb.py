@@ -24,7 +24,6 @@ from dateutil.relativedelta import *
 from pprint import pprint
 from netforce.access import get_active_company
 
-
 class ReportTB(Model):
     _name = "report.tb"
     _transient = True
@@ -33,7 +32,9 @@ class ReportTB(Model):
         "track_id": fields.Many2One("account.track.categ", "Tracking"),
         "track2_id": fields.Many2One("account.track.categ", "Tracking-2"),
         "contact_id": fields.Many2One("contact", "Contact"),
+        "account_id": fields.Many2One("account.account", "Account"),
         "show_period_totals": fields.Boolean("Show Period Totals"),
+        "hide_account_view": fields.Boolean("Hide Account View"),
     }
 
     _defaults = {
@@ -74,22 +75,36 @@ class ReportTB(Model):
         accounts = {}
         parent_ids = []
         for r in res:
-            accounts[r["id"]] = r
+            if params.get("account_id"):
+                if params.get("account_id") != r["id"]:
+                    continue
+                accounts[r["id"]] = r
+            else:
+                accounts[r["id"]] = r
 
         ctx["date_from"] = date_from
         res = get_model("account.account").search_read([["type", "!=", "view"]], ["debit", "credit"], context=ctx)
         for r in res:
-            accounts[r["id"]]["debit_month"] = r["debit"]
-            accounts[r["id"]]["credit_month"] = r["credit"]
-
+            if params.get("account_id"):
+                if params.get("account_id") != r["id"]:
+                    continue
+                accounts[r["id"]]["debit_month"] = r["debit"]
+                accounts[r["id"]]["credit_month"] = r["credit"]
+            else:
+                accounts[r["id"]]["debit_month"] = r["debit"]
+                accounts[r["id"]]["credit_month"] = r["credit"]
         begin_date_to = (datetime.strptime(date_to, "%Y-%m-%d") + relativedelta(day=1)).strftime("%Y-%m-%d")
         ctx["date_from"] = None
         ctx["date_to"] = begin_date_to
         ctx["excl_date_to"] = True
         res = get_model("account.account").search_read([["type", "!=", "view"]], ["balance"], context=ctx)
         for r in res:
-            accounts[r["id"]]["balance_begin"] = r["balance"]
-
+            if params.get("account_id"):
+                if params.get("account_id") != r["id"]:
+                    continue
+                accounts[r["id"]]["balance_begin"] = r["balance"]
+            else:
+                accounts[r["id"]]["balance_begin"] = r["balance"]
         accounts = {acc_id: acc for acc_id, acc in accounts.items(
         ) if acc["balance"] or acc["debit_month"] or acc["credit_month"] or acc["balance_begin"]}
         parent_ids = [acc["parent_id"][0] for acc in accounts.values() if acc["parent_id"]]
@@ -200,12 +215,26 @@ class ReportTB(Model):
                 "debit_year": acc["debit"] or None,
                 "credit_year": acc["credit"] or None,
                 "separator": acc.get("separator"),
+
             })
         root_accounts.sort(key=lambda a: a["code"])
         for acc in root_accounts:
             _add_lines(acc)
         _add_lines(root_acc, max_depth=0)
         pprint(lines)
+        ## hide account string & total account string
+        if params.get("hide_account_view"):
+           hide_lines=[]
+           last_line=[]
+           for line_dic in lines:
+                if line_dic['string'] == 'Total':
+                    last_line = line_dic
+                if line_dic["type"] != "account":
+                     continue
+                hide_lines.append(line_dic)
+           hide_lines.sort(key=lambda a: a["account_code"])
+           hide_lines.append(last_line)
+           lines=hide_lines
         data = {
             "date": date_to,
             "track_id": track_id,
@@ -213,6 +242,7 @@ class ReportTB(Model):
             "begin_date_to": begin_date_to,
             "lines": lines,
             "company_name": comp.name,
+            "show_all_tracking": params.get("show_all_tracking"),
         }
         return data
 

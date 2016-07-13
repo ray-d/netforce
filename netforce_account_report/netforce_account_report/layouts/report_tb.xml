@@ -4,7 +4,9 @@
         <field name="track_id" span="2" condition='[["type","=","1"]]'/>
         <field name="track2_id" span="2" condition='[["type","=","2"]]'/>
         <field name="contact_id" span="2"/>
+        <field name="account_id" span="2"/>
         <newline/>
-        <field name="show_period_totals"/>
+        <field name="show_period_totals" span="2"/>
+        <field name="hide_account_view" span="2"/>
     </group>
 </form>

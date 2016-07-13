@@ -62,6 +62,12 @@ class StockCount(Model):
         "company_id": lambda *a: get_active_company(),
     }
 
+    def onchange_date(self, context={}):
+        data = context["data"]
+        number = self._get_number(context)
+        data["number"] = number
+        return data
+
     def delete_lines(self, ids, context={}):
         obj = self.browse(ids)[0]
         line_ids = [l.id for l in obj.lines]
