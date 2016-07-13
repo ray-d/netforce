@@ -193,5 +193,10 @@ class CreditAlloc(Model):
             move_id = get_model("account.move").create(move_vals)
             get_model("account.move").post([move_id])
             obj.write({"move_id": move_id})
+            if not inv.move_id or not inv.move_id.lines:
+                raise Exception("Failed to find invoice journal entry line to reconcile")
+            inv_line_id=inv.move_id.lines[0].id
+            move=get_model("account.move").browse(move_id)
+            get_model("account.move.line").reconcile([inv_line_id,move.lines[0].id])
 
 CreditAlloc.register()
