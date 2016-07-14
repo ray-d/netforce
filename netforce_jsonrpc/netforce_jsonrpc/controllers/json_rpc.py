@@ -55,6 +55,10 @@ class JsonRpc(Controller):
                     opts = params[3] or {}
                 else:
                     opts = {}
+                if len(params) >= 5:
+                    cookies = params[4] or {}
+                else:
+                    cookies = {}
                 user_id = access.get_active_user()
                 rpc_log.info("EXECUTE db=%s model=%s method=%s user=%s" %
                              (database.get_active_db(), model, method, user_id))
@@ -65,6 +69,7 @@ class JsonRpc(Controller):
                     "request": self.request,
                 }
                 ctx.update(self.get_cookies())
+                ctx.update(cookies);
                 opts.setdefault("context", {}).update(ctx)
                 with timeout(seconds=300):  # XXX: can make this faster? (less signal sys handler overhead)
                     t0 = time.time()

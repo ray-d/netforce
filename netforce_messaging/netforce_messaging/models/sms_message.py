@@ -46,6 +46,7 @@ class SmsMessage(Model):
             obj.write({"state": "to_send"})
 
     def send(self,ids,context={}):
+        print("SMSMessage.send",ids)
         for obj in self.browse(ids):
             acc=obj.account_id
             if not acc:
@@ -54,6 +55,8 @@ class SmsMessage(Model):
                 obj.send_twilio()
             elif acc.type=="thaibulksms":
                 obj.send_thaibulksms()
+            elif acc.type=="smsmkt":
+                obj.send_smsmkt()
             else:
                 raise Exception("Invalid SMS account type: %s"%acc.type)
 
@@ -74,6 +77,7 @@ class SmsMessage(Model):
         except Exception as e:
             obj.write({"state": "error"})
             obj.write({"state": "error","error":str(e)})
+            raise e
 
     def send_thaibulksms(self,ids,context={}):
         obj=self.browse(ids[0])
@@ -93,5 +97,27 @@ class SmsMessage(Model):
             obj.write({"state": "sent"})
         except Exception as e:
             obj.write({"state": "error","error":str(e)})
+            raise e
+
+    def send_smsmkt(self,ids,context={}):
+        obj=self.browse(ids[0])
+        try:
+            acc=obj.account_id
+            url="https://member.smsmkt.com/SMSLink/SendMsg/index.php"
+            params={
+                "Username": acc.username,
+                "Password": acc.password,
+                "Msnlist": obj.phone,
+                'Msg': obj.body,
+                "Sender": acc.sender,
+            }
+            url+="?User=%(Username)s&Password=%(Password)s&Msnlist=%(Msnlist)s&Msg=%(Msg)s&Sender=%(Sender)s"%params
+            r=requests.get(url,timeout=15)
+            if r.status_code!=200:
+                raise Exception("Failed to send SMS")
+            obj.write({"state": "sent"})
+        except Exception as e:
+            obj.write({"state": "error","error":str(e)})
+            raise e
 
 SmsMessage.register()

@@ -49,4 +49,31 @@ module.exports={
         if (!f) throw "Field not found: "+model+"."+name;
         return f;
     },
+
+    get_action: function(name) {
+        if (!_ui_params) throw "UI params not found";
+        var action=_ui_params.actions[name];
+        if (!action) throw "Action not found: "+name;
+        return action;
+    },
+
+    find_details_action: function(model,active_id) {
+        if (!_ui_params) throw "UI params not found";
+        var found=null;
+        for (var n in _ui_params.actions) {
+            var a=_ui_params.actions[n];
+            if (a.model!=model) continue;
+            if (a.view!="list_container") continue;
+            found=a;
+        }
+        if (!found) return null;
+        var action={
+            name: found.name,
+            active_id: active_id,
+        };
+        if (found.view=="list_container") {
+            action.mode="form";
+        }
+        return action;
+    },
 }

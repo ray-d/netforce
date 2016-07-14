@@ -250,7 +250,7 @@ class Payment(Model):
                                         if comp.type == "vat":
                                             inv_vat += tax_amt
                                         elif comp.type == "wht":
-                                            int_wht -= tax_amt
+                                            inv_wht -= tax_amt
                                 else:
                                     base_amt = invline_amt
                                 subtotal += base_amt

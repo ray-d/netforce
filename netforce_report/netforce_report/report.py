@@ -1070,3 +1070,20 @@ def report_render_to_file(model, ids, method="get_report_data", template=None, t
     f.write(out_data)
     f.close()
     return fname2
+
+def report_render_jsx(tmpl_name, data):
+    print("report_render_jsx", tmpl_name, data)
+    tmpl_data = _get_report_template(tmpl_name, "jsx")
+    tmpl_path="/tmp/template.jsx"
+    f=open(tmpl_path,"wb")
+    f.write(tmpl_data)
+    f.close()
+    params = {
+        "template": tmpl_path,
+        "data": utils.json_dumps(data),
+    }
+    url = "http://localhost:9991/"
+    r = requests.post(url, data=params, timeout=15)
+    if r.status_code != 200:
+        raise Exception("Failed to render JSX report (%s)" % r.status_code)
+    return r.content
