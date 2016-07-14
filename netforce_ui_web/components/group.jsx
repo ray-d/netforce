@@ -1,5 +1,4 @@
-React = require("react");
-var actions=require("../actions")
+var React= require("react");
 var ui_params=require("../ui_params");
 var rpc=require("../rpc");
 var dom = require('xmldom').DOMParser;

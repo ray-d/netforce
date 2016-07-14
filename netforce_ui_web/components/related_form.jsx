@@ -1,4 +1,4 @@
-React = require("react");
+var React= require("react");
 var ui_params=require("../ui_params");
 var rpc=require("../rpc");
 var dom = require('xmldom').DOMParser;
@@ -155,7 +155,9 @@ var RelatedForm=React.createClass({
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="decimal") {
                 if (v!=orig_v) change[name]=v;
-            } else if (f.type=="select") {
+            } else if (f.type=="boolean") {
+                if (v!=orig_v) change[name]=v;
+            } else if (f.type=="selection") {
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="many2one") {
                 var v1=v?v[0]:null;

@@ -1,4 +1,4 @@
-React = require("react");
+var React= require("react");
 var ui_params=require("../ui_params");
 var utils=require("../utils");
 
@@ -24,7 +24,7 @@ var FieldSelect=React.createClass({
         if (this.state.readonly) {
             return <span onClick={this.click_readonly}>{val_str}</span>;
         } else {
-            return <select className="form-control" ref={this.input_mounted} onBlur={this.on_blur} type="text" value={val} onChange={this.onchange}>
+            return <select className="form-control nf-field-input" ref={this.input_mounted} onBlur={this.on_blur} type="text" value={val} onChange={this.onchange}>
                 <option value=""></option>
                 {f.selection.map(function(o) {
                     return <option value={o[0]}>{o[1]}</option>

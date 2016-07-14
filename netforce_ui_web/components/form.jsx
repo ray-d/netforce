@@ -1,4 +1,4 @@
-React = require("react");
+var React= require("react");
 var ui_params=require("../ui_params");
 var rpc=require("../rpc");
 var dom = require('xmldom').DOMParser;
@@ -7,8 +7,20 @@ var Loading=require("./loading")
 var classNames = require('classnames');
 var FormLayout=require("./form_layout");
 var RelatedO2M=require("./related_o2m");
+var views=require("../views");
+var Button=require("./button")
 
 var Form=React.createClass({
+    propTypes: {
+        title: React.PropTypes.string,
+        model: React.PropTypes.string,
+        active_id: React.PropTypes.number,
+    },
+
+    contextTypes: {
+        action_view: React.PropTypes.object,
+    },
+
     getInitialState() {
         var layout;
         if (this.props.layout) {
@@ -78,7 +90,7 @@ var Form=React.createClass({
                 title="New "+m.string;
             }
         }
-        return <div>
+        return <div style={{marginTop:20}}>
             {function() {
                 if (!this.props.bread_title) return;
                 return <ol className="breadcrumb">
@@ -107,29 +119,37 @@ var Form=React.createClass({
                     }.bind(this)()}
                 </ol>
             }.bind(this)()}
-            <div className="page-header">
-                <h2>{title}</h2>
+            <div className="page-header nf-page-header">
+                <h1>{title}</h1>
             </div>
             {function() {
-                if (!this.state.error) return;
-                return <div className="alert alert-danger">
+                if (!this.state.alert_msg) return;
+                return <div className={"alert alert-"+this.state.alert_type}>
                     <a className="close" data-dismiss="alert" href="#">&times;</a>
-                    {this.state.error}
-                </div>
-            }.bind(this)()}
-            {function() {
-                if (!this.state.message) return;
-                return <div className="alert alert-success">
-                    <a className="close" data-dismiss="alert" href="#">&times;</a>
-                    {this.state.message}
+                    {this.state.alert_msg}
                 </div>
             }.bind(this)()}
             {function() {
                 if (!this.state.data) return <Loading/>;
-                return <form className="form-horizontal">
-                    <FormLayout model={this.props.model} layout_el={this.state.layout_el} data={this.state.data}/>
-                    <div>
-                        <button className="btn btn-primary btn-lg" onClick={this.save}>Save</button>
+                return <form className="form-horizontal nf-form">
+                    <div className="nf-form-body">
+                        <FormLayout model={this.props.model} layout_el={this.state.layout_el} data={this.state.data}/>
+                    </div>
+                    <div className="nf-form-foot">
+                        <Button string="Save" type="primary" size="lg" on_click={this.save}/>
+                        {function() {
+                            var res=xpath.select("foot",this.state.layout_el);
+                            if (res.length==0) return;
+                            var foot_el=res[0];
+                            var child_els=xpath.select("child::*", foot_el);
+                            return child_els.map(function(el,i) {
+                                    if (el.tagName=="button") {
+                                        var string=el.getAttribute("string");
+                                        var method=el.getAttribute("method");
+                                        return <Button string={el.getAttribute("string")} type={el.getAttribute("type")} size="lg" icon={el.getAttribute("icon")} on_click={this.btn_click.bind(this,el)}/>
+                                    }
+                                }.bind(this));
+                        }.bind(this)()}
                     </div>
                 </form>
             }.bind(this)()}
@@ -144,6 +164,15 @@ var Form=React.createClass({
                         if (el.tagName=="field") {
                             var name=el.getAttribute("name");
                             return <RelatedO2M key={i} model={this.props.model} active_id={this.state.active_id} name={name}/>
+                        } else if (el.tagName=="view") {
+                            var name=el.getAttribute("name");
+                            var view_class=views.get_view(name);
+                            var props={
+                                model: this.props.model,
+                                active_id: this.state.active_id,
+                            };
+                            var el=React.createElement(view_class,props);
+                            return el;
                         }
                     }.bind(this))}
                 </div>
@@ -164,6 +193,9 @@ var Form=React.createClass({
         var active_id=this.state.record_ids[this.state.record_index-1];
         this.setState({active_id:active_id});
         this.load_data();
+        var action=this.context.action_view.get_action();
+        action.active_id=active_id;
+        this.context.action_view.update_history(action);
     },
 
     click_next(e) {
@@ -172,6 +204,9 @@ var Form=React.createClass({
         var active_id=this.state.record_ids[this.state.record_index+1];
         this.setState({active_id:active_id});
         this.load_data();
+        var action=this.context.action_view.get_action();
+        action.active_id=active_id;
+        this.context.action_view.update_history(action);
     },
 
     click_start(e) {
@@ -179,6 +214,9 @@ var Form=React.createClass({
         var active_id=this.state.record_ids[0];
         this.setState({active_id:active_id});
         this.load_data();
+        var action=this.context.action_view.get_action();
+        action.active_id=active_id;
+        this.context.action_view.update_history(action);
     },
 
     click_end(e) {
@@ -186,44 +224,43 @@ var Form=React.createClass({
         var active_id=this.state.record_ids[this.state.record_ids.length-1];
         this.setState({active_id:active_id});
         this.load_data();
+        var action=this.context.action_view.get_action();
+        action.active_id=active_id;
+        this.context.action_view.update_history(action);
     },
 
-    save(e) {
-        e.preventDefault();
+    save(cb) {
         var ctx={};
         var vals=this.get_change_vals(this.state.data,this.props.model);
         if (this.state.active_id) {
             rpc.execute(this.props.model,"write",[[this.state.active_id],vals],{context:ctx},function(err) {
                 if (err) {
-                    this.setState({
-                        error: err,
-                    });
+                    this.setState({alert_msg:err,alert_type:"danger"});
                     return;
                 } 
-                this.setState({
-                    message: "Changes saved successfully.",
-                });
+                this.setState({alert_msg: "Changes saved successfully.",alert_type:"success"});
                 this.load_data();
+                if (cb) cb();
             }.bind(this));
         } else {
             rpc.execute(this.props.model,"create",[vals],{context:ctx},function(err,new_id) {
                 if (err) {
-                    this.setState({
-                        error: err,
-                    });
+                    this.setState({alert_msg:err,alert_type:"danger"});
                     return;
                 } 
                 this.setState({
                     active_id: new_id,
-                    message: "Changes saved successfully.",
+                    alert_msg: "Changes saved successfully.",
+                    alert_type: "success",
                 });
                 this.load_data();
+                if (cb) cb();
             }.bind(this));
         }
     },
 
     get_change_vals(data,model) {
-        console.log("get_change_vals",data,model);
+        console.log("Form.get_change_vals",data,model);
         var change={};
         for (var name in data) {
             if (name=="id") continue;
@@ -241,6 +278,8 @@ var Form=React.createClass({
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="text") {
                 if (v!=orig_v) change[name]=v;
+            } else if (f.type=="boolean") {
+                if (v!=orig_v) change[name]=v;
             } else if (f.type=="integer") {
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="float") {
@@ -252,6 +291,8 @@ var Form=React.createClass({
             } else if (f.type=="date") {
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="datetime") {
+                if (v!=orig_v) change[name]=v;
+            } else if (f.type=="file") {
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="many2one") {
                 var v1=v?v[0]:null;
@@ -279,13 +320,45 @@ var Form=React.createClass({
                 }.bind(this));
                 if (del_ids.length>0) ops.push(["delete",del_ids]);
                 if (ops.length>0) change[name]=ops;
+            } else if (f.type=="many2many") {
+                var ids=v;
+                change[name]=[["set",ids||[]]] // TODO: only change
             } else {
                 throw "Invalid field type: "+f.type;
             }
         }
         console.log("change",change);
         return change;
-    }
+    },
+
+    btn_click(el,cb) {
+        var method=el.getAttribute("method");
+        var action=el.getAttribute("action");
+        if (method) {
+            this.call_method(method,cb);
+        } else if (action) {
+            this.context.action_view.execute(action);
+            cb();
+        }
+    },
+
+    call_method(method,cb) {
+        if (!this.state.active_id) {
+            this.save(()=>this.call_method(method,cb));
+            return;
+        }
+        var ctx={};
+        var ids=[this.state.active_id];
+        rpc.execute(this.props.model,method,[ids],{context:ctx},function(err,res) {
+            if (err) {
+                alert("Error: "+err);
+                return;
+            }
+            this.load_data();
+            cb();
+        }.bind(this));
+    },
 });
 
 module.exports=Form;
+views.register("form",Form);

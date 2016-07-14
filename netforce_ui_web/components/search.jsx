@@ -1,4 +1,4 @@
-React = require("react");
+var React= require("react");
 var ui_params=require("../ui_params");
 var utils=require("../utils");
 var _=require("underscore")
@@ -98,15 +98,15 @@ var Search=React.createClass({
             } else if (f.type=="text") {
                 clause=[name,"ilike",v];
             } else if (f.type=="integer") {
-                clause=[name,">=",v]; // XXX
+                clause=[name,"=",v]; // XXX
             } else if (f.type=="float") {
-                clause=[name,">=",v]; // XXX
+                clause=[name,"=",v]; // XXX
             } else if (f.type=="decimal") {
-                clause=[name,">=",v]; // XXX
+                clause=[name,"=",v]; // XXX
             } else if (f.type=="date") {
-                clause=[name,">=",v]; // XXX
+                clause=[name,"=",v]; // XXX
             } else if (f.type=="datetime") {
-                clause=[name,">=",v]; // XXX
+                clause=[name,"=",v]; // XXX
             } else if (f.type=="select") {
                 clause=[name,"=",v];
             } else if (f.type=="many2one") {

@@ -593,6 +593,10 @@ class Model(object):
             return False
         return _check_r(condition)
 
+    def get_filter(self,access_type,context={}):
+        filter_cond=access.get_filter(self._name,access_type)
+        return filter_cond
+
     def search(self, condition, order=None, limit=None, offset=None, count=False, child_condition=None, context={}):
         #print(">>> SEARCH",self._name,condition)
         if child_condition:
@@ -604,9 +608,9 @@ class Model(object):
         if "active" in self._fields and context.get("active_test") != False:
             if not self._check_condition_has_active(condition):
                 cond.append(["active", "=", True])
-        share_condition = access.get_filter(self._name, "read")
-        if share_condition:
-            cond.append(share_condition)
+        filter_cond = self.get_filter("read",context=context)
+        if filter_cond:
+            cond.append(filter_cond)
         joins, cond, w_args = self._where_calc(cond, context=context)
         args=w_args[:]
         ord_joins, ord_clauses = self._order_calc(order or self._order or "id")
@@ -835,7 +839,7 @@ class Model(object):
         if not field_names:
             field_names = [n for n, f in self._fields.items() if not isinstance(
                 f, (fields.One2Many, fields.Many2Many)) and not (not f.store and not f.function)]
-        field_names = list(set(field_names))  # XXX
+        field_names = list(set(field_names)) # XXX
         cols = ["id"] + [n for n in field_names if self.get_field(n).store]
         q = "SELECT " + ",".join(['"%s"' % col for col in cols]) + " FROM " + self._table
         q += " WHERE id IN (" + ",".join([str(int(id)) for id in ids]) + ")"
@@ -932,8 +936,8 @@ class Model(object):
                             cond += f.condition
                         if f.multi_company:
                             cond += [("company_id", "=", access.get_active_company())]
-                        ids2 = mr.search(cond)
-                        res2 = mr.read(ids2, [f.relfield], load_m2o=False)
+                        ids2 = mr.search(cond, context=context)
+                        res2 = mr.read(ids2, [f.relfield], load_m2o=False, context=context)
                         vals = {}
                         for r in res2:
                             vals.setdefault(r[f.relfield], []).append(r["id"])
@@ -947,8 +951,8 @@ class Model(object):
                                 cond += f.condition
                             if f.multi_company:
                                 cond += [("company_id", "=", access.get_active_company())]
-                            ids2 = mr.search(cond, order=f.order)
-                            res2 = mr.read(ids2, [f.relfield], load_m2o=False)
+                            ids2 = mr.search(cond, order=f.order, context=context)
+                            res2 = mr.read(ids2, [f.relfield], load_m2o=False, context=context)
                             vals = {}
                             for r in res2:
                                 vals.setdefault(r[f.relfield], []).append(r["id"])
@@ -1866,7 +1870,7 @@ class Model(object):
         if "active" in self._fields and context.get("active_test") != False:
             if not self._check_condition_has_active(condition):
                 cond.append(["active", "=", True])
-        share_condition = access.get_filter(self._name, "read")
+        share_condition = self.get_filter("read",context=context)
         if share_condition:
             cond.append(share_condition)
         joins, cond, args = self._where_calc(cond, context=context, tbl_count=tbl_count)

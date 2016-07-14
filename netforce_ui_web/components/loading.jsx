@@ -1,8 +1,9 @@
-React = require("react");
+var React= require("react");
 
 var Loading=React.createClass({
     render() {
-        return <p><img src={require("../img/spinner.gif")}/> Loading...</p>
+        if (this.props.small) return <img src={require("../img/spinner.gif")}/>;
+        return <p><img src={require("../img/spinner.gif")}/> Loading...</p>;
     }
 });
 
