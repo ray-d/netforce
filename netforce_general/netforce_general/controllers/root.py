@@ -22,6 +22,7 @@ from netforce.controller import Controller
 from netforce import config
 from netforce.database import get_connection
 from netforce import access
+from netforce import config
 from netforce.model import get_model
 
 class Root(Controller):
@@ -33,7 +34,7 @@ class Root(Controller):
         try:
             if db:
                 res=db.get("SELECT root_url FROM settings WHERE id=1")
-                url=res.root_url
+                url=res.root_url or config.get("root_url")
             if url:
                 self.redirect(url)
                 return
