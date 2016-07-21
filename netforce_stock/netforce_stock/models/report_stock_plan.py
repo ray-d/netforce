@@ -138,20 +138,25 @@ class ReportStockPlan(Model):
                     if not prod.purchase_to_stock_uom_factor:
                         raise Exception("Missing purchase to stock UoM factor for product %s"%prod.code)
                     order_qty=req_qty/prod.purchase_to_stock_uom_factor
-                    if prod.purchase_min_qty and order_qty<prod.purchase_min_qty:
-                        order_qty=prod.purchase_min_qty
-                    if prod.purchase_qty_multiple:
-                        n=math.ceil(order_qty/prod.purchase_qty_multiple)
-                        order_qty=n*prod.purchase_qty_multiple
                 else:
                     order_uom=prod.uom_id
                     order_qty=req_qty
                 order_lead_time=prod.purchase_lead_time
+                if prod.purchase_min_qty and order_qty<prod.purchase_min_qty:
+                    order_qty=prod.purchase_min_qty
+                if prod.purchase_qty_multiple and order_qty%prod.purchase_qty_multiple!=0:
+                    n=math.ceil(order_qty/prod.purchase_qty_multiple)
+                    order_qty=n*prod.purchase_qty_multiple
             elif prod.supply_method=="production":
                 supply_method="Production"
                 order_uom=prod.uom_id
                 order_qty=req_qty
                 order_lead_time=prod.mfg_lead_time
+                if prod.mfg_min_qty and order_qty<prod.mfg_min_qty:
+                    order_qty=prod.mfg_min_qty
+                if prod.mfg_qty_multiple and order_qty%prod.mfg_qty_multiple!=0:
+                    n=math.ceil(order_qty/prod.mfg_qty_multiple)
+                    order_qty=n*prod.mfg_qty_multiple
             else:
                 supply_method=None
                 order_uom=None

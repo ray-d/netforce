@@ -133,9 +133,19 @@ class StockOrder(Model):
                 else:
                     order_uom=prod.uom_id
                     order_qty=req_qty
+                if prod.purchase_min_qty and order_qty<prod.purchase_min_qty:
+                    order_qty=prod.purchase_min_qty
+                if prod.purchase_qty_multiple and order_qty%prod.purchase_qty_multiple!=0:
+                    n=math.ceil(order_qty/prod.purchase_qty_multiple)
+                    order_qty=n*prod.purchase_qty_multiple
             elif prod.supply_method=="production":
                 order_uom=prod.uom_id
                 order_qty=req_qty
+                if prod.mfg_min_qty and order_qty<prod.mfg_min_qty:
+                    order_qty=prod.mfg_min_qty
+                if prod.mfg_qty_multiple and order_qty%prod.mfg_qty_multiple!=0:
+                    n=math.ceil(order_qty/prod.mfg_qty_multiple)
+                    order_qty=n*prod.mfg_qty_multiple
             else:
                 order_uom=None
                 order_qty=None

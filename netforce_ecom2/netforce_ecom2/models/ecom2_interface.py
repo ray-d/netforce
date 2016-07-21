@@ -18,6 +18,7 @@ class EcomInterface(Model):
             "first_name": vals["first_name"],
             "last_name": vals["last_name"],
             "email": vals["email"],
+            "customer":True,
         }
         contact_id=get_model("contact").create(cont_vals)
         res=get_model("profile").search([["code","=","ECOM_CUSTOMER"]])

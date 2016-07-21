@@ -43,7 +43,8 @@ class CartLine(Model):
                 sale_price=math.ceil((prod.sale_price or 0)*(prod.sale_to_invoice_uom_factor or 0)) # XXX: too specific
             vals["unit_price"]=sale_price
         else:
-            vals["unit_price"]=prod.sale_price
+            #vals["unit_price"]=prod.sale_price
+            vals["unit_price"]=prod.sale_price_order_uom ### sijan changed issue I0651
         return super().create(vals,*args,**kw)
 
     def get_qty_avail(self,ids,context={}):
