@@ -63,6 +63,11 @@ class Upload(Controller):
             fname6 = basename + "-resize-64" + "," + rand + ext
             path_thumb6 = os.path.join(fdir, fname6)
             os.system(r"convert -resize 64x64\> '%s' '%s'" % (path, path_thumb6))
+            fname7 = basename + "-resize-32" + "," + rand + ext
+            path_thumb7 = os.path.join(fdir, fname7)
+            os.system(r"convert -resize 32x32\> '%s' '%s'" % (path, path_thumb7))
+            print(fname4,fname3,fname5,fname6,fname7)
+            print (path_thumb2,path_thumb,path_thumb3,path_thumb6)
         print("<<< upload %s" % fname)
 
     def options(self):

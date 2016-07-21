@@ -22,6 +22,7 @@ from netforce.controller import Controller
 from netforce.model import get_model, clear_cache
 from netforce import database
 from netforce import access
+from netforce.locale import set_active_locale
 import json
 import sys
 from datetime import *
@@ -56,6 +57,12 @@ class JsonRpc(Controller):
                     opts = params[3] or {}
                 else:
                     opts = {}
+                if len(params) >= 5:
+                    cookies = params[4] or {}
+                else:
+                    cookies = {}
+                if "locale" in cookies:
+                    set_active_locale(cookies["locale"])
                 user_id = access.get_active_user()
                 rpc_log.info("EXECUTE db=%s model=%s method=%s user=%s" %
                              (database.get_active_db(), model, method, user_id))
@@ -120,8 +127,9 @@ class JsonRpc(Controller):
             db.begin()
         try:
             clear_cache()
-            model = self.get_argument("model")
+            print(self)
             method = self.get_argument("method")
+            model = self.get_argument("model")
             if method.startswith("_"):
                 raise Exception("Invalid method")
             args = self.get_argument("args",None)
@@ -134,6 +142,13 @@ class JsonRpc(Controller):
                 opts=json.loads(opts)
             else:
                 opts={}
+            cookies = self.get_argument("cookies",None)
+            if cookies:
+                cookies = json.loads(cookies)
+            else:
+                cookies = {}
+            if "locale" in cookies:
+                set_active_locale(cookies["locale"])
             user_id = access.get_active_user()
             rpc_log.info("EXECUTE db=%s model=%s method=%s user=%s" %
                          (database.get_active_db(), model, method, user_id))

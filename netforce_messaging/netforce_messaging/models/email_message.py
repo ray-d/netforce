@@ -172,7 +172,7 @@ class EmailMessage(Model):
         acc_id = res[0]
         get_model("email.account").check_sent_emails([acc_id])
 
-    def send_from_template(self, template=None, from_addr=None, to_addrs=None, context={}):  # XXX: deprecated
+    def send_from_template(self, template=None, from_addr=None, to_addrs=None, context={}):
         if not template:
             raise Exception("Missing template")
         res = get_model("email.template").search([["name", "=", template]])
@@ -513,6 +513,8 @@ class EmailMessage(Model):
             msg.set_charset("utf-8")
             msg["From"] = obj.from_addr
             msg["To"] = obj.to_addrs
+            if obj.cc_addrs:
+                msg["Cc"] = obj.cc_addrs
             msg["Subject"] = Header(obj.subject, "utf-8")
             msg.attach(MIMEText(obj.body, "html", "utf-8"))
             for attach in obj.attachments:
@@ -524,7 +526,8 @@ class EmailMessage(Model):
                 part.add_header('Content-Disposition', 'attachment; filename="%s"' % attach.file)
                 msg.attach(part)
             to_addrs = obj.to_addrs.split(",")
-            server.sendmail(obj.from_addr, to_addrs, msg.as_string())
+            cc_addrs = obj.cc_addrs.split(",") if obj.cc_addrs else []
+            server.sendmail(obj.from_addr, to_addrs+cc_addrs, msg.as_string())
             obj.write({"state": "sent"})
             server.quit()
         except Exception as e:

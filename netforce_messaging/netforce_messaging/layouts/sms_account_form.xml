@@ -4,4 +4,5 @@
     <field name="username"/>
     <field name="password" password="1"/>
     <field name="sender"/>
+    <field name="sequence"/>
 </form>

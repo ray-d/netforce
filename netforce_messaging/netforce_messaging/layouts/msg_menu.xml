@@ -7,6 +7,7 @@
     </item>
     <item string="SMS" dropdown="1">
         <item string="SMS Messages" action="sms_message"/>
+        <item string="SMS Templates" action="sms_template"/>
     </item>
     <item string="Internal" dropdown="1">
         <item string="Internal Messages" action="message"/>

@@ -41,7 +41,7 @@ class Cart(Model):
         "ship_addresses": fields.Json("Shipping Addresses",function="get_ship_addresses"),
         "amount_voucher": fields.Decimal("Voucher Amount",function="get_amount_voucher",function_multi=True),
         "voucher_error_message": fields.Text("Voucher Error Message",function="get_amount_voucher",function_multi=True),
-        "free_ship_address": fields.Boolean("Is free Ship",function="free_ship_address"),
+        "free_ship_address": fields.Boolean("Is free Ship"),
     }
     _order="date desc"
 
@@ -87,6 +87,7 @@ class Cart(Model):
         "currency_id": _get_currency,
         "company_id": _get_company,
         "ship_method_d": _get_ship_method,
+        "free_ship_address":False,
     }
 
     def get_ship_amount_details(self,ids,context={}):

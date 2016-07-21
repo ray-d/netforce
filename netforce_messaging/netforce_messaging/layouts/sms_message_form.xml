@@ -4,4 +4,7 @@
     <field name="phone"/>
     <field name="state"/>
     <field name="body" height="300"/>
+    <foot>
+        <button string="Send" method="send" type="success" icon="envelope" states="to_send,draft"/>
+    </foot>
 </form>

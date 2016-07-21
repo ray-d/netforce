@@ -563,8 +563,13 @@ def create_thumbnails(fname):
     fdir = os.path.join(os.getcwd(), "static", "db", dbname, "files")
     path=os.path.join(fdir,fname)
     basename,ext=os.path.splitext(fname)
+    print ("basename",basename)
+    print("ext",ext)
+    fname,rand = basename.split(",")
     for s in [512,256,128,64,32]:
-        fname_thumb = basename + "-resize-%s"%s + ext
+        fname_thumb =fname+ "-resize-%s"%s+"," +rand + ext
+        print("fname=",fname_thumb)
         path_thumb = os.path.join(fdir, fname_thumb)
         print("path_thumb",path_thumb)
         os.system(r"convert -resize %sx%s\> '%s' '%s'" % (s,s,path, path_thumb))
+

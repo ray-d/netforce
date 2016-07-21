@@ -55,7 +55,6 @@ from . import production_period_cost
 from . import stock_picking
 from . import stock_move
 from . import stock_transform
-from . import stock_order
 from . import stock_balance
 from . import report_stock_move
 from . import barcode_validate

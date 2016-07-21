@@ -25,7 +25,8 @@ from netforce import access
 from decimal import Decimal
 import time
 import math
-
+import os
+import base64
 class Product(Model):
     _name = "product"
     _string = "Product"
@@ -585,6 +586,29 @@ class Product(Model):
         for obj in self.browse(ids):
             if not obj.image:
                 continue
-            utils.create_thumbnails(obj.image)
+            dbname = database.get_active_db()
+            if not dbname:
+                return None
+            fdir = os.path.join(os.getcwd(), "static", "db", dbname, "files")
+            path=os.path.join(fdir,obj.image)
+            basename,ext=os.path.splitext(obj.image)
+            res = "," in basename
+            if not res:
+                rand = base64.urlsafe_b64encode(os.urandom(8)).decode()
+                res = os.path.splitext(obj.image)
+                basename, ext = res
+                fname2 = basename + "," + rand + ext
+                #rename image
+                dest_path=fdir+"/"+fname2
+                print("destination path and file name ",dest_path)
+                cmd="cp %s %s"%(path, dest_path)
+                os.system(cmd)
+                obj.write({
+                    'image': fname2,
+                })
+                utils.create_thumbnails(fname2)
+            else:
+                print ("called",obj.image)
+                utils.create_thumbnails(obj.image)
 
 Product.register()

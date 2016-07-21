@@ -230,6 +230,7 @@ class Payment(Model):
                     cred_amt = 0
                     inv_vat = 0
                     inv_wht = 0
+                    int_wht = 0 ### CHECK ME
                     if inv:
                         for alloc in inv.credit_notes:
                             cred_amt += alloc.amount
@@ -249,7 +250,7 @@ class Payment(Model):
                                         if comp.type == "vat":
                                             inv_vat += tax_amt
                                         elif comp.type == "wht":
-                                            int_wht -= tax_amt
+                                            inv_wht -= tax_amt  ### inv_wht = int_wht
                                 else:
                                     base_amt = invline_amt
                                 subtotal += base_amt

@@ -63,10 +63,10 @@ class Voucher(Model):
                 if obj.expire_date_msg:
                     msg=obj.expire_date_msg
                 raise Exception(msg)
-            if obj.contact_id and contact_id!=obj.contact_id.id:
+            if obj.customer_id and contact_id!=obj.customer_id.id:
                 msg="This voucher can not apply to this customer."
-                if obj.contact_msg:
-                    msg=obj.contact_msg
+                if obj.customer_msg:
+                    msg=obj.customer_msg
                 raise Exception(msg)
             if obj.min_order_amount and (amount_total is None or amount_total<obj.min_order_amount):
                 msg="Order total is insufficient to use this voucher."
