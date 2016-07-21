@@ -476,7 +476,7 @@ class Cart(Model):
                 num_sales=slot_num_sales.get((ds,slot_id),0)
                 state="avail"
                 if d==now.date():
-                    if t_from<now or (t_from-now).total_seconds()<min_hours*3600:
+                    if t_from<now or (t_from-now).total_seconds()<min_hours*3600 or tomorrow_seconds:
                         state="full"
                 elif d==tomorrow.date() and tomorrow_seconds:
                     if (t_from-tomorrow_start).total_seconds()<tomorrow_seconds:
