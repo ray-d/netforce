@@ -53,7 +53,7 @@ class ComputeCost(Model):
             locations[loc.id]={}
         db=get_connection()
         print("reading...")
-        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id,p.cost_price AS prod_cost_price FROM stock_move m,product p WHERE p.cost_method='standard' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
+        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id,p.cost_price AS prod_cost_price,m.related_id FROM stock_move m,product p WHERE p.cost_method='standard' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
         args=[]
         product_ids=context.get("product_ids")
         if product_ids:
@@ -64,6 +64,7 @@ class ComputeCost(Model):
         moves=[]
         prod_ids=set([])
         for r in res:
+            if r.related_id and "landed.cost" in r.related_id: continue
             #print("MOVE date=%s prod=%s from=%s to=%s qty=%s method=%s"%(r.date,r.product_id,r.location_from_id,r.location_to_id,r.qty,r.cost_method))
             loc_from=locations.get(r.location_from_id)
             loc_to=locations.get(r.location_to_id)
@@ -98,7 +99,7 @@ class ComputeCost(Model):
             locations[loc.id]={}
         db=get_connection()
         print("reading...")
-        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id FROM stock_move m,product p WHERE p.cost_method='average' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
+        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id,m.related_id FROM stock_move m,product p WHERE p.cost_method='average' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
         args=[]
         product_ids=context.get("product_ids")
         if product_ids:
@@ -108,6 +109,7 @@ class ComputeCost(Model):
         res=db.query(q,*args)
         prod_moves={}
         for r in res:
+            if r.related_id and "landed.cost" in r.related_id: continue
             #print("MOVE date=%s prod=%s from=%s to=%s qty=%s method=%s"%(r.date,r.product_id,r.location_from_id,r.location_to_id,r.qty,r.cost_method))
             prod_id=r.product_id
             ratio=uoms[r.uom_id]/uoms[r.prod_uom_id]
@@ -165,7 +167,7 @@ class ComputeCost(Model):
             int_locs[loc.id]=True
         db=get_connection()
         print("reading...")
-        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id FROM stock_move m,product p WHERE p.cost_method='fifo' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
+        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id,m.related_id FROM stock_move m,product p WHERE p.cost_method='fifo' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
         args=[]
         product_ids=context.get("product_ids")
         if product_ids:
@@ -174,6 +176,7 @@ class ComputeCost(Model):
         res=db.query(q,*args)
         prod_moves={}
         for r in res:
+            if r.related_id and "landed.cost" in r.related_id: continue
             print("MOVE date=%s prod=%s from=%s to=%s qty=%s method=%s"%(r.date,r.product_id,r.location_from_id,r.location_to_id,r.qty,r.cost_method))
             prod_id=r.product_id
             ratio=uoms[r.uom_id]/uoms[r.prod_uom_id]
