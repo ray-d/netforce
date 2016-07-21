@@ -109,7 +109,6 @@ class ComputeCost(Model):
         res=db.query(q,*args)
         prod_moves={}
         for r in res:
-            if r.related_id and "landed.cost" in r.related_id: continue
             #print("MOVE date=%s prod=%s from=%s to=%s qty=%s method=%s"%(r.date,r.product_id,r.location_from_id,r.location_to_id,r.qty,r.cost_method))
             prod_id=r.product_id
             ratio=uoms[r.uom_id]/uoms[r.prod_uom_id]
@@ -122,6 +121,7 @@ class ComputeCost(Model):
                 "cost_amount": r.cost_amount or 0,
                 "loc_from_id": r.location_from_id,
                 "loc_to_id": r.location_to_id,
+                "related_id": r.related_id,
             }
             prod_moves.setdefault(prod_id,[]).append(move)
         prod_ids=sorted(prod_moves.keys())
@@ -137,7 +137,8 @@ class ComputeCost(Model):
                 if loc_from:
                     if loc_from["qty"]>=m["conv_qty"]:
                         cost_price=loc_from["amt"]/loc_from["qty"] if loc_from["qty"] else 0
-                        m["cost_amount"]=round(cost_price*m["conv_qty"],2)
+                        if m.get("related_id") and "landed.cost" not in m["related_id"]:
+                            m["cost_amount"]=round(cost_price*m["conv_qty"],2)
                         loc_from["qty"]-=m["conv_qty"]
                         loc_from["amt"]-=m["cost_amount"]
                     else:
