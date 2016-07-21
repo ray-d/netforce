@@ -2410,15 +2410,20 @@ class BrowseRecord(object):
                             r_id = int(r_id)
                             r_model_ids.setdefault(r_model, []).append(r_id)
                     for r_model, r_ids in r_model_ids.items():
-                        r_model_ids[r_model] = list(set(r_ids))
+                        r_ids=list(set(r_ids))
+                        r_ids2=get_model(r_model).search([["id","in",r_ids]])
+                        r_model_ids[r_model] = r_ids2
                     for r in res:
                         val = r[n]
                         if val:
                             r_model, r_id = val.split(",")
                             r_id = int(r_id)
                             r_ids = r_model_ids[r_model]
-                            r[n] = BrowseRecord(
-                                r_model, r_id, r_ids, context=self.context, browse_cache=self.browse_cache)
+                            if r_id in r_ids: # XXX: make faster, use dict
+                                r[n] = BrowseRecord(
+                                    r_model, r_id, r_ids, context=self.context, browse_cache=self.browse_cache)
+                            else:
+                                r[n]=None
                         else:
                             r[n] = BrowseRecord(None, None, [], context=self.context, browse_cache=self.browse_cache)
             for r in res:
