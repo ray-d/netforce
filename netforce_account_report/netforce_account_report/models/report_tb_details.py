@@ -25,7 +25,6 @@ from pprint import pprint
 from netforce.access import get_active_company
 from netforce.database import get_connection
 
-
 def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, track2_id=None, contact_id=None, acc_type=None, account_id=None ,hide_contact=None, hide_zero=None):
     pl_types = ("revenue", "other_income", "cost_sales", "expense", "other_expense")
     db = get_connection()
@@ -269,12 +268,35 @@ class ReportTBDetails(Model):
                     sum_begin = abs(begin_credit - begin_debit)
                     sum_period = abs(period_credit - period_debit)
                     sum_ytd = abs(ytd_credit - ytd_debit)
-                    begin_credit = sum_begin if begin_credit > begin_debit else 0
-                    begin_debit = sum_begin if begin_credit < begin_debit else 0
-                    period_credit= sum_period if period_credit > period_debit else 0
-                    period_debit= sum_period if period_credit < period_debit else 0
-                    ytd_credit= sum_ytd if ytd_credit > ytd_debit else 0
-                    ytd_debit= sum_ytd if ytd_credit < ytd_debit else 0
+                    if begin_credit > begin_debit:
+                        begin_credit = sum_begin
+                        begin_debit = 0
+                    elif  begin_credit < begin_debit:
+                        begin_credit = 0
+                        begin_debit = sum_begin
+                    else:
+                        begin_credit = 0
+                        begin_debit = 0
+
+                    if period_credit > period_debit:
+                        period_credit = sum_period
+                        period_debit = 0
+                    elif period_credit < period_debit:
+                        period_credit = 0
+                        period_debit = sum_period
+                    else:
+                        period_credit = 0
+                        period_debit = 0
+
+                    if ytd_credit > ytd_debit:
+                        ytd_credit = sum_ytd
+                        ytd_debit = 0
+                    elif ytd_credit < ytd_debit:
+                        ytd_credit = 0
+                        ytd_debit = sum_ytd
+                    else:
+                        ytd_credit = 0
+                        ytd_debit = 0
                     if hide_zero and begin_credit == 0 and begin_debit == 0 and period_credit == 0 and period_debit == 0 and ytd_credit == 0 and ytd_debit == 0:
                         continue
                     if hide_zero_ytd and ytd_credit == 0 and ytd_debit == 0:
