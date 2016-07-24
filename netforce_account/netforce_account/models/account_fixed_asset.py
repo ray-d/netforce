@@ -55,6 +55,7 @@ class FixedAsset(Model):
         "periods": fields.One2Many("account.fixed.asset.period", "asset_id", "Depreciation Periods"),
         "salvage_value": fields.Decimal("Salvage Value"),
         "documents": fields.One2Many("document", "related_id", "Documents"),
+        "sold_disposed": fields.One2Many("account.move.line", "asset_id", "Sold &  Disposed"),
     }
     _order = "number desc"
 

@@ -64,6 +64,7 @@ class FixedAssetSell(Model):
             "account_id": asset.accum_dep_account_id.id,
             "debit": amt > 0 and amt or 0,
             "credit": amt < 0 and -amt or 0,
+            "asset_id" : asset.id,
         }
         lines.append(line_vals)
         amt = obj.price

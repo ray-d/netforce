@@ -55,6 +55,13 @@
                 <field name="move_id"/>
             </form>
         </field>
+        <field name="sold_disposed" noadd="1" click_action="journal_entry">
+            <list>
+                <field name="move_date"/>
+                <field name="debit"/>
+                <field name="move_id"/>
+            </list>
+        </field>
         <field name="documents">
             <list>
                 <field name="file" target="_blank" preview="1"/>

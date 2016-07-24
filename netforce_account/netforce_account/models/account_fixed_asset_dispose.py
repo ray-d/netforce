@@ -62,6 +62,7 @@ class FixedAssetDispose(Model):
             "account_id": asset.accum_dep_account_id.id,
             "debit": amt > 0 and amt or 0,
             "credit": amt < 0 and -amt or 0,
+            "asset_id": asset.id,
         }
         lines.append(line_vals)
         amt = asset.book_val
@@ -76,7 +77,7 @@ class FixedAssetDispose(Model):
         context['date']=obj.date
         move_id = get_model("account.move").create(move_vals,context=context)
         get_model("account.move").post([move_id])
-        asset.write({"state": "sold", "date_dispose": obj.date})
+        asset.write({"state": "disposed", "date_dispose": obj.date})
         return {
             "next": {
                 "name": "fixed_asset",

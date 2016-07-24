@@ -64,6 +64,7 @@ class MoveLine(Model):
         "tax_date": fields.Date("Tax Date"),
         "sequence": fields.Integer("Sequence"),
         "amount_cur": fields.Decimal("Currency Amt"),
+        "asset_id" : fields.Many2One("account.fixed.asset", "Fixed Asset"),   ##XXX: for related in fixed asset
     }
 
     _defaults = {
