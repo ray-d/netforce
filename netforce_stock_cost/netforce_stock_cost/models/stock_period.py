@@ -60,6 +60,11 @@ class StockPeriod(Model):
                     acc_from_id=prod.cogs_account_id.id
                 elif prod.categ_id and prod.categ_id.cogs_account_id:
                     acc_from_id=prod.categ_id.cogs_account_id.id
+            elif move.location_from_id.type=="internal":
+                if prod.stock_account_id:
+                    acc_from_id=prod.stock_account_id.id
+                elif prod.categ_id and prod.categ_id.stock_account_id:
+                    acc_from_id=prod.categ_id.stock_account_id.id
             if not acc_from_id:
                 raise Exception("Missing input account for stock movement %s (date=%s, ref=%s, product=%s)"%(move.id,move.date,move.ref,prod.name))
             acc_to_id=move.location_to_id.account_id.id
@@ -68,6 +73,11 @@ class StockPeriod(Model):
                     acc_to_id=prod.cogs_account_id.id
                 elif prod.categ_id and prod.categ_id.cogs_account_id:
                     acc_to_id=prod.categ_id.cogs_account_id.id
+            elif move.location_to_id.type=="internal":
+                if prod.stock_account_id:
+                    acc_to_id=prod.stock_account_id.id
+                elif prod.categ_id and prod.categ_id.stock_account_id:
+                    acc_to_id=prod.categ_id.stock_account_id.id
             if not acc_to_id:
                 raise Exception("Missing output account for stock movement %s (date=%s, ref=%s, product=%s)"%(move.id,move.date,move.ref,prod.name))
             if move.unit_price is None:
