@@ -165,6 +165,7 @@ class Cart(Model):
             "delivery_slot_id": obj.delivery_slot_id.id,
             "pay_method_id": obj.pay_method_id.id,
             "other_info": obj.comments,
+            "voucher_id": obj.voucher_id.id,
             "ref": obj.comments, # XXX
         }
         print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Ship Method Id ",ship_method_id)

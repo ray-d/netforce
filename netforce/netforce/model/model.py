@@ -2279,6 +2279,7 @@ class Model(object):
                     print("cleaning field %s of %s.%d..."%(n,model,r["id"]))
                     self.write([r["id"]],{n:None})
 
+
 class BrowseList(object):  # TODO: optimize for speed
 
     def __init__(self, model, ids, related_ids, context={}, browse_cache=None):

@@ -64,7 +64,7 @@ class Voucher(Model):
                     msg=obj.expire_date_msg
                 raise Exception(msg)
             if obj.customer_id and contact_id!=obj.customer_id.id:
-                msg="This voucher can not apply to this customer."
+                msg="This voucher can not apply to this customer." ###FIX ME / should be set to inactive .
                 if obj.customer_msg:
                     msg=obj.customer_msg
                 raise Exception(msg)

@@ -87,6 +87,8 @@ class Currency(Model):
 
     def get_rate(self, ids, date=None, rate_type="buy", context={}):
         obj_id = ids[0]
+        if not obj_id:
+            return
         dbname = database.get_active_db()
         company_id = access.get_active_company()
         key = (dbname, company_id, obj_id, date, rate_type)
