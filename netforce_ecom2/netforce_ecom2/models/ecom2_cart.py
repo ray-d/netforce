@@ -351,8 +351,11 @@ class Cart(Model):
             if line.product_id.id==prod_id and line.lot_id:
                 exclude_lot_ids.append(line.lot_id.id)
         prod=get_model("product").browse(prod_id)
+        avail_qty=prod.stock_qty
         add_lot_ids=[]
         for lot in prod.stock_lots:
+            if len(add_lot_ids)>=avail_qty:
+                break
             if lot.id not in exclude_lot_ids:
                 add_lot_ids.append(lot.id)
                 if len(add_lot_ids)>=add_qty:
@@ -607,9 +610,7 @@ class Cart(Model):
                 line.write(vals)
         for a in settings.extra_ship_addresses:
             if a.id == vals['ship_address_id']:
-                print(">>>>>>>>>>>>>>>Free")
                 return {'free_ship':True}
-            print(">>>>>>>>>>>>>>>Not Free")
         return {'free_ship':False}
 
     def empty_cart(self,ids,context={}):
