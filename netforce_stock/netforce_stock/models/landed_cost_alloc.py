@@ -43,6 +43,7 @@ class LandedCostAlloc(Model):
         "est_duty": fields.Decimal("Est. Duty"),
         "act_ship": fields.Decimal("Act. Shipping"),
         "act_duty": fields.Decimal("Act. Duty"),
+        "variance_percent": fields.Decimal("Variance %"),
         "amount": fields.Decimal("Total Alloc. Cost",function="_get_total",function_multi=True),
         "percent": fields.Decimal("Cost Percent",function="_get_total",function_multi=True),
     }

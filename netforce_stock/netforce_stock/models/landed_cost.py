@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2015 Netforce Co. Ltd.
+# copyright (c) 2012-2015 Netforce Co. Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 from netforce.model import Model, fields, get_model
 import time
 from netforce.utils import get_data_path
+from decimal import *
 
 class LandedCost(Model):
     _name = "landed.cost"
@@ -109,13 +110,17 @@ class LandedCost(Model):
                 k=(acc_id,alloc.track_id.id)
                 accounts.setdefault(k,0)
                 accounts[k]-=alloc.act_duty
-            if alloc.qty_stock_lc>=alloc.qty_stock_gr:
-                inv_amt=alloc.amount
-                var_amt=0
+            if alloc.variance_percent is not None:
+                var_amt=alloc.amount*alloc.variance_percent/Decimal(100)
+                inv_amt=alloc.amount-var_amt
             else:
-                ratio=min(alloc.qty_stock_lc/alloc.qty_stock_gr,1) if alloc.qty_stock_gr else 0 # XXX
-                inv_amt=alloc.amount*ratio
-                var_amt=alloc.amount*(1-ratio)
+                if alloc.qty_stock_lc>=alloc.qty_stock_gr:
+                    inv_amt=alloc.amount
+                    var_amt=0
+                else:
+                    ratio=min(alloc.qty_stock_lc/alloc.qty_stock_gr,1) if alloc.qty_stock_gr else 0 # XXX
+                    inv_amt=alloc.amount*ratio
+                    var_amt=alloc.amount*(1-ratio)
             if inv_amt:
                 inv_account_id=alloc.location_to_id.account_id.id or alloc.product_id.stock_in_account_id.id
                 if not inv_account_id:
@@ -252,6 +257,27 @@ class LandedCost(Model):
                 "active_id": land_id,
             },
             "flash": "Actual landed costs %s copied from estimate landed costs %s"%(new_land.number,obj.number),
+        }
+
+    def copy_to_adjust(self,ids,context={}):
+        obj=self.browse(ids[0])
+        vals={
+            "cost_allocs": [],
+        }
+        for line in obj.cost_allocs:
+            alloc_vals={
+                "move_id": line.move_id.id,
+            }
+            vals["cost_allocs"].append(("create",alloc_vals))
+        land_id=self.create(vals)
+        new_land=self.browse(land_id)
+        return {
+            "next": {
+                "name": "landed_cost",
+                "mode": "form",
+                "active_id": land_id,
+            },
+            "flash": "Adjust landed costs %s copied from landed costs %s"%(new_land.number,obj.number),
         }
 
     def alloc_amount(self,ids,context={}):
