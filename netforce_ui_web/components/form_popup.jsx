@@ -18,6 +18,7 @@ var FormPopup=React.createClass({
         layout: React.PropTypes.string,
         active_id: React.PropTypes.number,
         on_save: React.PropTypes.func,
+        context: React.PropTypes.object,
     },
 
     contextTypes: {
@@ -56,7 +57,7 @@ var FormPopup=React.createClass({
             var name=el.getAttribute("name");
             field_names.push(name);
         });
-        var ctx={};
+        var ctx=this.props.context||{};
         if (this.state.active_id) {
             rpc.execute(this.props.model,"read",[[this.state.active_id],field_names],{context:ctx},function(err,res) {
                 if (err) throw err;
@@ -102,7 +103,6 @@ var FormPopup=React.createClass({
                 }.bind(this)()}
             </Modal.Body>
             <Modal.Footer> 
-                <Button string="Save" type="primary" on_click={this.click_save}/>
                 {function() {
                     var res=xpath.select("foot",this.state.layout_el);
                     if (res.length==0) return;
@@ -112,14 +112,8 @@ var FormPopup=React.createClass({
                             if (el.tagName=="button") {
                                 var string=el.getAttribute("string");
                                 var method=el.getAttribute("method");
-                                return <button className="btn btn-default" onClick={this.call_method.bind(this,method)} style={{marginLeft:10}}>
-                                    {function() {
-                                        var icon=el.getAttribute("icon");
-                                        if (!icon) return;
-                                        return <span className={"glyphicon glyphicon-"+icon} style={{marginRight:5}}></span>
-                                    }.bind(this)()}
-                                    {string}
-                                </button>
+                                var type=el.getAttribute("type");
+                                return <Button string={el.getAttribute("string")} type={el.getAttribute("type")}  icon={el.getAttribute("icon")} on_click={this.btn_click.bind(this,el)}/>
                             }
                         }.bind(this));
                 }.bind(this)()}
@@ -235,20 +229,18 @@ var FormPopup=React.createClass({
         }
     },
 
-    click_save(cb) {
-        console.log("FormPopup.click_save");
-        this.save((active_id)=>{
+    btn_click(el,cb) {
+        var method=el.getAttribute("method");
+        var action=el.getAttribute("action");
+        if (method) {
+            this.call_method(method,cb);
+        } else if (action) {
+            this.context.action_view.execute(action);
             cb();
-            this.close_modal();
-            if (this.props.on_save) {
-                console.log("on_save",this.props.on_save);
-                this.props.on_save();
-            }
-        });
+        }
     },
 
-    call_method(method,e) {
-        e.preventDefault();
+    call_method(method,cb) {
         var ctx={};
         this.save((active_id)=>{
             var ids=[this.state.active_id];
@@ -262,6 +254,7 @@ var FormPopup=React.createClass({
                 if (action) {
                     this.context.action_view.execute(action);
                 }
+                cb();
             }.bind(this));
         });
     },

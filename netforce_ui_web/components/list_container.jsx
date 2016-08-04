@@ -14,6 +14,7 @@ var FieldMany2One=require("./field_many2one")
 var views=require("../views");
 var List=require("./list")
 var Columns=require("./columns")
+var Grid=require("./grid")
 var Map=require("./map")
 var Form=require("./form")
 var Button=require("./button")
@@ -34,7 +35,6 @@ var ListContainer=React.createClass({
         active_id: React.PropTypes.number,
         active_tab: React.PropTypes.number,
         message: React.PropTypes.string,
-        message_type: React.PropTypes.string,
         list_layout: React.PropTypes.string,
         form_layout: React.PropTypes.string,
     },
@@ -173,6 +173,8 @@ var ListContainer=React.createClass({
                         {this.state.modes.map((m)=>{
                             if (m=="list") {
                                 return <button key={m} type="button" className={classNames("btn","btn-default",{"active":this.state.mode=="list"})} style={{width:100}} onClick={this.set_mode.bind(this,"list")}><i className="fa fa-list"/> List</button>
+                            } else if (m=="grid") {
+                                return <button key={m} type="button" className={classNames("btn","btn-default",{"active":this.state.mode=="grid"})} style={{width:100}} onClick={this.set_mode.bind(this,"grid")}><i className="fa fa-th"/> Grid</button>
                             } else if (m=="columns") {
                                 return <button key={m} type="button" className={classNames("btn","btn-default",{"active":this.state.mode=="columns"})} style={{width:100}} onClick={this.set_mode.bind(this,"columns")}><i className="fa fa-columns"/> Columns</button>
                             } else if (m=="map") {
@@ -277,6 +279,8 @@ var ListContainer=React.createClass({
                     {function() {
                         if (this.state.mode=="list") {
                             return <List key={this.state.list_key} model={this.props.model} on_select={this.on_select} condition={search_cond} on_selection_changed={this.on_selection_changed} order={this.props.order} layout={this.props.list_layout}/>
+                        } else if (this.state.mode=="grid") {
+                            return <Grid key={this.state.list_key} model={this.props.model} condition={search_cond} order={this.props.order} on_select={this.on_select}/>
                         } else if (this.state.mode=="columns") {
                             return <Columns key={this.state.list_key} model={this.props.model} condition={search_cond} order={this.props.order} on_select={this.on_select}/>
                         } else if (this.state.mode=="map") {
@@ -423,6 +427,7 @@ var ListContainer=React.createClass({
     },
 
     btn_click_head(el,cb) {
+        console.log("btn_click_head");
         if (this.state.select_ids.length==0) {
             alert("No items selected");
             cb();
@@ -433,7 +438,12 @@ var ListContainer=React.createClass({
         if (method) {
             this.call_method(method,this.state.select_ids,cb);
         } else if (action) {
-            this.context.action_view.execute(action);
+            if (action[0]=="{")  {
+                console.log("action",action);
+                action=JSON.parse(action);
+            }
+            var ctx={ids:this.state.select_ids};
+            this.context.action_view.execute(action,ctx);
             cb();
         }
     },

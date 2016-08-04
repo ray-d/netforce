@@ -76,4 +76,11 @@ module.exports={
         }
         return action;
     },
+
+    get_template: function(name) {
+        if (!_ui_params) throw "UI params not found";
+        var t=_ui_params.templates[name];
+        if (!t) throw "Template not found: "+name;
+        return t;
+    },
 }
