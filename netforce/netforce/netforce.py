@@ -159,9 +159,8 @@ def run_server():
         database.set_active_schema(schema)
     ipc.init()
     if args.update:
-        model.update_db(force=args.force)
-        db = database.get_connection()
-        db.commit()
+        with database.Transaction():
+            model.update_db(force=args.force)
         return
     if args.migrate is not None:
         migration.apply_migrations(from_version=args.migrate)

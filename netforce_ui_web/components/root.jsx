@@ -1,4 +1,4 @@
-React = require("react");
+var React= require("react");
 var Menu=require("./menu")
 var Loading=require("./loading")
 var MultiView=require("./multi_view")

@@ -76,7 +76,7 @@ class PickValidate(Model):
                 })
             if line.qty:
                 move.write({"qty": line.qty, "uom_id": line.uom_id.id})
-            else:
+            elif remain_qty:
                 move.delete()
         if remain_lines:
             vals = {

@@ -1,7 +1,9 @@
 'use strict';
 import React, {
-  AppRegistry,
   Component,
+} from 'react';
+import {
+  AppRegistry,
   View,
   Text,
   Image,
@@ -28,7 +30,7 @@ class Navbar extends Component {
             </View>
             <View style={{alignItems:"center",flexDirection:"row"}}>
                 {function() {
-                    if (this.props.navigator.getCurrentRoutes().length < 2) return;
+                    if (!this.props.navigator || this.props.navigator.getCurrentRoutes().length < 2) return;
                     return <TouchableOpacity onPress={this.go_back.bind(this)} style={{}}>
                         <View style={{}}>
                             <Text style={{color:"#eee",fontSize:17,letterSpacing:0.5,marginLeft:8}}><Icon name="arrow-left" size={16} color="#eee" /> Back</Text>
@@ -43,8 +45,7 @@ class Navbar extends Component {
         var routes=this.props.navigator.getCurrentRoutes();
         var route=routes[routes.length-2];
         if (route==null) {
-            AsyncStorage.removeItem("auth_user_id"); // XXX
-            route={name:"login"};
+            route={name:"menu"}; // XXX
         }
         route=Object.assign({},route);
         this.props.navigator.replacePrevious(route);

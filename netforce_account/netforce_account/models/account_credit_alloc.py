@@ -65,7 +65,7 @@ class CreditAlloc(Model):
         if inv_ids:
             get_model("account.invoice").function_store(inv_ids)
 
-""" XXX: depecated
+""" XXX: deprecated
     def post(self, ids, context={}):
         settings = get_model("settings").browse(1)
         obj = self.browse(ids)[0]

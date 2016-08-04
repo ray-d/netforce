@@ -374,6 +374,13 @@ class PurchaseOrder(Model):
             remain_qty = line.qty - line.qty_invoiced
             if remain_qty <= 0:
                 continue
+            purch_acc_id=None
+            if prod:
+                purch_acc_id=prod.purchase_account_id.id
+                if not purch_acc_id and prod.parent_id:
+                    purch_acc_id=prod.parent_id.purchase_account_id.id
+                if not purch_acc_id and prod.categ_id and prod.categ_id.purchase_account_id:
+                    purch_acc_id=prod.categ_id.purchase_account_id.id
             line_vals = {
                 "product_id": prod.id,
                 "description": line.description,

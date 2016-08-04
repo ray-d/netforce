@@ -1,4 +1,4 @@
-React = require("react");
+var React= require("react");
 var ui_params=require("../ui_params");
 var utils=require("../utils");
 var rpc=require("../rpc");

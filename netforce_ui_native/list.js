@@ -4,8 +4,10 @@
  */
 'use strict';
 import React, {
-  AppRegistry,
   Component,
+} from 'react';
+import {
+  AppRegistry,
   StyleSheet,
   Text,
   TextInput,
@@ -26,6 +28,7 @@ var Button=require("./button");
 var ScrollableTabView = require('react-native-scrollable-tab-view');
 
 var Icon = require('react-native-vector-icons/FontAwesome');
+var _=require("underscore");
 
 class List extends Component {
     constructor(props) {
@@ -39,6 +42,10 @@ class List extends Component {
         }
         var doc=new dom().parseFromString(layout.layout);
         this.layout_el=doc.documentElement;
+        if (this.props.tabs) {
+            if (_.isString(this.props.tabs)) this.tabs=JSON.parse(this.props.tabs);
+            else this.tabs=this.props.tabs;
+        }
         this.readonly=this.layout_el.getAttribute("readonly")?true:false;
         this.state = {
             dataSource: new ListView.DataSource({
@@ -54,8 +61,8 @@ class List extends Component {
     load_data() {
         console.log("List.load_data");
         var cond=this.props.condition||[];
-        if (this.props.tabs) {
-            var tab_cond=this.props.tabs[this.state.active_tab||0][1];
+        if (this.tabs) {
+            var tab_cond=this.tabs[this.state.active_tab||0][1];
             cond.push(tab_cond);
         }
         var field_nodes=xpath.select("//field", this.layout_el);
@@ -87,9 +94,9 @@ class List extends Component {
                 </View>
             }.bind(this)()}
             {function() {
-                if (this.props.tabs) {
+                if (this.tabs) {
                     return <ScrollableTabView onChangeTab={this.change_tab.bind(this)} initialPage={this.state.active_tab||0}>
-                        {this.props.tabs.map((t,i)=>{
+                        {this.tabs.map((t,i)=>{
                             return <View key={i} tabLabel={t[0]}>
                                 {function() {
                                     if (this.state.data==null) {
@@ -111,7 +118,7 @@ class List extends Component {
             }.bind(this)()}
             {function() {
                 if (this.readonly) return;
-                <View style={{paddingTop:5}}>
+                return <View style={{paddingTop:5}}>
                     <Button onPress={this.press_new.bind(this)}>
                         <View style={{height:50,backgroundColor:"#37b",alignItems:"center",justifyContent:"center"}}>
                             <Text style={{color:"#fff"}}><Icon name="plus" size={16} color="#eee"/> New {m.string}</Text>

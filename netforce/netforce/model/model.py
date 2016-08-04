@@ -35,6 +35,7 @@ import netforce
 from lxml import etree
 from netforce import utils
 from decimal import *
+from pprint import pprint
 
 models = {}
 browse_cache = {}
@@ -596,6 +597,10 @@ class Model(object):
             return False
         return _check_r(condition)
 
+    def get_filter(self,access_type,context={}):
+        filter_cond=access.get_filter(self._name,access_type)
+        return filter_cond
+
     def search(self, condition, order=None, limit=None, offset=None, count=False, child_condition=None, context={}):
         #print(">>> SEARCH",self._name,condition)
         if child_condition:
@@ -607,9 +612,9 @@ class Model(object):
         if "active" in self._fields and context.get("active_test") != False:
             if not self._check_condition_has_active(condition):
                 cond.append(["active", "=", True])
-        share_condition = access.get_filter(self._name, "read")
-        if share_condition:
-            cond.append(share_condition)
+        filter_cond = self.get_filter("read",context=context)
+        if filter_cond:
+            cond.append(filter_cond)
         joins, cond, w_args = self._where_calc(cond, context=context)
         args=w_args[:]
         ord_joins, ord_clauses = self._order_calc(order or self._order or "id")
@@ -838,7 +843,7 @@ class Model(object):
         if not field_names:
             field_names = [n for n, f in self._fields.items() if not isinstance(
                 f, (fields.One2Many, fields.Many2Many)) and not (not f.store and not f.function)]
-        field_names = list(set(field_names))  # XXX
+        field_names = list(set(field_names)) # XXX
         cols = ["id"] + [n for n in field_names if self.get_field(n).store]
         q = "SELECT " + ",".join(['"%s"' % col for col in cols]) + " FROM " + self._table
         q += " WHERE id IN (" + ",".join([str(int(id)) for id in ids]) + ")"
@@ -935,8 +940,8 @@ class Model(object):
                             cond += f.condition
                         if f.multi_company:
                             cond += [("company_id", "=", access.get_active_company())]
-                        ids2 = mr.search(cond)
-                        res2 = mr.read(ids2, [f.relfield], load_m2o=False)
+                        ids2 = mr.search(cond, context=context)
+                        res2 = mr.read(ids2, [f.relfield], load_m2o=False, context=context)
                         vals = {}
                         for r in res2:
                             vals.setdefault(r[f.relfield], []).append(r["id"])
@@ -950,8 +955,8 @@ class Model(object):
                                 cond += f.condition
                             if f.multi_company:
                                 cond += [("company_id", "=", access.get_active_company())]
-                            ids2 = mr.search(cond, order=f.order)
-                            res2 = mr.read(ids2, [f.relfield], load_m2o=False)
+                            ids2 = mr.search(cond, order=f.order, context=context)
+                            res2 = mr.read(ids2, [f.relfield], load_m2o=False, context=context)
                             vals = {}
                             for r in res2:
                                 vals.setdefault(r[f.relfield], []).append(r["id"])
@@ -1350,7 +1355,8 @@ class Model(object):
                         else:
                             if n not in todo:
                                 v = obj[n]
-                                todo[n] = [v]
+                                if v:
+                                    todo[n] = [v]
                     elif isinstance(f, fields.Selection):
                         v = obj[n]
                         if v:
@@ -1409,7 +1415,7 @@ class Model(object):
         data = out.getvalue()
         return data
 
-    def import_data(self, data, context={}):
+    def import_data(self, data, context={}): # XXX: deprecated
         f = StringIO(data)
         rd = csv.reader(f)
         headers = next(rd)
@@ -1582,6 +1588,84 @@ class Model(object):
                 self.merge(res[0])
             except Exception as e:
                 raise Exception("Error row %d: %s" % (line_start + 2, e))
+
+    def import_record(self, vals, context={}):
+        print("import_record",self._name, vals)
+        vals2={}
+        for n, v in vals.items():
+            f = self._fields.get(n)
+            if not f:
+                raise Exception("WARNING: no such field %s in %s"%(n,self._name))
+            if v is None:
+                vals2[n]=None
+            else:
+                if isinstance(f, (fields.Char, fields.Text, fields.Float, fields.Decimal, fields.Integer, fields.Date, fields.DateTime, fields.Selection, fields.Boolean)):
+                    vals2[n] = v
+                elif isinstance(f, fields.Many2One):
+                    mr=get_model(f.relation)
+                    if isinstance(v,int):
+                        vals2[n]=v
+                    elif isinstance(v,dict):
+                        cond=[]
+                        for k,kv in v.items(): # TODO: allow recursive m2o import
+                            cond.append([[k,"=",kv]])
+                        res=mr.search(cond,context=context)
+                        if len(res)>1:
+                            raise Exception("Duplicate records of model %s (%s)"%(mr._name,cond))
+                        if len(res)==1:
+                            vals2[n]=res[0]
+                        else:
+                            vals2[n] = mr.import_record(v,context=context)
+                    else:
+                        raise Exception("Invalid import value for field %s of %s"%(n,self._name))
+                elif isinstance(f, fields.Many2Many):
+                    mr=get_model(f.relation)
+                    if not isinstance(v,dict) or len(v)!=1:
+                        raise Exception("Invalid import value for field %s of %s"%(n,self._name))
+                    k=list(v.keys())[0]
+                    rids=[]
+                    for kv in v[k].split(","):
+                        kv=kv.strip()
+                        cond=[[k,"=",kv]]
+                        res=mr.search(cond,context=context)
+                        if not res:
+                            raise Exception("Record not found of model %s (%s)"%(mr._name,cond))
+                        if len(res)>1:
+                            raise Exception("Duplicate records of model %s (%s)"%(mr._name,cond))
+                        rids.append(res[0])
+                    vals2[n] = [("set",rids)]
+        if self._key:
+            cond = [[n, "=", vals2.get(n)] for n in self._key]
+            ids = self.search(cond,context=context)
+            if not ids:
+                rec_id=self.create(vals2,context=context)
+            else:
+                if len(ids) > 1:
+                    raise Exception("Duplicate key (model=%s, cond=%s)" % (self._name, cond))
+                rec_id=ids[0]
+                self.write([rec_id], vals2, context=context)
+        else:
+            rec_id=self.create(vals2,context=context)
+        print("==> rec_id",rec_id)
+        for n, v in vals.items():
+            f = self._fields.get(n)
+            if isinstance(f, fields.One2Many):
+                mr=get_model(f.relation)
+                rids=mr.search([[f.relfield,"=",rec_id]],context=context)
+                if rids:
+                    mr.delete(rids,context=context)
+                for rvals in v:
+                    rvals2={f.relfield:rec_id}
+                    rvals2.update(rvals)
+                    mr.import_record(rvals2,context=context)
+        return rec_id
+
+    def import_csv(self, fname, context={}):
+        print("import_csv",fname)
+        path=utils.get_file_path(fname)
+        data=csv_to_json(path,self._name)
+        for vals in data:
+            self.import_record(vals,context=context)
 
     def audit_log(self, operation, params, context={}):
         if not self._audit_log:
@@ -1868,7 +1952,7 @@ class Model(object):
         if "active" in self._fields and context.get("active_test") != False:
             if not self._check_condition_has_active(condition):
                 cond.append(["active", "=", True])
-        share_condition = access.get_filter(self._name, "read")
+        share_condition = self.get_filter("read",context=context)
         if share_condition:
             cond.append(share_condition)
         joins, cond, args = self._where_calc(cond, context=context, tbl_count=tbl_count)
@@ -2354,6 +2438,8 @@ class BrowseRecord(object):
             return self.id
         if name == "_model":
             return self._model
+        if name == "_cache":
+            return self.browse_cache
         if not self.id:
             return None
         m = get_model(self._model)
@@ -2407,15 +2493,20 @@ class BrowseRecord(object):
                             r_id = int(r_id)
                             r_model_ids.setdefault(r_model, []).append(r_id)
                     for r_model, r_ids in r_model_ids.items():
-                        r_model_ids[r_model] = list(set(r_ids))
+                        r_ids=list(set(r_ids))
+                        r_ids2=get_model(r_model).search([["id","in",r_ids]])
+                        r_model_ids[r_model] = r_ids2
                     for r in res:
                         val = r[n]
                         if val:
                             r_model, r_id = val.split(",")
                             r_id = int(r_id)
                             r_ids = r_model_ids[r_model]
-                            r[n] = BrowseRecord(
-                                r_model, r_id, r_ids, context=self.context, browse_cache=self.browse_cache)
+                            if r_id in r_ids: # XXX: make faster, use dict
+                                r[n] = BrowseRecord(
+                                    r_model, r_id, r_ids, context=self.context, browse_cache=self.browse_cache)
+                            else:
+                                r[n]=None
                         else:
                             r[n] = BrowseRecord(None, None, [], context=self.context, browse_cache=self.browse_cache)
             for r in res:
@@ -2581,3 +2672,192 @@ def add_default(model, field):
         m._defaults[field] = f
         return f
     return decorator
+
+def csv_to_json(path,root_model): # TODO: move this
+    print("csv_to_json",path,root_model)
+    f=open(path)
+    rd = csv.reader(f)
+    headers = next(rd)
+    headers = [h.strip() for h in headers]
+    rows = [r for r in rd]
+
+    def _string_to_field(m, s):
+        if s == "Database ID":
+            return "id"
+        strings = dict([(f.string, n) for n, f in m._fields.items()])
+        n = strings.get(s.replace("&#47;", "/").strip())
+        if not n:
+            raise Exception("Field not found: '%s' in '%s'" % (s,m._name))
+        return n
+
+    def _get_prefix_model(prefix):
+        model = root_model
+        for s in prefix.split("/")[:-1]:
+            m = get_model(model)
+            n = _string_to_field(m, s)
+            f = m._fields[n]
+            model = f.relation
+        return model
+
+    def _get_vals(line, prefix):
+        row = rows[line]
+        model = _get_prefix_model(prefix)
+        m = get_model(model)
+        vals = {}
+        empty = True
+        for h, v in zip(headers, row):
+            if not h:
+                continue
+            if not h.startswith(prefix):
+                continue
+            s = h[len(prefix):]
+            if s.find("/") != -1:
+                continue
+            n = _string_to_field(m, s)
+            v = v.strip()
+            if v == "":
+                v = None
+            f = m._fields.get(n)
+            if not f and n != "id":
+                raise Exception("Invalid field: %s" % n)
+            if v:
+                if n == "id":
+                    v = int(v)
+                elif isinstance(f, fields.Float):
+                    v = float(v.replace(",", ""))
+                elif isinstance(f, fields.Selection):
+                    found = None
+                    for k, s in f.selection:
+                        if v == s and k!="_group":
+                            found = k
+                            break
+                    if found is None:
+                        raise Exception("Invalid value for field %s: '%s'" % (h, v))
+                    v = found
+                elif isinstance(f, fields.Date):
+                    dt = dateutil.parser.parse(v)
+                    v = dt.strftime("%Y-%m-%d")
+                elif isinstance(f, fields.Many2One):
+                    mr = get_model(f.relation)
+                    ctx = {
+                        "parent_vals": vals,
+                    }
+                    res = mr.import_get(v, context=ctx)
+                    if not res:
+                        raise Exception("Invalid value for field %s: '%s'" % (h, v))
+                    v = res
+                elif isinstance(f, fields.Many2Many):
+                    rnames = v.split(",")
+                    rids = []
+                    mr = get_model(f.relation)
+                    for rname in rnames:
+                        rname = rname.strip()
+                        res = mr.import_get(rname)
+                        rids.append(res)
+                    v = [("set", rids)]
+            else:
+                if isinstance(f, (fields.One2Many,)):
+                    raise Exception("Invalid column '%s'" % s)
+            if v is not None:
+                empty = False
+            if not v and isinstance(f, fields.Many2Many):
+                v = [("set", [])]
+            vals[n] = v
+        if empty:
+            return None
+        return vals
+
+    def _get_subfields(prefix):
+        strings = []
+        for h in headers:
+            if not h:
+                continue
+            if not h.startswith(prefix):
+                continue
+            rest = h[len(prefix):]
+            i = rest.find("/")
+            if i == -1:
+                continue
+            s = rest[:i]
+            if s not in strings:
+                strings.append(s)
+        model = _get_prefix_model(prefix)
+        m = get_model(model)
+        fields = []
+        for s in strings:
+            n = _string_to_field(m, s)
+            fields.append((n, s))
+        return fields
+
+    def _has_vals(line, prefix=""):
+        row = rows[line]
+        for h, v in zip(headers, row):
+            if not h:
+                continue
+            if not h.startswith(prefix):
+                continue
+            s = h[len(prefix):]
+            if s.find("/") != -1:
+                continue
+            v = v.strip()
+            if v:
+                return True
+        return False
+
+    def _read_objs(line_start=0, line_end=len(rows), prefix=""):
+        blocks = []
+        line = line_start
+        while line < line_end:
+            vals = _get_vals(line, prefix)
+            if vals:
+                if blocks:
+                    blocks[-1]["line_end"] = line
+                blocks.append({"vals": vals, "line_start": line})
+            line += 1
+        if not blocks:
+            return []
+        blocks[-1]["line_end"] = line_end
+        all_vals = []
+        for block in blocks:
+            vals = block["vals"]
+            all_vals.append(vals)
+            line_start = block["line_start"]
+            line_end = block["line_end"]
+            todo = _get_subfields(prefix)
+            for n, s in todo:
+                vals[n] = []
+                res = _read_objs(line_start, line_end, prefix + s + "/")
+                for vals2 in res:
+                    vals[n].append(vals2)
+                model = _get_prefix_model(prefix)
+                m=get_model(model)
+                f = m._fields.get(n)
+                if not f:
+                    raise Exception("Invalid field: %s" % n)
+                if not isinstance(f,fields.One2Many):
+                    if len(vals[n])!=1:
+                        raise Exception("Invalid value for field %s"%n)
+                    vals[n]=vals[n][0]
+        return all_vals
+
+    data=[]
+    line = 0
+    while line < len(rows):
+        while line < len(rows) and not _has_vals(line):
+            line += 1
+        if line == len(rows):
+            break
+        line_start = line
+        line += 1
+        while line < len(rows) and not _has_vals(line):
+            line += 1
+        line_end = line
+        try:
+            res = _read_objs(line_start=line_start, line_end=line_end)
+            assert len(res) == 1
+            data.append(res[0])
+        except Exception as e:
+            raise Exception("Error row %d: %s" % (line_start + 2, e))
+    print("==> data")
+    pprint(data)
+    return data

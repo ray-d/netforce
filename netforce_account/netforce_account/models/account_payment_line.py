@@ -32,7 +32,7 @@ class PaymentLine(Model):
         "unit_price": fields.Decimal("Unit Price"),
         "account_id": fields.Many2One("account.account", "Account", condition=[["type", "!=", "view"]]),
         "tax_id": fields.Many2One("account.tax.rate", "Tax Rate"),
-        "amount": fields.Decimal("Amount", required=True),
+        "amount": fields.Decimal("Amount (Pmt Cur)", required=True),
         "invoice_id": fields.Many2One("account.invoice", "Invoice"),
         "expense_id": fields.Many2One("hr.expense", "Expense Claim"),
         "track_id": fields.Many2One("account.track.categ", "Track-1", condition=[["type", "=", "1"]]),
@@ -40,7 +40,9 @@ class PaymentLine(Model):
         "tax_comp_id": fields.Many2One("account.tax.component", "Tax Comp."),
         "tax_base": fields.Decimal("Tax Base"),
         "tax_no": fields.Char("Tax No."),
-        "amount_currency": fields.Decimal("Amount Currency", function="get_amount_currency"), # amount converted to invoice currency
+        "amount_invoice": fields.Decimal("Amount (Inv Cur)"),
+        "invoice_currency_id": fields.Many2One("currency", "Invoice Currency", function="_get_related", function_context={"path": "invoice_id.currency_id"}),
+        "currency_rate": fields.Decimal("Currency Rate (Pmt->Inv)"),
     }
 
     def create(self, vals, context={}):
@@ -62,6 +64,7 @@ class PaymentLine(Model):
         new_id = super().create(vals, context=context)
         return new_id
 
+    # XXX: remove this
     def get_amount_currency(self, ids, context={}):
         vals = {}
         for obj in self.browse(ids):

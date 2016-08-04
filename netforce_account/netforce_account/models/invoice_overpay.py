@@ -41,7 +41,7 @@ class InvoiceOverpay(Model):
             raise Exception("Wrong payment type")
         amt_over = 0
         for line in pmt.invoice_lines:
-            amt_over += max(0, line.amount_currency - line.invoice_id.amount_due)
+            amt_over += max(0, line.amount_invoice - line.invoice_id.amount_due)
         return amt_over
 
     _defaults = {

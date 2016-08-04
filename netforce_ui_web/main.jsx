@@ -5,7 +5,6 @@ var applyMiddleware = require("redux").applyMiddleware;
 var Provider = require("react-redux").Provider;
 var thunkMiddleware = require("redux-thunk").default;
 var reducer = require("./reducers");
-var rpc = require("./rpc");
 var Root = require('./components/root');
 
 require("bootstrap/dist/css/bootstrap.css");

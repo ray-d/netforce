@@ -44,6 +44,7 @@ class StockCount(Model):
         "journal_id": fields.Many2One("stock.journal", "Journal"),
         "total_cost_amount": fields.Decimal("Total New Cost Amount",function="get_total_cost_amount"),
     }
+    _order="date desc"
 
     def _get_number(self, context={}):
         while 1:
@@ -189,13 +190,13 @@ class StockCount(Model):
             if prod.type!="stock":
                 raise Exception("Invalid product type in stock count: %s"%prod.code)
             prod_ids.append(line.product_id.id)
-            if line.new_qty <= line.prev_qty:
+            if line.new_qty < line.prev_qty:
                 qty_diff = line.prev_qty - line.new_qty
                 amount_diff = line.prev_cost_amount - line.new_cost_amount
                 price_diff = amount_diff / qty_diff if qty_diff else 0
                 loc_from_id = obj.location_id.id
                 loc_to_id = invent_loc_id
-            elif line.new_qty > line.prev_qty:
+            elif line.new_qty >= line.prev_qty:
                 qty_diff = line.new_qty - line.prev_qty
                 amount_diff = line.new_cost_amount - (line.prev_cost_amount or 0)
                 price_diff = amount_diff / qty_diff if qty_diff else 0
@@ -217,7 +218,7 @@ class StockCount(Model):
             }
             #move_id = get_model("stock.move").create(vals)
             number="%s/%s"%(obj.number,line_no)
-            res=db.get("INSERT INTO stock_move (journal_id,date,ref,product_id,lot_id,location_from_id,location_to_id,qty,uom_id,cost_price,cost_amount,related_id,state,number) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'draft',%s) RETURNING id",vals["journal_id"],vals["date"],vals["ref"],vals["product_id"],vals["lot_id"],vals["location_from_id"],vals["location_to_id"],vals["qty"],vals["uom_id"],vals["cost_price"],vals["cost_amount"],vals["related_id"],number)
+            res=db.get("INSERT INTO stock_move (journal_id,date,ref,product_id,lot_id,location_from_id,location_to_id,qty,uom_id,cost_price,cost_amount,related_id,state,number,cost_fixed,company_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'draft',%s,%s) RETURNING id",vals["journal_id"],vals["date"],vals["ref"],vals["product_id"],vals["lot_id"],vals["location_from_id"],vals["location_to_id"],vals["qty"],vals["uom_id"],vals["cost_price"],vals["cost_amount"],vals["related_id"],number,True,obj.company_id.id)
             move_id=res.id
             move_ids.append(move_id)
         get_model("stock.move").set_done(move_ids)

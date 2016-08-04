@@ -150,7 +150,7 @@ class ReportProfitLoss(Model):
             if i > 100:
                 raise Exception("Cycle detected!")
             parent_ids = list(set(parent_ids))
-            res = get_model("account.account").read(parent_ids, ["name", "parent_id", "type"])
+            res = get_model("account.account").read(parent_ids, ["code", "name", "parent_id", "type"])
             parent_ids = []
             for r in res:
                 accounts[r["id"]] = r
@@ -322,7 +322,7 @@ class ReportProfitLoss(Model):
             if name:
                 lines.append({
                     "type": "group_header",
-                    "string": name,
+                    "string": "[%s] %s" % (group["code"], group["name"]) if group.get("code") else group["name"],
                     "padding": 20 * depth,
                 })
             for child in children:

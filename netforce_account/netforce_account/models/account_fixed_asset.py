@@ -128,26 +128,33 @@ class FixedAsset(Model):
             "flash": msg,
         }
 
-    def _get_book_val(self, ids, context={}):
-        vals = {}
-        date = context.get("date")
+    def _get_book_val(self,ids,context={}):
+        print("#"*80)
+        print("FixedAsset.get_book_val",ids)
+        t0=time.time()
+        date=context.get("date")
+        dep_totals={}
+        last_deps={}
+        for period in get_model("account.fixed.asset.period").search_browse([["asset_id","in",ids]],order="date_to"):
+            if date and period.date_to>date:
+                continue
+            asset_id=period.asset_id.id
+            dep_totals.setdefault(asset_id,0)
+            dep_totals[asset_id]+=period.amount
+            last_deps[asset_id]=period.date_to
+        vals={}
         for obj in self.browse(ids):
-            total_dep = 0
-            for period in obj.periods:
-                if date and period.date_to > date:
-                    continue
-                total_dep += period.amount
-            book_val = obj.price_purchase - total_dep
-            if obj.periods:
-                last_dep = obj.periods[-1].date_to
-            else:
-                last_dep = None
-            if obj.state in ("sold", "disposed"):
-                book_val = 0
-            vals[obj.id] = {
+            book_val=obj.price_purchase-dep_totals.get(obj.id,0)
+            last_dep=last_deps.get(obj.id,None)
+            if obj.state in ("sold","disposed"):
+                book_val=0
+            vals[obj.id]={
                 "book_val": book_val,
                 "last_dep": last_dep,
             }
+        t1=time.time()
+        print(">>> FixedAsset.get_book_val finished in %.2fs"%(t1-t0))
+        print("#"*80)
         return vals
 
     def get_daily_rate(self, ids, date_from, context={}):

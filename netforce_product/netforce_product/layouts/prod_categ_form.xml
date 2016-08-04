@@ -4,12 +4,25 @@
             <item string="Update Product List Prices" method="update_sale_prices"/>
         </button>
     </head>
-    <field name="name"/>
-    <field name="code"/>
-    <field name="parent_id"/>
-    <field name="description"/>
-    <field name="image"/>
-    <field name="gross_profit"/>
+    <tabs>
+        <tab string="General">
+            <field name="name"/>
+            <field name="code"/>
+            <field name="parent_id"/>
+            <field name="description"/>
+            <field name="image"/>
+            <field name="gross_profit"/>
+        </tab>
+        <tab string="Accounting">
+            <field name="sale_account_id"/>
+            <field name="sale_tax_id"/>
+            <field name="purchase_account_id"/>
+            <field name="purchase_tax_id"/>
+            <field name="cost_method"/>
+            <field name="cogs_account_id"/>
+            <field name="stock_account_id"/>
+        </tab>
+    </tabs>
     <related>
         <field name="sub_categories"/>
         <field name="products"/>

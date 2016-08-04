@@ -1,14 +1,16 @@
 {
   "name": "netforce_ui_web",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "Netforce Web UI",
   "scripts": {
     "start": "npm run serve | npm run dev",
-    "serve": "./node_modules/.bin/http-server -p 8080",
+    "serve": "http-server -p 8080",
     "dev": "webpack-dev-server --progress --colors --port 8090",
     "build": "webpack"
   },
-  "author": "Netforce Co. Ltd.",
+  "author": {
+    "name": "Netforce Co. Ltd."
+  },
   "license": "MIT",
   "dependencies": {
     "bootstrap": "^3.3.6",
@@ -35,5 +37,30 @@
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14"
-  }
+  },
+  "_id": "netforce_ui_web@0.0.5",
+  "_shasum": "b85e347de708a4dd0bdb2b46acbde8bb8f1a5695",
+  "_from": "netforce_ui_web@*",
+  "_npmVersion": "2.14.7",
+  "_nodeVersion": "4.2.2",
+  "_npmUser": {
+    "name": "nfco",
+    "email": "dj@netforce.com"
+  },
+  "dist": {
+    "shasum": "b85e347de708a4dd0bdb2b46acbde8bb8f1a5695",
+    "tarball": "https://registry.npmjs.org/netforce_ui_web/-/netforce_ui_web-0.0.5.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "nfco",
+      "email": "dj@netforce.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/netforce_ui_web-0.0.5.tgz_1460375817714_0.26677337707951665"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/netforce_ui_web/-/netforce_ui_web-0.0.5.tgz"
 }

@@ -1,6 +1,10 @@
 package com.netforce;
 
 import com.facebook.react.ReactActivity;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.mikemonteith.reactnativempchart.MPChartPackage;
+import com.AirMaps.AirPackage;
+import com.imagepicker.ImagePickerPackage;
 import com.mikemonteith.reactnativempchart.MPChartPackage;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -41,6 +45,10 @@ public class MainActivity extends ReactActivity {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
         new MainReactPackage(),
+            new VectorIconsPackage(),
+            new MPChartPackage(),
+            new AirPackage(),
+            new ImagePickerPackage(),
         new AirPackage(),
         new ImagePickerPackage(),
         new ReactDatePackage(this),

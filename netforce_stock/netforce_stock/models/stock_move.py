@@ -43,6 +43,7 @@ class Move(Model):
         "cost_price_cur": fields.Decimal("Cost Price (Cur)",scale=6), # in picking currency
         "cost_price": fields.Decimal("Cost Price", scale=6),  # in company currency
         "cost_amount": fields.Decimal("Cost Amount"), # in company currency
+        "cost_fixed": fields.Boolean("Cost Fixed"), # don't calculate cost
         "state": fields.Selection([("draft", "Draft"), ("pending", "Planned"), ("approved", "Approved"), ("done", "Completed"), ("voided", "Voided")], "Status", required=True),
         "stock_count_id": fields.Many2One("stock.count", "Stock Count"),
         "move_id": fields.Many2One("account.move", "Journal Entry"),
@@ -328,21 +329,38 @@ class Move(Model):
                 if date!=post_date:
                     raise Exception("Failed to post stock movements because they have different dates")
             prod=move.product_id
-            desc="[%s] %s @ %s %s "%(prod.code,prod.name,round(move.qty,2),move.uom_id.name)
+            #desc="[%s] %s @ %s %s "%(prod.code,prod.name,round(move.qty,2),move.uom_id.name) # XXX: too many lines in JE
+            desc="Inventory costing"
             acc_from_id=move.location_from_id.account_id.id
-            if not acc_from_id:
-                acc_from_id=prod.stock_in_account_id.id
+            if move.location_from_id.type=="customer":
+                if prod.cogs_account_id:
+                    acc_from_id=prod.cogs_account_id.id
+                elif prod.categ_id and prod.categ_id.cogs_account_id:
+                    acc_from_id=prod.categ_id.cogs_account_id.id
+            elif move.location_from_id.type=="internal":
+                if prod.stock_account_id:
+                    acc_from_id=prod.stock_account_id.id
+                elif prod.categ_id and prod.categ_id.stock_account_id:
+                    acc_from_id=prod.categ_id.stock_account_id.id
             if not acc_from_id:
                 raise Exception("Missing input account for stock movement %s (date=%s, ref=%s, product=%s)"%(move.id,move.date,move.ref,prod.name))
             acc_to_id=move.location_to_id.account_id.id
-            if not acc_to_id:
-                acc_to_id=prod.stock_out_account_id.id
+            if move.location_to_id.type=="customer":
+                if prod.cogs_account_id:
+                    acc_to_id=prod.cogs_account_id.id
+                elif prod.categ_id and prod.categ_id.cogs_account_id:
+                    acc_to_id=prod.categ_id.cogs_account_id.id
+            elif move.location_to_id.type=="internal":
+                if prod.stock_account_id:
+                    acc_to_id=prod.stock_account_id.id
+                elif prod.categ_id and prod.categ_id.stock_account_id:
+                    acc_to_id=prod.categ_id.stock_account_id.id
             if not acc_to_id:
                 raise Exception("Missing output account for stock movement %s (date=%s, ref=%s, product=%s)"%(move.id,move.date,move.ref,prod.name))
             track_from_id=move.location_from_id.track_id.id
             track_to_id=move.track_id.id or move.location_to_id.track_id.id # XXX
             amt=move.cost_amount or 0
-            if move.qty: # XXX: avoid create double journal entry for LC
+            if not move.move_id: # XXX: avoid create double journal entry for LC for ex
                 accounts.setdefault((acc_from_id,track_from_id,desc),0)
                 accounts.setdefault((acc_to_id,track_to_id,desc),0)
                 accounts[(acc_from_id,track_from_id,desc)]-=amt

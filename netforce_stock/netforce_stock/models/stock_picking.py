@@ -56,7 +56,7 @@ class Picking(Model):
         "done_by_id": fields.Many2One("base.user", "Completed By", readonly=True),
         "done_approved_by_id": fields.Many2One("base.user", "Approved By", readonly=True),
         "employee_id": fields.Many2One("hr.employee", "Employee"),
-        "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),
+        "ship_method_id": fields.Many2One("ship.method", "Shipping Method",search=True),
         "ship_tracking": fields.Char("Tracking Number"),
         "ship_route": fields.Char("Delivery Route"),
         "documents": fields.One2Many("document", "related_id", "Documents"),

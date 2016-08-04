@@ -270,7 +270,7 @@ def get_cell_row(addr):
 
 def report_render_xls(tmpl_name, data, fast_render=False):
     print("report_render_xls", tmpl_name, data)
-    tmpl_data = _get_report_template(tmpl_name, "xlsx")
+    tmpl_data = get_report_template(tmpl_name, "xlsx")
     tmpl_f = BytesIO(tmpl_data)
     zf_in = zipfile.ZipFile(tmpl_f)
     ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
@@ -554,7 +554,7 @@ def report_render_xls(tmpl_name, data, fast_render=False):
 
 def report_render_doc(tmpl_name, data):  # Do they delete the newline thing
     print("report_render_doc", tmpl_name, data)
-    tmpl_data = _get_report_template(tmpl_name, "docx")
+    tmpl_data = get_report_template(tmpl_name, "docx")
     tmpl_f = BytesIO(tmpl_data)
     zf = zipfile.ZipFile(tmpl_f)
 
@@ -682,7 +682,7 @@ def report_render_doc(tmpl_name, data):  # Do they delete the newline thing
     return data
 
 
-def _get_report_template(name, report_type):
+def get_report_template(name, report_type):
     db = database.get_connection()
     res = db.get("SELECT file FROM report_template WHERE name=%s AND format=%s", name, report_type)
     if res:
@@ -831,9 +831,9 @@ def remove_keep_tail(p, i):
 def report_render_odt(tmpl_name, data):
     print("REPORT_RENDER_ODT", tmpl_name, data)
     try:
-        tmpl_data = _get_report_template(tmpl_name, "odt")
+        tmpl_data = get_report_template(tmpl_name, "odt")
     except:
-        tmpl_data = _get_report_template(tmpl_name, "odt2")  # XXX
+        tmpl_data = get_report_template(tmpl_name, "odt2")  # XXX
     tmpl_f = BytesIO(tmpl_data)
     zf = zipfile.ZipFile(tmpl_f)
 
@@ -1021,7 +1021,7 @@ def report_render_odt(tmpl_name, data):
 
 def report_render_ods(tmpl_name, data):
     print("REPORT_RENDER_ODS", tmpl_name, data)
-    tmpl_data = _get_report_template(tmpl_name, "ods")
+    tmpl_data = get_report_template(tmpl_name, "ods")
     return tmpl_data  # TODO: fill template
 
 
@@ -1070,3 +1070,20 @@ def report_render_to_file(model, ids, method="get_report_data", template=None, t
     f.write(out_data)
     f.close()
     return fname2
+
+def report_render_jsx(tmpl_body, data, orientation="portrait"):
+    print("report_render_jsx", data)
+    tmpl_path="/tmp/template.jsx"
+    f=open(tmpl_path,"wb")
+    f.write(tmpl_body.encode("utf-8"))
+    f.close()
+    params = {
+        "template": tmpl_path,
+        "data": utils.json_dumps(data),
+        "orientation": orientation,
+    }
+    url = "http://localhost:9991/"
+    r = requests.post(url, data=params, timeout=15)
+    if r.status_code != 200:
+        raise Exception("Failed to render JSX report (%s)" % r.status_code)
+    return r.content

@@ -62,17 +62,24 @@ class Uom(Model):
         super().delete(*a, **kw)
         ipc.send_signal("clear_uom_cache")
 
-    def get_ratio(self, uom_id):
+    def get_ratio(self, uom_id, context={}):
         dbname = database.get_active_db()
-        if (dbname, uom_id) in _cache:
-            return _cache[(dbname, uom_id)]
+        if not context.get("no_cache"):
+            if (dbname, uom_id) in _cache:
+                return _cache[(dbname, uom_id)]
         obj = self.browse(uom_id)
-        _cache[(dbname, uom_id)] = obj.ratio
+        if not context.get("no_cache"):
+            _cache[(dbname, uom_id)] = obj.ratio
         return obj.ratio
 
     def convert(self, qty, uom_from_id, uom_to_id, context={}):
-        from_ratio = self.get_ratio(uom_from_id)
-        to_ratio = self.get_ratio(uom_to_id)
-        return qty * ((from_ratio or 1) / (to_ratio or 1))
+        #print("UoM.convert",qty,uom_from_id,uom_to_id)
+        from_ratio = self.get_ratio(uom_from_id,context=context)
+        #print("from_ratio",from_ratio)
+        to_ratio = self.get_ratio(uom_to_id,context=context)
+        #print("to_ratio",to_ratio)
+        qty_conv = qty * (from_ratio or 1) / (to_ratio or 1)
+        #print("qty_conv",qty_conv)
+        return qty_conv
 
 Uom.register()

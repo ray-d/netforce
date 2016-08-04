@@ -4,8 +4,10 @@
  */
 'use strict';
 import React, {
-  AppRegistry,
   Component,
+} from 'react';
+import {
+  AppRegistry,
   StyleSheet,
   Text,
   TextInput,
@@ -159,7 +161,13 @@ class Form extends Component {
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="decimal") {
                 if (v!=orig_v) change[name]=v;
-            } else if (f.type=="select") {
+            } else if (f.type=="selection") {
+                if (v!=orig_v) change[name]=v;
+            } else if (f.type=="date") {
+                if (v!=orig_v) change[name]=v;
+            } else if (f.type=="datetime") {
+                if (v!=orig_v) change[name]=v;
+            } else if (f.type=="file") {
                 if (v!=orig_v) change[name]=v;
             } else if (f.type=="many2one") {
                 var v1=v?v[0]:null;

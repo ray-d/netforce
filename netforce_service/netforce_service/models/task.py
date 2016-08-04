@@ -66,7 +66,7 @@ class Task(Model):
         "depends_json": fields.Text("Task Dependencies (String)",function="get_depends_json"),
         "assignments": fields.One2Many("task.assign","task_id","Assignments"),
     }
-    _order = "priority,id"
+    _order = "project_id.start_date,milestone_id.plan_date_from,task_list_id.date_created,date_start,id" # XXX
 
     def _get_number(self, context={}):
         seq_id = get_model("sequence").find_sequence(type="task")
@@ -93,7 +93,7 @@ class Task(Model):
         for obj in self.browse(ids):
             res=[]
             for dep in obj.depends:
-                res.append((dep.prev_task_id.id,dep.delay))
+                res.append((dep.id,dep.prev_task_id.id,dep.delay))
             vals[obj.id]=res
         return vals
 
@@ -129,5 +129,15 @@ class Task(Model):
     def write(self,ids,*args,**kw):
         super().write(ids,*args,**kw)
         self.function_store(ids)
+
+    def add_link(self,source_id,target_id,context={}):
+        vals={
+            "prev_task_id": source_id,
+            "task_id": target_id,
+        }
+        get_model("task.depend").create(vals)
+
+    def delete_link(self,link_ids,context={}):
+        get_model("task.depend").delete(link_ids)
 
 Task.register()

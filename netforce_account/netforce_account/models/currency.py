@@ -121,6 +121,7 @@ class Currency(Model):
         return res
 
     def convert(self, amt, cur_from_id, cur_to_id, from_rate=None, to_rate=None, rate=None, round=False, date=None, rate_type="buy", context={}):
+        #print("Currency.convert",amt,cur_from_id,cur_to_id)
         if cur_from_id == cur_to_id:
             return amt
         if not from_rate and not rate:
@@ -136,11 +137,15 @@ class Currency(Model):
         if rate:
             amt2 = amt * rate
         else:
+            #print("from_rate",from_rate)
+            #print("to_rate",to_rate)
             amt2 = amt * from_rate / Decimal(to_rate) if to_rate else 0
         if round:
-            return self.round(cur_to_id, amt2)
+            amt_conv=self.round(cur_to_id, amt2)
         else:
-            return amt2
+            amt_conv=amt2
+        #print("amt_conv",amt_conv)
+        return amt_conv
 
     def round(self, cur_id, amt):
         decimal.getcontext().rounding=ROUND_HALF_UP

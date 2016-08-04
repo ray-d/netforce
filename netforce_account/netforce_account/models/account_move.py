@@ -225,6 +225,7 @@ class Move(Model):
                 if line.track_id.currency_id:
                     amt=get_model("currency").convert(amt,settings.currency_id.id,line.track_id.currency_id.id)
                 vals={
+                    "date": obj.date,
                     "track_id": line.track_id.id,
                     "amount": amt,
                     "description": line.description,
@@ -236,6 +237,7 @@ class Move(Model):
                 if line.track2_id.currency_id:
                     amt=get_model("currency").convert(amt,settings.currency_id.id,line.track2_id.currency_id.id)
                 vals={
+                    "date": obj.date,
                     "track_id": line.track2_id.id,
                     "amount": amt,
                     "description": line.description,

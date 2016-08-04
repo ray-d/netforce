@@ -1,10 +1,14 @@
 'use strict';
 import React, {
-  AppRegistry,
   Component,
+} from 'react';
+import {
+  AppRegistry,
   StyleSheet,
   TextInput,
+  NativeModules,
   Image,
+  Text,
   View
 } from 'react-native';
 
@@ -12,7 +16,7 @@ var utils=require("./utils");
 var rpc=require("./rpc");
 var Icon = require('react-native-vector-icons/FontAwesome');
 var Button=require("./button");
-var ImagePickerManager = require('NativeModules').ImagePickerManager;
+var ImagePickerManager = NativeModules.ImagePickerManager;
 
 class FieldImage extends Component {
     constructor(props) {
@@ -32,6 +36,7 @@ class FieldImage extends Component {
         var val=this.state.value;
         return <View style={{alignItems:"center"}}>
             {function() {
+                if (this.state.uploading) return <Text>Uploading...</Text>;
                 if (val) {
                     var uri=rpc.get_file_uri(val);
                     return <Image style={{width:200,height:200,resizeMode:"contain"}} source={{uri:uri}}/>

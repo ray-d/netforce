@@ -1,7 +1,9 @@
 'use strict';
 import React, {
-  AppRegistry,
   Component,
+} from 'react';
+import {
+  AppRegistry,
   StyleSheet,
   Text,
   TextInput,
@@ -82,7 +84,7 @@ class Netforce extends Component {
                     if (action.view=="menu_mobile") {
                         return <Menu navigator={navigator} layout={action.layout}/>
                     } else if (action.view=="list_mobile") {
-                        return <List navigator={navigator} model={action.model} title={action.title} layout={action.layout} form_layout={action.form_layout} context={action.context}/>
+                        return <List navigator={navigator} model={action.model} title={action.title} layout={action.layout} form_layout={action.form_layout} context={action.context} tabs={action.tabs}/>
                     } else if (action.view=="form_mobile") {
                         return <Form navigator={navigator} model={action.model} layout={action.layout} active_id={action.active_id} context={action.context}/>
                     } else if (action.view=="page_mobile") {

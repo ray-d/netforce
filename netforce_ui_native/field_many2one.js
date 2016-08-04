@@ -1,16 +1,17 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- */
 'use strict';
 import React, {
-  AppRegistry,
   Component,
+} from 'react';
+import {
+  AppRegistry,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   Picker,
+  Modal,
+  Platform,
+  Dimensions,
   View
 } from 'react-native';
 
@@ -20,10 +21,18 @@ var rpc=require("./rpc");
 var Icon = require('react-native-vector-icons/FontAwesome');
 var _=require("underscore");
 
+var SCREEN_WIDTH = Dimensions.get('window').width;
+
 class FieldMany2One extends Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        if (this.props.relation) {
+            this.relation=this.props.relation;
+        } else {
+            var f=UIParams.get_field(this.props.model,this.props.name);
+            this.relation=f.relation;
+        }
+        this.state = {show_picker:false};
     }
 
     componentDidMount() {
@@ -34,7 +43,7 @@ class FieldMany2One extends Component {
 
     load_items() {
         var ctx={};
-        rpc.execute(this.props.relation,"name_search",[""],{context:ctx},(err,data)=>{
+        rpc.execute(this.relation,"name_search",[""],{context:ctx},(err,data)=>{
             if (err) {
                 alert("Error: "+err);
                 return;
@@ -49,12 +58,41 @@ class FieldMany2One extends Component {
         var val_id=val?val[0]:null;
         if (this.props.select) {
             if (!this.state.items) return <Text>Loading...</Text>
-            var items=[null].concat(this.state.items);
-            return <Picker selectedValue={val_id} onValueChange={this.select_item.bind(this)}>
-                    {items.map((obj,i)=>{
-                        return <Picker.Item key={i} label={obj?obj[1]:""} value={obj?obj[0]:null}/>
-                    })}
-            </Picker>
+            var items=[[null,""]].concat(this.state.items);
+            if (Platform.OS=="android") {
+                return <Picker selectedValue={this.state.value} onValueChange={this.select_item.bind(this)} style={{height:40}}>
+                    {items.map(function(o,i) {
+                        return <Picker.Item label={o?o[1]:""} value={o?o[0]:null} key={i}/>
+                    }.bind(this))}
+                </Picker>
+            } else {
+                var val_id=this.state.value?this.state.value[0]:null;
+                var val_str=this.state.value?this.state.value[1]:null;
+                return <View>
+                    <TouchableOpacity onPress={this.on_press.bind(this)} style={{borderBottomWidth:0.5,height:40}}>
+                        <Text>{val_str}</Text>
+                    </TouchableOpacity>
+                    {function() {
+                        if (Platform.OS!="ios") return;
+                        return <Modal transparent={true} visible={this.state.show_picker}>
+                            <View style={{flex:1,justifyContent:"flex-end",alignItems:"center"}}>
+                                <View style={{backgroundColor:"#fff",width:SCREEN_WIDTH,height:220}}>
+                                    <View style={{flexDirection:"row",justifyContent:"flex-end",height:40,alignItems:"center"}}>
+                                        <TouchableOpacity onPress={this.hide_picker.bind(this)} style={{marginRight:20}}>
+                                            <Text style={{color:"#007aff"}}>Done</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <Picker selectedValue={val_id} onValueChange={this.select_item.bind(this)}>
+                                        {items.map(function(o,i) {
+                                            return <Picker.Item label={o?o[1]:""} value={o?o[0]:null} key={i}/>
+                                        }.bind(this))}
+                                    </Picker>
+                                </View>
+                            </View>
+                        </Modal>
+                    }.bind(this)()}
+                </View>
+            }
         } else {
             return <View style={{flexDirection:"row",borderBottomWidth:0.5,marginBottom:5,height:40}}>
                 <TouchableOpacity style={{flex:1}} onPress={this.search.bind(this)}>
@@ -91,6 +129,16 @@ class FieldMany2One extends Component {
         console.log("val",val);
         this.setState({value:val});
         this.props.data[this.props.name]=val;
+    }
+
+    on_press() {
+	    if (Platform.OS=="ios") {
+            this.setState({show_picker:true});
+        }
+    }
+
+    hide_picker() {
+        this.setState({show_picker:false});
     }
 }
 

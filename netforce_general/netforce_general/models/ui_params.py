@@ -23,6 +23,7 @@ from netforce import action
 from netforce import layout
 from netforce import model
 from netforce import get_module_version_name,get_module_version_code
+from netforce import template
 
 class UIParams(Model):
     _name = "ui.params"
@@ -38,12 +39,14 @@ class UIParams(Model):
         actions=action.actions_to_json(modules=context.get("modules"))
         layouts=layout.layouts_to_json(modules=context.get("modules"),mobile_only=context.get("mobile_only"))
         models=model.models_to_json()
+        templates=template.templates_to_json(modules=context.get("modules"))
         return {
             "version_name": get_module_version_name(),
             "version_code": get_module_version_code(),
             "actions": actions,
             "layouts": layouts,
             "models": models,
+            "templates": templates,
         }
 
 UIParams.register()

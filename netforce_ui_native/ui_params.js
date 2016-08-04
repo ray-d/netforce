@@ -37,7 +37,7 @@ module.exports.load_ui_params=function(modules,cb) {
         }
         if (!data) {
             console.log("ui_params not in local storage");
-            load_ui_params_from_server(cb);
+            load_ui_params_from_server(modules,cb);
             return;
         }
         _ui_params=JSON.parse(data);
@@ -52,7 +52,7 @@ module.exports.load_ui_params=function(modules,cb) {
                 return;
             }
             console.log("ui_params in local storage, wrong version");
-            load_ui_params_from_server(cb);
+            load_ui_params_from_server(modules,cb);
         });
     });
 }

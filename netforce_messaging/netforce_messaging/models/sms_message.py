@@ -32,7 +32,8 @@ class SmsMessage(Model):
         "date": fields.DateTime("Date", required=True, search=True),
         "phone": fields.Char("Phone Number", required=True, size=256, search=True),
         "body": fields.Text("Body", search=True),
-        "state": fields.Selection([["draft", "Draft"], ["to_send", "To Send"], ["sent", "Sent"], ["error", "Error"]], "Status", required=True),
+        "state": fields.Selection([["draft", "Draft"], ["to_send", "To Send"], ["sent", "Sent"], ["error", "Error"]], "Status", required=True, search=True),
+        "error": fields.Text("Error Message"),
     }
     _order = "date desc"
     _defaults = {
@@ -44,103 +45,79 @@ class SmsMessage(Model):
         for obj in self.browse(ids):
             obj.write({"state": "to_send"})
 
-    def send_thaibulksms(self, context={}):
-        ids = self.search([["state", "=", "to_send"]])
+    def send(self,ids,context={}):
+        print("SMSMessage.send",ids)
         for obj in self.browse(ids):
-            acc = obj.account_id
+            acc=obj.account_id
             if not acc:
-                raise Exception("Missing SMS account")
-            if acc.type!="thaibulksms":
-                raise Exception("Invalid SMS account type")
-            params = {
+                raise Exception("Missing account in SMS %s"%obj.id)
+            if acc.type=="twilio":
+                obj.send_twilio()
+            elif acc.type=="thaibulksms":
+                obj.send_thaibulksms()
+            elif acc.type=="smsmkt":
+                obj.send_smsmkt()
+            else:
+                raise Exception("Invalid SMS account type: %s"%acc.type)
+
+    def send_twilio(self,ids,context={}):
+        obj=self.browse(ids[0])
+        try:
+            acc=obj.account_id
+            url="https://api.twilio.com/2010-04-01/Accounts/%s/Messages"%acc.username
+            params={
+                "To": obj.phone,
+                "From": acc.sender,
+                "Body": obj.body,
+            }
+            r=requests.post(url,data=params,auth=(acc.username,acc.password))
+            if r.status_code!=201:
+                raise Exception("Failed to send SMS with Twilio (status_code=%s)"%r.status_code)
+            obj.write({"state": "sent"})
+        except Exception as e:
+            obj.write({"state": "error"})
+            obj.write({"state": "error","error":str(e)})
+            raise e
+
+    def send_thaibulksms(self,ids,context={}):
+        obj=self.browse(ids[0])
+        try:
+            acc=obj.account_id
+            url = "https://secure.thaibulksms.com/sms_api.php"
+            params={
                 'username': acc.username,
                 'password': acc.password,
                 'msisdn': obj.phone,
                 'message': obj.body[:160].encode('tis-620'),
-                'sender': acc.sender
+                'sender': acc.sender,
             }
-            url = "https://secure.thaibulksms.com/sms_api.php"
-            res = requests.get(url, params=params, timeout=10).read().decode()
-            if res.find("<Status>1</Status>") == -1:
-                raise Exception(res)
+            r=requests.get(url,data=params)
+            if r.content.find("<Status>1</Status>") == -1:
+                raise Exception("Failed to send SMS with ThaiBulkSMS)"%r.status_code)
             obj.write({"state": "sent"})
+        except Exception as e:
+            obj.write({"state": "error","error":str(e)})
+            raise e
 
     def send_smsmkt(self,ids,context={}):
-        print("send_smsmkt",ids)
-        for obj in self.browse(ids):
+        obj=self.browse(ids[0])
+        try:
             acc=obj.account_id
-            if not acc:
-                raise Exception("Missing SMS account")
-            if not acc.username:
-                raise Exception("Missing SMSMKT username")
-            if not acc.password:
-                raise Exception("Missing SMSMKT password")
-            if not acc.sender:
-                raise Exception("Missing SMSMKT sender")
             url="https://member.smsmkt.com/SMSLink/SendMsg/index.php"
             params={
                 "Username": acc.username,
                 "Password": acc.password,
                 "Msnlist": obj.phone,
-                "Msg": obj.body,
+                'Msg': obj.body,
                 "Sender": acc.sender,
             }
             url+="?User=%(Username)s&Password=%(Password)s&Msnlist=%(Msnlist)s&Msg=%(Msg)s&Sender=%(Sender)s"%params
             r=requests.get(url,timeout=15)
             if r.status_code!=200:
                 raise Exception("Failed to send SMS")
-            print("SMSMKT response",r.text)
-            if r.text.find("Status=0,")==-1:
-                raise Exception("Invalid SMSMKT reponse")
             obj.write({"state": "sent"})
-
-    def send(self,ids,context={}):
-        for obj in self.browse(ids):
-            acc=obj.account_id
-            if not acc:
-                raise Exception("Missing SMS account")
-            if acc.type=="thaibulksms":
-                obj.send_thaibulksms()
-            elif acc.type=="smsmkt":
-                obj.send_smsmkt()
-            else:
-                raise Exception("Invalid account type")
-
-    def send_messages(self, context={}):
-        print("SmsMessage.send_messages")
-        ids = self.search([["state", "=", "to_send"]])
-        for obj in self.browse(ids):
-            try:
-                obj.send()
-            except Exception as e:
-                print("Failed to send SMS: %s" % e)
-                import traceback
-                traceback.print_exc()
-                obj.write({"state": "error"})
-                get_model("log").log("Failed to send Sms", str(e))
-
-    def send_from_template(self, template=None, context={}):
-        if not template:
-            raise Exception("Missing template")
-        res = get_model("sms.template").search([["name", "=", template]])
-        if not res:
-            raise Exception("Template not found: %s" % template)
-        tmpl_id = res[0]
-        tmpl = get_model("sms.template").browse(tmpl_id)
-        trigger_model = context.get("trigger_model")
-        if not trigger_model:
-            raise Exception("Missing trigger model")
-        tm = get_model(trigger_model)
-        trigger_ids = context.get("trigger_ids")
-        if trigger_ids is None:
-            raise Exception("Missing trigger ids")
-        user_id = access.get_active_user()
-        if user_id:
-            user = get_model("base.user").browse(user_id)
-        else:
-            user = None
-        for obj in tm.browse(trigger_ids):
-            tmpl_ctx = {"obj": obj, "user": user, "context": context}
-            tmpl.create_sms(data=tmpl_ctx)
+        except Exception as e:
+            obj.write({"state": "error","error":str(e)})
+            raise e
 
 SmsMessage.register()

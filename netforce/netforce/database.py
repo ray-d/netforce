@@ -60,7 +60,7 @@ active_db = None
 active_schema = None
 con_id=0
 
-def connect(dbname,schema):
+def connect(dbname,schema=None):
     print("DB.connect db=%s schema=%s pid=%s"%(dbname,schema,os.getpid()))
     try:
         if (dbname,schema) in connections:
