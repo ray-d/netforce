@@ -254,7 +254,8 @@ class Payment(Model):
                                 else:
                                     base_amt = invline_amt
                                 subtotal += base_amt
-                            if inv.taxes:
+                            #if inv.taxes: # FIXME!!! (WHT)
+                            if False:
                                 inv_vat = 0
                                 inv_wht = 0
                                 for tax in inv.taxes:
