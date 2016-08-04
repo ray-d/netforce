@@ -280,10 +280,15 @@ class StockOrder(Model):
         print("StockOrder.create_mo",ids)
         obj=self.browse(ids[0])
         n=0
-        for line in obj.lines:
+        for (i,line) in enumerate(obj.lines):
             if line.supply_method!="production":
                 continue
             prod = line.product_id
+            print("#"*80)
+            print("#"*80)
+            print("#"*80)
+            print("Creating MO for product %s (%s/%s)"%(prod.name,i,len(obj.lines)))
+            t0=time.time()
             res=get_model("bom").search([["product_id","=",prod.id]])
             if not res:
                 raise Exception("BoM not found for product '%s'" % prod.name)
@@ -300,9 +305,9 @@ class StockOrder(Model):
                 raise Exception("Missing production location in routing %s" % routing.number)
             uom = prod.uom_id
             order_date=line.date
-            if not prod.mfg_lead_time:
-                raise Exception("Missing manufacturing lead time in product %s"%prod.code)
-            due_date=(datetime.strptime(order_date,"%Y-%m-%d")+timedelta(days=prod.mfg_lead_time-1)).strftime("%Y-%m-%d") # XXX: -1
+            #if not prod.mfg_lead_time:
+            #    raise Exception("Missing manufacturing lead time in product %s"%prod.code) # XXX: default to 1
+            due_date=(datetime.strptime(order_date,"%Y-%m-%d")+timedelta(days=prod.mfg_lead_time or 1)).strftime("%Y-%m-%d") # XXX: -1
             order_vals = {
                 "product_id": prod.id,
                 "qty_planned": line.qty,
@@ -321,6 +326,8 @@ class StockOrder(Model):
             if obj.confirm_orders:
                 get_model("production.order").confirm([order_id])
                 get_model("production.order").in_progress([order_id])
+            t1=time.time()
+            print("==> MO created in %.2f s"%(t1-t0))
             n+=1
         return {
             "num_orders": n,

@@ -111,6 +111,8 @@ class Cart(Model):
                 }
                 meth=get_model("ship.method").browse(meth_id,context=ctx)
                 details.append({
+                    "ship_addr_id":addr_id,
+                    "date": date,
                     "ship_method_id": meth.id,
                     "ship_amount": meth.ship_amount,
                 })
@@ -608,9 +610,9 @@ class Cart(Model):
         for line in obj.lines:
             if line.delivery_date==date:
                 line.write(vals)
-        for a in settings.extra_ship_addresses:
-            if a.id == vals['ship_address_id']:
-                return {'free_ship':True}
+        #for a in settings.extra_ship_addresses:
+            #if a.id == vals['ship_address_id']:
+                #return {'free_ship':True}
         return {'free_ship':False}
 
     def empty_cart(self,ids,context={}):

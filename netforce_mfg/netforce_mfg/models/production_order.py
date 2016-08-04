@@ -987,6 +987,7 @@ class ProductionOrder(Model):
                 new_state = "ready"
             if new_state != obj.state:
                 obj.write({"state": new_state})
+        print(">>> update status done")
 
     def create_planned_production_moves(self, ids, context={}):
         print("create_planned_production_moves", ids)

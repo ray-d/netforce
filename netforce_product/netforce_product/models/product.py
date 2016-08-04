@@ -27,6 +27,7 @@ import time
 import math
 import os
 import base64
+
 class Product(Model):
     _name = "product"
     _string = "Product"
@@ -39,7 +40,7 @@ class Product(Model):
         "name": fields.Char("Name", required=True, search=True, translate=True, size=256),
         "code": fields.Char("Code", required=True, search=True),
         "type": fields.Selection([["stock", "Stockable"], ["consumable", "Consumable"], ["service", "Service"], ["master", "Master"], ["bundle", "Bundle"]], "Product Type", required=True, search=True),
-        "uom_id": fields.Many2One("uom", "Default UoM", required=True),
+        "uom_id": fields.Many2One("uom", "Default UoM", required=True, search=True),
         "parent_id": fields.Many2One("product", "Master Product"),
         "categ_id": fields.Many2One("product.categ", "Product Category", search=True),
         "description": fields.Text("Description", translate=True),

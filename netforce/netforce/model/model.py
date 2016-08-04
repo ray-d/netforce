@@ -227,6 +227,9 @@ class Model(object):
         for n in other_fields:
             v = defaults.get(n)
             if v is not None:
+                f = self._fields[n]
+                if isinstance(f, fields.One2Many): # XXX
+                    v=[("create",x) for x in v]
                 vals[n] = v
         return vals
 

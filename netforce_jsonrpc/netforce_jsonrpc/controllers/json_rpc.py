@@ -74,7 +74,7 @@ class JsonRpc(Controller):
                 }
                 ctx.update(self.get_cookies())
                 opts.setdefault("context", {}).update(ctx)
-                with timeout(seconds=300):  # XXX: can make this faster? (less signal sys handler overhead)
+                with timeout(seconds=900):  # XXX: can make this faster? (less signal sys handler overhead)
                     t0 = time.time()
                     res = f(*args, **opts)
                     t1 = time.time()
@@ -160,7 +160,7 @@ class JsonRpc(Controller):
             }
             ctx.update(self.get_cookies())
             opts.setdefault("context", {}).update(ctx)
-            with timeout(seconds=300):  # XXX: can make this faster? (less signal sys handler overhead)
+            with timeout(seconds=900):  # XXX: can make this faster? (less signal sys handler overhead)
                 t0 = time.time()
                 res = f(*args, **opts)
                 t1 = time.time()
