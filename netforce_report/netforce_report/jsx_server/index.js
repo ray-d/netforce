@@ -20,6 +20,7 @@ app.post("/",function(req,res) {
         console.log("template: "+template);
         if (!req.body.data) throw "Missing data";
         var data=JSON.parse(req.body.data);
+        var orient=req.body.orientation||"portrait";
         //console.log("data: "+data);
         fs.readFile(template,"utf8",function(err,tmpl_jsx) {
             if (err) {
@@ -52,7 +53,7 @@ app.post("/",function(req,res) {
                 if (err) {
                     console.log("Failed to write html");
                 }
-                var cmd='xvfb-run --server-args="-screen 0, 1024x768x24" wkhtmltopdf -O landscape /tmp/report.html /tmp/report.pdf';
+                var cmd='xvfb-run --server-args="-screen 0, 1024x768x24" wkhtmltopdf --encoding utf-8 -O '+orient+' /tmp/report.html /tmp/report.pdf';
                 exec(cmd,function(error,stdout,stderr) {
                     fs.readFile("/tmp/report.pdf",function(err,pdf_data) {
                         res.setHeader('Content-type', 'application/pdf');
@@ -62,6 +63,32 @@ app.post("/",function(req,res) {
                 });
             });
         });
+    } catch (err) {
+        console.log("Failed to render report: "+err);
+        res.status(500).send("Failed to render report: "+err);
+    }
+});
+
+app.post("/compile",function(req,res) {
+    console.log("compile jsx");
+    try {
+        console.log("body",req.body);
+        if (!req.body.source) throw "Missing source jsx";
+        var source=req.body.source;
+        console.log("source"+source);
+        try {
+            var opts={
+                plugins: ["transform-react-jsx"],
+            };
+            var js=babel.transform(source,opts).code;
+            console.log("js",source);
+        } catch (err) {
+            console.log("ERROR: "+err);
+            res.status(500).send("Failed to compile JSX: "+err);
+            return;
+        }
+        res.setHeader('Content-type', 'text/javascript');
+        res.send(js);
     } catch (err) {
         console.log("Failed to render report: "+err);
         res.status(500).send("Failed to render report: "+err);

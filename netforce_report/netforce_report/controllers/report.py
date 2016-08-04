@@ -24,7 +24,7 @@ from netforce import database
 from netforce import template
 from netforce.action import get_action
 from netforce.utils import get_data_path, set_data_path
-from netforce_report import get_report_jasper, get_report_jasper_multi_page, report_render_xls, report_render_doc, report_render_odt, report_render_ods, convert_to_pdf, merge_pdf, report_render_jsx
+from netforce_report import get_report_jasper, get_report_jasper_multi_page, report_render_xls, report_render_doc, report_render_odt, report_render_ods, convert_to_pdf, merge_pdf, report_render_jsx, get_report_template
 from netforce.database import get_connection, get_active_db
 from netforce import config
 from netforce import static
@@ -392,7 +392,8 @@ class Report(Controller):
                 ctx = action_vals.copy()
                 data = f(ids, context=ctx)
                 tmpl_name = action_vals.get("template")
-                out = report_render_jsx(tmpl_name, data)
+                tmpl_body = get_report_template(tmpl_name, "jsx")
+                out = report_render_jsx(tmpl_body, data)
                 db = get_connection()
                 if db:
                     db.commit()
