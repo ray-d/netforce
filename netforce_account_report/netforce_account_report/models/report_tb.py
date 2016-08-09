@@ -90,8 +90,7 @@ class ReportTB(Model):
         for r in res:
             accounts[r["id"]]["balance_begin"] = r["balance"]
 
-        accounts = {acc_id: acc for acc_id, acc in accounts.items(
-        ) if acc["balance"] or acc["debit_month"] or acc["credit_month"] or acc["balance_begin"]}
+        accounts = {acc_id: acc for acc_id, acc in accounts.items() if acc["balance"] or acc["debit_month"] or acc["credit_month"] or acc["balance_begin"]}
         parent_ids = [acc["parent_id"][0] for acc in accounts.values() if acc["parent_id"]]
         while parent_ids:
             parent_ids = list(set(parent_ids))
@@ -109,6 +108,13 @@ class ReportTB(Model):
             parent_id = acc["parent_id"][0]
             parent = accounts[parent_id]
             parent.setdefault("children", []).append(acc)
+
+        root_acc = {
+            "type": "view",
+            "summary": "Total",
+            "children": root_accounts,
+            "separator": "double",
+        }
 
         def _get_totals(acc):
             if acc["type"] != "view":
@@ -135,13 +141,38 @@ class ReportTB(Model):
             acc["credit_month"] = sum(c["credit_month"] for c in children)
             acc["debit_begin"] = sum(c["debit_begin"] for c in children)
             acc["credit_begin"] = sum(c["credit_begin"] for c in children)
-        root_acc = {
-            "type": "view",
-            "summary": "Total",
-            "children": root_accounts,
-            "separator": "double",
-        }
+
         _get_totals(root_acc)
+
+        def _join_accounts(acc):
+            if not acc.get("children"):
+                return
+            child_names = {}
+            for c in acc["children"]:
+                k = (c.get("code", ""), c["name"])
+                if k in child_names:
+                    c2 = child_names[k]
+                    if c2.get("children") and c.get("children"):
+                        c2["children"] += c["children"]
+                    c2["debit"] += c["debit"]
+                    c2["credit"] += c["credit"]
+                    c2["debit_month"] += c["debit_month"]
+                    c2["credit_month"] += c["credit_month"]
+                    c2["debit_begin"] += c["debit_begin"]
+                    c2["credit_begin"] += c["credit_begin"]
+                    c2["balance"] += c["balance"]
+                    c2["balance_begin"] += c["balance_begin"]
+                else:
+                    child_names[k] = c
+            acc["children"] = []
+            for k in sorted(child_names):
+                c = child_names[k]
+                acc["children"].append(c)
+            for c in acc["children"]:
+                _join_accounts(c)
+
+        _join_accounts(root_acc)
+
         lines = []
 
         def _add_lines(acc, depth=0, max_depth=None):
@@ -201,8 +232,8 @@ class ReportTB(Model):
                 "credit_year": acc["credit"] or None,
                 "separator": acc.get("separator"),
             })
-        root_accounts.sort(key=lambda a: a["code"])
-        for acc in root_accounts:
+        root_acc["children"].sort(key=lambda a: a["code"])
+        for acc in root_acc["children"]:
             _add_lines(acc)
         _add_lines(root_acc, max_depth=0)
         pprint(lines)
