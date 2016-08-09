@@ -12,6 +12,8 @@ require("./board");
 require("./chart");
 require("./crosstab");
 require("./labels");
+require("./field_code");
+require("./report");
 
 var Action = React.createClass({
     childContextTypes: {
@@ -46,8 +48,8 @@ var Action = React.createClass({
         this.setState({action:action});
     },
 
-    render_action(action) {
-        console.log("Action.render_action",action);
+    render_action(action,context) {
+        console.log("Action.render_action",action,context);
         var action=this.expand_action(action);
         console.log("exp action",action);
         if (!action.view) throw "Missing view in action";
@@ -72,16 +74,20 @@ var Action = React.createClass({
             } else {
                 var s=action[n];
                 var v;
-                if (f==React.PropTypes.string) {
-                    v=s;
-                } else if (f==React.PropTypes.number) {
-                    v=JSON.parse(s);
-                } else if (f==React.PropTypes.array) {
-                    v=JSON.parse(s);
-                } else if (f==React.PropTypes.object) {
-                    v=JSON.parse(s);
+                if (_.isString(s)) {
+                    if (f==React.PropTypes.string) {
+                        v=s;
+                    } else if (f==React.PropTypes.number) {
+                        v=JSON.parse(s);
+                    } else if (f==React.PropTypes.array) {
+                        v=JSON.parse(s);
+                    } else if (f==React.PropTypes.object) {
+                        v=JSON.parse(s);
+                    } else {
+                        console.log("Warning: invalid prop type '"+n+"' for view "+action.view);
+                        v=s;
+                    }
                 } else {
-                    console.log("Warning: invalid prop type '"+n+"' for view "+action.view);
                     v=s;
                 }
                 props[n]=v;
@@ -91,6 +97,7 @@ var Action = React.createClass({
             props.onclose_modal=this.onclose_modal;
         }
         props.key=(new Date()).getTime(); // force unmount of previous view
+        props.context=Object.assign(props.context||{},context||{});
         console.log("props",props);
         var el=React.createElement(view_class,props);
         return el;
@@ -106,7 +113,7 @@ var Action = React.createClass({
         }
         if (this.state.popup_action) {
             if (!this.popup_el) {
-                this.popup_el=this.render_action(this.state.popup_action);
+                this.popup_el=this.render_action(this.state.popup_action,this.state.popup_action_context);
             }
         } else {
             this.popup_el=null;
@@ -121,8 +128,9 @@ var Action = React.createClass({
         this.setState({popup_action:null});
     },
 
-    execute(action) {
-        console.log("Action.execute",action);
+    execute(action,context) {
+        console.log("Action.execute",action,context);
+        if (!context) context={}; 
         if (_.isString(action)) {
             action={name:action};
         }
@@ -134,7 +142,7 @@ var Action = React.createClass({
         }
         if (exp_action.target=="popup") {
             this.popup_el=null;
-            this.setState({popup_action:action});
+            this.setState({popup_action:action,popup_action_context:context});
         } else {
             this.action_el=null;
             this.setState({action:action});

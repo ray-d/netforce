@@ -35,6 +35,7 @@ import netforce
 from lxml import etree
 from netforce import utils
 from decimal import *
+from pprint import pprint
 
 models = {}
 browse_cache = {}
@@ -1411,7 +1412,7 @@ class Model(object):
         data = out.getvalue()
         return data
 
-    def import_data(self, data, context={}):
+    def import_data(self, data, context={}): # XXX: deprecated
         f = StringIO(data)
         rd = csv.reader(f)
         headers = next(rd)
@@ -1584,6 +1585,84 @@ class Model(object):
                 self.merge(res[0])
             except Exception as e:
                 raise Exception("Error row %d: %s" % (line_start + 2, e))
+
+    def import_record(self, vals, context={}):
+        print("import_record",self._name, vals)
+        vals2={}
+        for n, v in vals.items():
+            f = self._fields.get(n)
+            if not f:
+                raise Exception("WARNING: no such field %s in %s"%(n,self._name))
+            if v is None:
+                vals2[n]=None
+            else:
+                if isinstance(f, (fields.Char, fields.Text, fields.Float, fields.Decimal, fields.Integer, fields.Date, fields.DateTime, fields.Selection, fields.Boolean)):
+                    vals2[n] = v
+                elif isinstance(f, fields.Many2One):
+                    mr=get_model(f.relation)
+                    if isinstance(v,int):
+                        vals2[n]=v
+                    elif isinstance(v,dict):
+                        cond=[]
+                        for k,kv in v.items(): # TODO: allow recursive m2o import
+                            cond.append([[k,"=",kv]])
+                        res=mr.search(cond,context=context)
+                        if len(res)>1:
+                            raise Exception("Duplicate records of model %s (%s)"%(mr._name,cond))
+                        if len(res)==1:
+                            vals2[n]=res[0]
+                        else:
+                            vals2[n] = mr.import_record(v,context=context)
+                    else:
+                        raise Exception("Invalid import value for field %s of %s"%(n,self._name))
+                elif isinstance(f, fields.Many2Many):
+                    mr=get_model(f.relation)
+                    if not isinstance(v,dict) or len(v)!=1:
+                        raise Exception("Invalid import value for field %s of %s"%(n,self._name))
+                    k=list(v.keys())[0]
+                    rids=[]
+                    for kv in v[k].split(","):
+                        kv=kv.strip()
+                        cond=[[k,"=",kv]]
+                        res=mr.search(cond,context=context)
+                        if not res:
+                            raise Exception("Record not found of model %s (%s)"%(mr._name,cond))
+                        if len(res)>1:
+                            raise Exception("Duplicate records of model %s (%s)"%(mr._name,cond))
+                        rids.append(res[0])
+                    vals2[n] = [("set",rids)]
+        if self._key:
+            cond = [[n, "=", vals2.get(n)] for n in self._key]
+            ids = self.search(cond,context=context)
+            if not ids:
+                rec_id=self.create(vals2,context=context)
+            else:
+                if len(ids) > 1:
+                    raise Exception("Duplicate key (model=%s, cond=%s)" % (self._name, cond))
+                rec_id=ids[0]
+                self.write([rec_id], vals2, context=context)
+        else:
+            rec_id=self.create(vals2,context=context)
+        print("==> rec_id",rec_id)
+        for n, v in vals.items():
+            f = self._fields.get(n)
+            if isinstance(f, fields.One2Many):
+                mr=get_model(f.relation)
+                rids=mr.search([[f.relfield,"=",rec_id]],context=context)
+                if rids:
+                    mr.delete(rids,context=context)
+                for rvals in v:
+                    rvals2={f.relfield:rec_id}
+                    rvals2.update(rvals)
+                    mr.import_record(rvals2,context=context)
+        return rec_id
+
+    def import_csv(self, fname, context={}):
+        print("import_csv",fname)
+        path=utils.get_file_path(fname)
+        data=csv_to_json(path,self._name)
+        for vals in data:
+            self.import_record(vals,context=context)
 
     def audit_log(self, operation, params, context={}):
         if not self._audit_log:
@@ -2589,3 +2668,192 @@ def add_default(model, field):
         m._defaults[field] = f
         return f
     return decorator
+
+def csv_to_json(path,root_model): # TODO: move this
+    print("csv_to_json",path,root_model)
+    f=open(path)
+    rd = csv.reader(f)
+    headers = next(rd)
+    headers = [h.strip() for h in headers]
+    rows = [r for r in rd]
+
+    def _string_to_field(m, s):
+        if s == "Database ID":
+            return "id"
+        strings = dict([(f.string, n) for n, f in m._fields.items()])
+        n = strings.get(s.replace("&#47;", "/").strip())
+        if not n:
+            raise Exception("Field not found: '%s' in '%s'" % (s,m._name))
+        return n
+
+    def _get_prefix_model(prefix):
+        model = root_model
+        for s in prefix.split("/")[:-1]:
+            m = get_model(model)
+            n = _string_to_field(m, s)
+            f = m._fields[n]
+            model = f.relation
+        return model
+
+    def _get_vals(line, prefix):
+        row = rows[line]
+        model = _get_prefix_model(prefix)
+        m = get_model(model)
+        vals = {}
+        empty = True
+        for h, v in zip(headers, row):
+            if not h:
+                continue
+            if not h.startswith(prefix):
+                continue
+            s = h[len(prefix):]
+            if s.find("/") != -1:
+                continue
+            n = _string_to_field(m, s)
+            v = v.strip()
+            if v == "":
+                v = None
+            f = m._fields.get(n)
+            if not f and n != "id":
+                raise Exception("Invalid field: %s" % n)
+            if v:
+                if n == "id":
+                    v = int(v)
+                elif isinstance(f, fields.Float):
+                    v = float(v.replace(",", ""))
+                elif isinstance(f, fields.Selection):
+                    found = None
+                    for k, s in f.selection:
+                        if v == s and k!="_group":
+                            found = k
+                            break
+                    if found is None:
+                        raise Exception("Invalid value for field %s: '%s'" % (h, v))
+                    v = found
+                elif isinstance(f, fields.Date):
+                    dt = dateutil.parser.parse(v)
+                    v = dt.strftime("%Y-%m-%d")
+                elif isinstance(f, fields.Many2One):
+                    mr = get_model(f.relation)
+                    ctx = {
+                        "parent_vals": vals,
+                    }
+                    res = mr.import_get(v, context=ctx)
+                    if not res:
+                        raise Exception("Invalid value for field %s: '%s'" % (h, v))
+                    v = res
+                elif isinstance(f, fields.Many2Many):
+                    rnames = v.split(",")
+                    rids = []
+                    mr = get_model(f.relation)
+                    for rname in rnames:
+                        rname = rname.strip()
+                        res = mr.import_get(rname)
+                        rids.append(res)
+                    v = [("set", rids)]
+            else:
+                if isinstance(f, (fields.One2Many,)):
+                    raise Exception("Invalid column '%s'" % s)
+            if v is not None:
+                empty = False
+            if not v and isinstance(f, fields.Many2Many):
+                v = [("set", [])]
+            vals[n] = v
+        if empty:
+            return None
+        return vals
+
+    def _get_subfields(prefix):
+        strings = []
+        for h in headers:
+            if not h:
+                continue
+            if not h.startswith(prefix):
+                continue
+            rest = h[len(prefix):]
+            i = rest.find("/")
+            if i == -1:
+                continue
+            s = rest[:i]
+            if s not in strings:
+                strings.append(s)
+        model = _get_prefix_model(prefix)
+        m = get_model(model)
+        fields = []
+        for s in strings:
+            n = _string_to_field(m, s)
+            fields.append((n, s))
+        return fields
+
+    def _has_vals(line, prefix=""):
+        row = rows[line]
+        for h, v in zip(headers, row):
+            if not h:
+                continue
+            if not h.startswith(prefix):
+                continue
+            s = h[len(prefix):]
+            if s.find("/") != -1:
+                continue
+            v = v.strip()
+            if v:
+                return True
+        return False
+
+    def _read_objs(line_start=0, line_end=len(rows), prefix=""):
+        blocks = []
+        line = line_start
+        while line < line_end:
+            vals = _get_vals(line, prefix)
+            if vals:
+                if blocks:
+                    blocks[-1]["line_end"] = line
+                blocks.append({"vals": vals, "line_start": line})
+            line += 1
+        if not blocks:
+            return []
+        blocks[-1]["line_end"] = line_end
+        all_vals = []
+        for block in blocks:
+            vals = block["vals"]
+            all_vals.append(vals)
+            line_start = block["line_start"]
+            line_end = block["line_end"]
+            todo = _get_subfields(prefix)
+            for n, s in todo:
+                vals[n] = []
+                res = _read_objs(line_start, line_end, prefix + s + "/")
+                for vals2 in res:
+                    vals[n].append(vals2)
+                model = _get_prefix_model(prefix)
+                m=get_model(model)
+                f = m._fields.get(n)
+                if not f:
+                    raise Exception("Invalid field: %s" % n)
+                if not isinstance(f,fields.One2Many):
+                    if len(vals[n])!=1:
+                        raise Exception("Invalid value for field %s"%n)
+                    vals[n]=vals[n][0]
+        return all_vals
+
+    data=[]
+    line = 0
+    while line < len(rows):
+        while line < len(rows) and not _has_vals(line):
+            line += 1
+        if line == len(rows):
+            break
+        line_start = line
+        line += 1
+        while line < len(rows) and not _has_vals(line):
+            line += 1
+        line_end = line
+        try:
+            res = _read_objs(line_start=line_start, line_end=line_end)
+            assert len(res) == 1
+            data.append(res[0])
+        except Exception as e:
+            raise Exception("Error row %d: %s" % (line_start + 2, e))
+    print("==> data")
+    pprint(data)
+    return data

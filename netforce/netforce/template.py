@@ -71,7 +71,7 @@ def templates_to_json(modules=None):
         if not pkg_resources.resource_exists(m, "templates"):
             continue
         for fname in pkg_resources.resource_listdir(m, "templates"):
-            if not fname.endswith("hbs"):
+            if not fname.endswith(".hbs") and not fname.endswith(".jsx"):
                 continue
             tmpl_name = os.path.splitext(fname)[0]
             tmpl_src = pkg_resources.resource_string(m, "templates/" + fname).decode("utf-8")

@@ -1,5 +1,8 @@
-_=require("underscore");
-rpc=require("./rpc");
+var _=require("underscore");
+var rpc=require("./rpc");
+var ui_params=require("./ui_params");
+var babel=require("babel-standalone");
+var React = require("react");
 
 var get_file_name=function(val) {
     var re=/^(.*),(.*?)(\..*)?$/;
@@ -112,4 +115,17 @@ module.exports.clear_cookie = function(sName) {
 module.exports.download_url=function(url) {
     console.log("download_url",url);
     window.location.href=url;
+}
+
+module.exports.render_template=function(template_name,data) {
+    console.log("render_template",template_name,data);
+    var tmpl_jsx=ui_params.get_template(template_name);
+    var opts={
+        plugins: ["transform-react-jsx"],
+    };
+    var tmpl_js=babel.transform(tmpl_jsx,opts).code;
+    var ctx=Object.assign({React:React},data);
+    console.log("tmpl_js",tmpl_js);
+    var el=new Function("with (this) { return "+tmpl_js+"; }").call(ctx);
+    return el;
 }
