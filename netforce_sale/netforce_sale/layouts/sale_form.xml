@@ -32,7 +32,6 @@
                 <field name="tax_type" span="2" onchange="update_amounts"/>
                 <field name="price_list_id" span="2"/>
                 <field name="related_id" span="2"/>
-                <field name="team_id" span="2"/>
                 <field name="is_paid" span="2"/>
                 <newline/>
                 <field name="bill_address_id" span="2" condition='[["contact_id","!=",null],["contact_id","=",contact_id]]'/>

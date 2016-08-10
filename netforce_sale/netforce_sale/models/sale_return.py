@@ -64,7 +64,7 @@ class SaleReturn(Model):
         "payment_terms": fields.Text("Payment Terms"),
         "delivery_date": fields.Date("Due Date"),  # XXX; deprecated
         "due_date": fields.Date("Due Date"),
-        "team_id": fields.Many2One("mfg.team", "Production Team"),
+        #"team_id": fields.Many2One("mfg.team", "Production Team"), # move to mfg
         "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),  # XXX: deprecated
         "emails": fields.One2Many("email.message", "related_id", "Emails"),
         "documents": fields.One2Many("document", "related_id", "Documents"),
