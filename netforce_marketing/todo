@@ -1,0 +1,6 @@
+
+sale_oportunity.py
+sale.opportunity
+
+
+        "campaign_id": fields.Many2One("mkt.campaign", "Marketing Campaign"),

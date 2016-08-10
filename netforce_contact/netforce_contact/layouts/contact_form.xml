@@ -90,13 +90,6 @@
             <newline/>
             <field name="commission_po_percent"/>
         </tab>
-        <tab string="Services">
-            <field name="assigned_to_id"/>
-            <!--<separator string="Services"/>
-            <field name="services" nolabel="1" span="12"/>-->
-            <separator string="Job Templates"/>
-            <field name="job_templates" nolabel="1" span="12"/>
-        </tab>
         <tab string="Other">
             <field name="companies"/>
         </tab>

@@ -43,7 +43,15 @@ class Picking(Model):
         "move_id": fields.Many2One("account.move", "Journal Entry"),
         "product_id": fields.Many2One("product", "Product", store=False, function_search="search_product"),
         "comments": fields.One2Many("message", "related_id", "Comments"),
-        "related_id": fields.Reference([["sale.order", "Sales Order"], ["purchase.order", "Purchase Order"], ["project","Project"], ["job", "Service Order"], ["product.claim", "Claim Bill"], ["product.borrow", "Borrow Request"], ["stock.picking", "Picking"]], "Related To"),
+        "related_id": fields.Reference([
+            ["sale.order", "Sales Order"],
+            ["purchase.order", "Purchase Order"],
+            ["project","Project"],
+            ["job", "Service Order"],
+            ["product.claim", "Claim Bill"],
+            ["product.borrow", "Borrow Request"],
+            ["stock.picking", "Picking"]
+            ], "Related To"),
         "currency_id": fields.Many2One("currency", "Currency", required=True),
         "addresses": fields.One2Many("address", "related_id", "Addresses"),
         "ship_address_id": fields.Many2One("address", "Shipping Address"),
@@ -66,7 +74,6 @@ class Picking(Model):
         "currency_rate": fields.Decimal("Currency Rate",scale=6),
         "product_id2": fields.Many2One("product","Product",store=False,function_search="search_product2",search=True), #XXX ICC
         "sequence": fields.Decimal("Sequence",function="_get_related",function_context={"path":"ship_address_id.sequence"}),
-        "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
     }
     _order = "date desc,number desc"
 

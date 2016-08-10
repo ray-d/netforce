@@ -31,7 +31,6 @@ class Borrow(Model):
         "number": fields.Char("Number", required=True, search=True),
         "date": fields.Date("Date", required=True, search=True),
         "employee_id": fields.Many2One("hr.employee", "Taken By", required=True, search=True),
-        "project_id": fields.Many2One("project", "Project", search=True),
         "borrow_for": fields.Char("Borrow For", required=True),
         "due_date": fields.Date("Due Date", required=True, search=True),
         "notes": fields.Text("Notes"),

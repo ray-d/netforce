@@ -71,7 +71,14 @@ class Invoice(Model):
         "credit_notes": fields.One2Many("account.credit.alloc", "invoice_id", "Credit Notes"),
         "currency_rate": fields.Decimal("Currency Rate", scale=6),
         "payment_id": fields.Many2One("account.payment", "Payment"),
-        "related_id": fields.Reference([["sale.order", "Sales Order"], ["purchase.order", "Purchase Order"], ["production.order","Production Order"], ["project", "Project"], ["job", "Service Order"], ["service.contract", "Service Contract"]], "Related To"),
+        "related_id": fields.Reference([
+                ["sale.order", "Sales Order"],
+                ["purchase.order", "Purchase Order"],
+                #["production.order","Production Order"],
+                #["project", "Project"],
+                #["job", "Service Order"],
+                #["service.contract", "Service Contract"]
+                ], "Related To"),
         "company_id": fields.Many2One("company", "Company"),
         "amount_discount": fields.Decimal("Discount", function="get_discount"),
         "bill_address_id": fields.Many2One("address", "Billing Address"),

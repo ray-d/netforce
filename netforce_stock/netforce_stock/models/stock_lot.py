@@ -39,7 +39,6 @@ class StockLot(Model):
         "comments": fields.One2Many("message", "related_id", "Comments"),
         "product_id": fields.Many2One("product","Product",search=True),
         "stock_balances": fields.One2Many("stock.balance","lot_id","Stock Quantities"),
-        "service_item_id": fields.Many2One("service.item","Service Item"), # XXX: deprecated
     }
     _order = "number desc"
 

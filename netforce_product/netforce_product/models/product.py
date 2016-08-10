@@ -160,7 +160,6 @@ class Product(Model):
         "lot_select": fields.Selection([["fifo","FIFO"],["fefo","FEFO"]],"Lot Selection"),
         "components": fields.One2Many("product.component","product_id","Bundle Components"),
         "approve_date": fields.DateTime("Approve Date"),
-        "service_items": fields.One2Many("service.item","product_id","Service Items"),
         "lots": fields.One2Many("stock.lot","product_id","Lots"),
         "stock_plan_horizon": fields.Integer("Inventory Planning Horizon (days)"),
         "ecom_hide_qty": fields.Boolean("Hide Stock Qty From Website"),
@@ -557,3 +556,5 @@ class Product(Model):
             utils.create_thumbnails(obj.image)
 
 Product.register()
+
+

@@ -1,0 +1,17 @@
+sale_order.py
+
+        "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
+
+sale_form.xml
+                <field name="delivery_slot_id" span="2"/>
+
+
+stock_picking.py
+
+        "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
+
+pick_out_form.xml
+
+                <field name="delivery_slot_id" span="2"/>
+
+

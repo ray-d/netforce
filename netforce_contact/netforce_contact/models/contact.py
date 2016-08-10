@@ -83,8 +83,6 @@ class Contact(Model):
         "assistant_phone": fields.Char("Assistant Phone"),
         "birth_date": fields.Date("Birth Date"),
         "department": fields.Char("Department"),
-        "job_templates": fields.Many2Many("job.template", "Job Template"),
-        "projects": fields.One2Many("project", "contact_id", "Projects"),
         "documents": fields.One2Many("document", "contact_id", "Documents"),
         "assigned_to_id": fields.Many2One("base.user", "Assigned To"),
         "lead_source": fields.Char("Lead source"),
@@ -96,8 +94,6 @@ class Contact(Model):
         "sale_orders": fields.One2Many("sale.order", "contact_id", "Sales Orders"),
         "country_id": fields.Many2One("country", "Country", search=True),
         "region": fields.Char("Region"),  # XXX: deprecated
-        "service_items": fields.One2Many("service.item", "contact_id", "Service Items", condition=[["parent_id", "=", None]]),
-        "contracts": fields.One2Many("service.contract", "contact_id", "Contracts"),
         "branch": fields.Char("Branch"),  # XXX: add by Cash
         "industry_id": fields.Many2One("industry", "Industry", search=True),
         "region_id": fields.Many2One("region", "Region", search=True),

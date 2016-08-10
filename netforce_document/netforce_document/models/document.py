@@ -38,7 +38,17 @@ class Document(Model):
         "categ_id": fields.Many2One("document.categ", "Category", search=True),
         "description": fields.Text("Description", search=True),
         "contact_id": fields.Many2One("contact", "Contact", search=True),
-        "related_id": fields.Reference([["sale.quot", "Quotation"], ["sale.order", "Sales Order"], ["purchase.order", "Purchase Order"], ["job", "Service Order"], ["project", "Project"], ["hr.employee", "Employee"], ["account.invoice", "Invoice"], ["account.payment", "Payment"], ["account.track.categ", "Tracking Category"]], "Related To"),
+        "related_id": fields.Reference([
+            ["sale.quot", "Quotation"],
+            ["sale.order", "Sales Order"],
+            ["purchase.order", "Purchase Order"],
+            ["job", "Service Order"],
+            ["project", "Project"],
+            ["hr.employee", "Employee"],
+            ["account.invoice", "Invoice"],
+            ["account.payment", "Payment"],
+            ["account.track.categ", "Tracking Category"]
+            ], "Related To"),
         "date": fields.Date("Date Created", required=True, search=True),
         "attachments": fields.One2Many("attach", "related_id", "Attachments"),
         "comments": fields.One2Many("message", "related_id", "Comments"),

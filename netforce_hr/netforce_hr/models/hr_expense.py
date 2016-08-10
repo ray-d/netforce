@@ -39,7 +39,10 @@ class Expense(Model):
         "employee_id": fields.Many2One("hr.employee", "Employee", required=True, search=True),
         "currency_id": fields.Many2One("currency", "Currency", required=True),
         "tax_type": fields.Selection([["tax_ex", "Tax Exclusive"], ["tax_in", "Tax Inclusive"], ["no_tax", "No Tax"]], "Tax Type", required=True),
-        "related_id": fields.Reference([["project", "Project"], ["job", "Service Order"]], "Related To"),
+        "related_id": fields.Reference([
+            ["project", "Project"],
+            ["job", "Service Order"]
+        ], "Related To"),
         "lines": fields.One2Many("hr.expense.line", "expense_id", "Lines"),
         "amount_subtotal": fields.Decimal("Subtotal", function="get_amount", function_multi=True),
         "amount_tax": fields.Decimal("Tax Amount", function="get_amount", function_multi=True),

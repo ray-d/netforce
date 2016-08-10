@@ -65,7 +65,6 @@ class SaleQuot(Model):
         "related_id": fields.Reference([["issue", "Issue"]], "Related To"),
         "ship_term_id": fields.Many2One("ship.term", "Shipping Terms"),
         "sequence_id": fields.Many2One("sequence", "Number Sequence"),
-        "job_template_id": fields.Many2One("job.template", "Service Order Template"),
         "lost_sale_code_id": fields.Many2One("reason.code", "Lost Sale Reason Code", condition=[["type", "=", "lost_sale"]]),
         "agg_amount_total": fields.Decimal("Total Amount", agg_function=["sum", "amount_total"]),
         "agg_amount_subtotal": fields.Decimal("Total Amount w/o Tax", agg_function=["sum", "amount_subtotal"]),
@@ -468,7 +467,6 @@ class SaleQuot(Model):
             "other_info": obj.other_info,
             "payment_terms": obj.payment_terms,
             "price_list_id": obj.price_list_id.id,
-            "job_template_id": obj.job_template_id.id,
             "est_costs": [],
             "currency_rates": [],
         }

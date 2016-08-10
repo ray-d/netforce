@@ -89,8 +89,6 @@ class SaleOrder(Model):
         "stock_moves": fields.One2Many("stock.move", "related_id", "Stock Movements"),
         "state_label": fields.Char("Status Label", function="get_state_label"),  # XXX: not needed
         "ship_tracking": fields.Char("Tracking Numbers", function="get_ship_tracking"),
-        "job_template_id": fields.Many2One("job.template", "Service Order Template"),
-        "jobs": fields.One2Many("job", "related_id", "Service Orders"),
         "agg_amount_total": fields.Decimal("Total Amount", agg_function=["sum", "amount_total"]),
         "agg_amount_total_cur": fields.Decimal("Total Amount (Converted)", agg_function=["sum", "amount_total_cur"]),
         "agg_amount_subtotal": fields.Decimal("Total Amount w/o Tax", agg_function=["sum", "amount_subtotal"]),
@@ -117,7 +115,6 @@ class SaleOrder(Model):
         "seller_id": fields.Many2One("seller","Seller"),
         "product_id": fields.Many2One("product","Product",store=False,function_search="search_product",search=True),
         "currency_rates": fields.One2Many("custom.currency.rate","related_id","Currency Rates"),
-        "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
     }
 
     def _get_number(self, context={}):
@@ -928,22 +925,6 @@ class SaleOrder(Model):
             pick_ids = sorted(list(set(pick_ids)))
             vals[obj.id] = pick_ids
         return vals
-
-    def copy_to_job(self, ids, context={}):
-        obj = self.browse(ids)[0]
-        tmpl = obj.job_template_id
-        if not tmpl:
-            raise Exception("Missing service order template in sales order")
-        job_id = tmpl.create_job(sale_id=obj.id)
-        job = get_model("job").browse(job_id)
-        return {
-            "flash": "Service order %s created from sales order %s" % (job.number, obj.number),
-            "next": {
-                "name": "job",
-                "mode": "form",
-                "active_id": job_id,
-            },
-        }
 
     def get_profit(self, ids, context={}):
         vals = {}

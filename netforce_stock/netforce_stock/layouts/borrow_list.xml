@@ -2,7 +2,6 @@
     <field name="number"/>
     <field name="date"/>
     <field name="employee_id"/>
-    <field name="project_id"/>
     <field name="borrow_for"/>
     <field name="due_date"/>
     <field name="state"/>

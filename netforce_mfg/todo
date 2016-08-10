@@ -62,7 +62,6 @@ sale_form.xml
                 <newline/>
                 <field name="bill_address_id" span="2" condition='[["contact_id","!=",null],["contact_id","=",contact_id]]'/>
                 <field name="ship_address_id" span="2" condition='[["contact_id","!=",null],["contact_id","=",contact_id]]'/>
-                <field name="delivery_slot_id" span="2"/>
             </group>
             <newline/>
             <field name="lines" nolabel="1">

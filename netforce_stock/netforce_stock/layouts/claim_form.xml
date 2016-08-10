@@ -13,7 +13,6 @@
     <field name="number"/>
     <field name="date_received"/>
     <field name="contact_id"/>
-    <field name="project_id" condition='[["contact_id","=",contact_id]]'/>
     <separator string="Product Details"/>
     <field name="product_id"/>
     <field name="qty"/>

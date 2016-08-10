@@ -34,7 +34,6 @@ class Opportunity(Model):
         "user_id": fields.Many2One("base.user", "Opportunity Owner", required=True),
         "name": fields.Char("Opportunity Name", required=True, search=True),
         "contact_id": fields.Many2One("contact", "Contact", required=True, search=True),
-        "campaign_id": fields.Many2One("mkt.campaign", "Marketing Campaign"),
         "date_close": fields.Date("Close Date", search=True),
         "stage_id": fields.Many2One("sale.stage", "Stage", search=True),
         "probability": fields.Decimal("Probability (%)"),

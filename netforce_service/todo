@@ -1,0 +1,270 @@
+netforce_contact/netforce_contact/models/contact.py
+
+        "job_templates": fields.Many2Many("job.template", "Job Template"),
+
+        "projects": fields.One2Many("project", "contact_id", "Projects"),
+
+        "service_items": fields.One2Many("service.item", "contact_id", "Service Items", condition=[["parent_id", "=", None]]),
+        "contracts": fields.One2Many("service.contract", "contact_id", "Contracts"),
+
+netforce_contact/layouts/contact_form.xml
+
+        <tab string="Services">
+            <field name="assigned_to_id"/>
+            <!--<separator string="Services"/>
+            <field name="services" nolabel="1" span="12"/>-->
+            <separator string="Job Templates"/>
+            <field name="job_templates" nolabel="1" span="12"/>
+        </tab>
+
+netforce_sale/netforce_sale/models/sale_quot.py
+
+        "job_template_id": fields.Many2One("job.template", "Service Order Template"),
+
+
+    def copy_to_sale_order(self,ids,context):
+        id=ids[0]
+        obj=self.browse(id)
+        sale_vals={
+            "ref": obj.number,
+            "quot_id": obj.id,
+            "contact_id": obj.contact_id.id,
+            "currency_id": obj.currency_id.id,
+            "tax_type": obj.tax_type,
+            "lines": [],
+            "user_id": obj.user_id.id,
+            "other_info": obj.other_info,
+            "payment_terms": obj.payment_terms,
+            "price_list_id": obj.price_list_id.id,
+[xxx]            "job_template_id": obj.job_template_id.id,
+            "est_costs": [],
+            "currency_rates": [],
+        }
+        for line in obj.lines:
+            if not line.qty:
+                continue
+            prod=line.product_id
+            line_vals={
+                "sequence": line.sequence,
+                "product_id": prod.id,
+                "description": line.description,
+                "qty": line.qty,
+                "uom_id": line.uom_id and line.uom_id.id or None,
+                "unit_price": line.unit_price if not line.is_hidden else 0,
+                "discount": line.discount if not line.is_hidden else 0,
+                "discount_amount": line.discount_amount if not line.is_hidden else 0,
+                "tax_id": line.tax_id.id if not line.is_hidden else None,
+                "location_id": prod.location_id.id if prod else None,
+            }
+            if prod.locations:
+                line_vals["location_id"] = prod.locations[0].location_id.id
+                for loc in prod.locations:
+                    if loc.stock_qty:
+                        line_vals['location_id']=prod.location_id.id
+                        break
+            sale_vals["lines"].append(("create",line_vals))
+        for cost in obj.est_costs:
+            cost_vals={
+                "sequence": cost.sequence,
+                "product_id": cost.product_id.id,
+                "description": cost.description,
+                "supplier_id": cost.supplier_id.id,
+                "list_price": cost.list_price,
+                "purchase_price": cost.purchase_price,
+                "purchase_duty_percent": cost.purchase_duty_percent,
+                "purchase_ship_percent": cost.purchase_ship_percent,
+                "landed_cost": cost.landed_cost,
+                "qty": cost.qty,
+                "currency_id": cost.currency_id.id,
+            }
+            sale_vals["est_costs"].append(("create",cost_vals))
+        for r in obj.currency_rates:
+            rate_vals={
+                "currency_id": r.currency_id.id,
+                "rate": r.rate,
+            }
+            sale_vals["currency_rates"].append(("create",rate_vals))
+        sale_id=get_model("sale.order").create(sale_vals,context=context)
+        sale=get_model("sale.order").browse(sale_id)
+        return {
+            "next": {
+                "name": "sale",
+                "mode": "form",
+                "active_id": sale_id,
+            },
+            "flash": "Sale order %s created from quotation %s"%(sale.number,obj.number)
+        }
+
+
+netforce_sale/netforce_sale/models/sale_order.py
+
+
+        "job_template_id": fields.Many2One("job.template", "Service Order Template"),
+        "jobs": fields.One2Many("job", "related_id", "Service Orders"),
+
+    def copy_to_job(self, ids, context={}):
+        obj = self.browse(ids)[0]
+        tmpl = obj.job_template_id
+        if not tmpl:
+            raise Exception("Missing service order template in sales order")
+        job_id = tmpl.create_job(sale_id=obj.id)
+        job = get_model("job").browse(job_id)
+        return {
+            "flash": "Service order %s created from sales order %s" % (job.number, obj.number),
+            "next": {
+                "name": "job",
+                "mode": "form",
+                "active_id": job_id,
+            },
+        }
+
+
+sale_form.xml
+
+
+
+<form model="sale.order" attrs='{"readonly":[["state","in",["confirmed","done","voided"]]]}' show_company="1" show_save="1">
+    <head>
+        <field name="state"/>
+        <button string="Print" icon="print" action="report_sale_form"/>
+        <button string="Options" dropdown="1">
+            <item string="Copy To Sale Return" method="copy_to_sale_return" state="done"/>
+            <item string="Copy" method="copy"/>
+            <item string="Copy To Customer Invoice" method="copy_to_invoice" states="confirmed"/>
+            <item string="Copy To Goods Issue" method="copy_to_picking" states="confirmed"/>
+            <item string="Copy To Purchase Orders" method="copy_to_purchase"/>
+            <item string="Copy Estimated Costs To Purchase Orders" method="copy_cost_to_purchase"/>
+[xxx]            <item string="Copy To Service Order" method="copy_to_job"/>
+            <item string="To Draft" method="to_draft"/>
+            <item string="Void" method="void" confirm="Are you sure you want to void this sales order?" states="confirmed,done"/>
+            <divider/>
+            <item string="Create Estimated Costs" method="create_est_costs"/>
+            <item string="Create Tracking Codes" method="create_track"/>
+        </button>
+    </head>
+    <tabs>
+o
+        <tab string="Other Info">
+            <field name="user_id"/>
+            <newline/>
+            <field name="seller_id"/>
+            <newline/>
+            <field name="sequence_id" condition='[["type","=","sale_order"]]' onchange="onchange_sequence"/>
+            <newline/>
+            <field name="ship_term_id"/>
+            <newline/>
+            <field name="sale_channel_id"/>
+            <newline/>
+[xxx]            <field name="job_template_id"/>
+            <newline/>
+            <field name="pay_method_id"/>
+            <newline/>
+            <field name="create_time"/>
+
+
+        <field name="invoices" click_action="view_invoice"/>
+        <field name="pickings"/>
+        <field name="purchase_lines"/>
+        [xxx]<field name="jobs"/>
+        <field name="activities"/>
+        <field name="emails" nodelete="1"/>
+        <field name="comments"/>
+
+netforce_account/netforce_account/models/account_payment.py
+
+
+        "related_id": fields.Reference([["sale.order", "Sales Order"],
+                                        ["purchase.order", "Purchase Order"],
+                                        ["project", "Project"],
+                                        #["job", "Service Order"],
+                                        #["service.contract", "Service Contract"],
+                                        #["ecom.cart","Cart"]
+                                        ], "Related To"),
+
+
+
+netforce_stock/netforce_stock/models/product_claim.py
+
+        "project_id": fields.Many2One("project", "Project", search=True),
+
+product_claim_list.xml
+
+<list model="product.claim">
+    <field name="number"/>
+    <field name="date_received"/>
+    <field name="product_id"/>
+    <field name="qty"/>
+    <field name="contact_id"/>
+[xxx]    <field name="project_id"/>
+    <field name="state"/>
+</list>
+
+
+product_claim.xml
+
+
+<form model="product.claim">
+    <head>
+        <field name="state"/>
+        <button string="Print" icon="print" dropdown="1">
+            <item string="PDF" action="report_claim_form" action_options="convert=pdf"/>
+            <item string="ODT" action="report_claim_form"/>
+            <item string="Select Template" action="print_select_template" action_options="report_action=report_claim_form&amp;template_type=claim_form"/>
+        </button>
+        <button string="Options" dropdown="1" align="right">
+            <item string="Void" method="void" confirm="Are you sure you want to void this claim?"/>
+        </button>
+    </head>
+    <field name="number"/>
+    <field name="date_received"/>
+    <field name="contact_id"/>
+[xxx]    <field name="project_id" condition='[["contact_id","=",contact_id]]'/>
+    <separator string="Product Details"/>
+
+netforce_stock/netforce_stock/models/product_borrow.py
+
+        "project_id": fields.Many2One("project", "Project", search=True),
+
+borrow_list.xml
+
+
+<list model="product.borrow" colors='{"due_date,#f00":[["is_overdue","=",true],["is_return_item","=",false]]}'>
+    <field name="number"/>
+    <field name="date"/>
+    <field name="employee_id"/>
+[xxx]    <field name="project_id"/>
+    <field name="borrow_for"/>
+    <field name="due_date"/>
+    <field name="state"/>
+    <field name="is_overdue" invisible="1"/>
+    <field name="is_return_item" invisible="1"/>
+</list>
+
+
+netforce_product/netforce_product/models/product.py
+        "service_items": fields.One2Many("service.item","product_id","Service Items"),
+
+product_form.xml
+
+        <field name="stock_balances"/>
+        <field name="lots"/>
+[xxx]        <field name="service_items"/>
+        <field name="documents">
+            <list>
+                <field name="file" target="_blank" preview="1"/>
+                <field name="categ_id"/>
+                <field name="description"/>
+                <field name="date"/>
+            </list>
+            <form>
+                <field name="categ_id"/>
+                <field name="file" target="_blank" onchange="onchange_file"/>
+                <field name="date"/>
+                <field name="description"/>
+                <field name="contact_id" invisible="1"/>
+            </form>
+        </field>
+
+
+netforce_stock/netforce_stock/models/stock_lot.py
+        "service_item_id": fields.Many2One("service.item","Service Item"), # XXX: deprecated

@@ -32,7 +32,6 @@ class Claim(Model):
         "product_id": fields.Many2One("product", "Product", required=True, search=True),
         "qty": fields.Decimal("Qty", required=True),
         "contact_id": fields.Many2One("contact", "Contact", required=True, search=True),
-        "project_id": fields.Many2One("project", "Project", search=True),
         "defect": fields.Text("Defect"),
         "note": fields.Text("Note"),
         "date_sent_sup": fields.Date("Date sent to supplier"),
