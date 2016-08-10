@@ -142,7 +142,7 @@ class CreditAlloc(Model):
             use_ratio = obj.amount / cred.amount_total
             for line in cred.lines:
                 cur_amt = get_model("currency").convert(
-                    line.amount * use_ratio, cred.currency_id.id, settings.currency_id.id, cred.currency_rate, round=True)
+                    line.amount * use_ratio, cred.currency_id.id, settings.currency_id.id, cred.payment_id.currency_rate, round=True)
                 tax = line.tax_id
                 if tax:
                     base_amt = get_model("account.tax.rate").compute_base(tax.id, cur_amt, tax_type=cred.tax_type)
