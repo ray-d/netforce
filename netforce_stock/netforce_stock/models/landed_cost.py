@@ -159,7 +159,10 @@ class LandedCost(Model):
             move=line.move_id
             if not move.qty:
                 raise Exception("Missing qty in stock movement %s"%move.number)
-            ratio=min(line.qty_stock_lc/line.qty_stock_gr,1) if line.qty_stock_gr else 0
+            if line.variance_percent is not None:
+                ratio=(1-line.variance_percent/100)
+            else:
+                ratio=min(line.qty_stock_lc/line.qty_stock_gr,1) if line.qty_stock_gr else 0
             journal_id=settings.landed_cost_journal_id.id
             if not journal_id:
                 raise Exception("Missing landed cost journal")
