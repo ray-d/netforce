@@ -1,7 +1,6 @@
 <list model="sale.order" colors='{"due_date,#f00":[["overdue","=",true]],"#ccc":[["state","=","done"]],"#ccc":[["state","=","done"]]}'>
     <head>
         <button string="Print" icon="print" action="report_sale_form" action_options='{"convert":"pdf"}'/>
-        <button string="Copy To Production Orders" method="copy_to_production"/>
     </head>
     <field name="number"/>
     <field name="ref"/>
@@ -10,7 +9,6 @@
     <field name="due_date"/>
     <field name="amount_total"/>
     <field name="currency_id"/>
-    <field name="production_status" view="field_progress"/>
     <field name="is_delivered"/>
     <field name="is_paid"/>
     <field name="pay_method_id"/>

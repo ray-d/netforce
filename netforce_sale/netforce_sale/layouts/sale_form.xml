@@ -9,7 +9,6 @@
             <item string="Copy To Goods Issue" method="copy_to_picking" states="confirmed"/>
             <item string="Copy To Purchase Orders" method="copy_to_purchase"/>
             <item string="Copy Estimated Costs To Purchase Orders" method="copy_cost_to_purchase"/>
-            <item string="Copy To Production Orders" method="copy_to_production"/>
             <item string="Copy To Service Order" method="copy_to_job"/>
             <item string="To Draft" method="to_draft"/>
             <item string="Void" method="void" confirm="Are you sure you want to void this sales order?" states="confirmed,done"/>
@@ -62,7 +61,6 @@
                     <field name="act_cost_amount"/>
                     <field name="act_profit_amount"/>
                     <field name="act_margin_percent"/>
-                    <field name="production_id"/>
                 </list>
             </field>
             <group span="8">

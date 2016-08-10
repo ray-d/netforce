@@ -64,7 +64,6 @@ class SaleReturn(Model):
         "payment_terms": fields.Text("Payment Terms"),
         "delivery_date": fields.Date("Due Date"),  # XXX; deprecated
         "due_date": fields.Date("Due Date"),
-        #"team_id": fields.Many2One("mfg.team", "Production Team"), # move to mfg
         "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),  # XXX: deprecated
         "emails": fields.One2Many("email.message", "related_id", "Emails"),
         "documents": fields.One2Many("document", "related_id", "Documents"),
@@ -73,10 +72,8 @@ class SaleReturn(Model):
         "ship_address_id": fields.Many2One("address", "Shipping Address"),
         "coupon_id": fields.Many2One("sale.coupon", "Coupon"),
         "purchase_lines": fields.One2Many("purchase.order.line", "sale_id", "Purchase Orders"),
-        "production_orders": fields.One2Many("production.order", "sale_id", "Production Orders"),
         "other_info": fields.Text("Other Information"),
         "company_id": fields.Many2One("company", "Company"),
-        "production_status": fields.Json("Production", function="get_production_status"),
         "ship_term_id": fields.Many2One("ship.term", "Shipping Terms"),
         "approved_by_id": fields.Many2One("base.user", "Approved By", readonly=True),
         "sequence_id": fields.Many2One("sequence", "Number Sequence"),

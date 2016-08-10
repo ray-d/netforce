@@ -2,5 +2,4 @@
     <separator string="Sales Workflow"/>
     <field name="sale_copy_picking"/>
     <field name="sale_copy_invoice"/>
-    <field name="sale_copy_production"/>
 </form>

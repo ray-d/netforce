@@ -64,7 +64,6 @@ class SaleOrderLine(Model):
         "act_margin_percent": fields.Float("Act. Margin %",function="get_act_profit",function_multi=True),
         "promotion_amount": fields.Decimal("Prom Amt",function="get_amount",function_multi=True),
         "agg_act_profit": fields.Decimal("Total Actual Profit", agg_function=["sum", "act_profit_amount"]),
-        "production_id": fields.Many2One("production.order","Production Order"),
     }
 
     _order_expression="case when sequence is not null then (substring(sequence, '^[0-9]+'))::int else id end,sequence"

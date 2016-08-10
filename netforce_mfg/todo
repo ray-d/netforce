@@ -1,0 +1,249 @@
+sale_list.xml
+
+<list model="sale.order" colors='{"due_date,#f00":[["overdue","=",true]],"#ccc":[["state","=","done"]],"#ccc":[["state","=","done"]]}'>
+    <head>
+        <button string="Print" icon="print" action="report_sale_form" action_options='{"convert":"pdf"}'/>
+[xxx]        <button string="Copy To Production Orders" method="copy_to_production"/>
+    </head>
+    <field name="number"/>
+    <field name="ref"/>
+    <field name="contact_id"/>
+    <field name="date"/>
+    <field name="due_date"/>
+    <field name="amount_total"/>
+    <field name="currency_id"/>
+[xxx]    <field name="production_status" view="field_progress"/>
+    <field name="is_delivered"/>
+    <field name="is_paid"/>
+    <field name="pay_method_id"/>
+    <field name="state"/>
+    <field name="overdue" invisible="1"/>
+</list>
+
+
+sale_form.xml
+
+
+<form model="sale.order" attrs='{"readonly":[["state","in",["confirmed","done","voided"]]]}' show_company="1" show_save="1">
+    <head>
+        <field name="state"/>
+        <button string="Print" icon="print" action="report_sale_form"/>
+        <button string="Options" dropdown="1">
+            <item string="Copy To Sale Return" method="copy_to_sale_return" state="done"/>
+            <item string="Copy" method="copy"/>
+            <item string="Copy To Customer Invoice" method="copy_to_invoice" states="confirmed"/>
+            <item string="Copy To Goods Issue" method="copy_to_picking" states="confirmed"/>
+            <item string="Copy To Purchase Orders" method="copy_to_purchase"/>
+            <item string="Copy Estimated Costs To Purchase Orders" method="copy_cost_to_purchase"/>
+[xxx]            <item string="Copy To Production Orders" method="copy_to_production"/>
+            <item string="Copy To Service Order" method="copy_to_job"/>
+            <item string="To Draft" method="to_draft"/>
+            <item string="Void" method="void" confirm="Are you sure you want to void this sales order?" states="confirmed,done"/>
+            <divider/>
+            <item string="Create Estimated Costs" method="create_est_costs"/>
+            <item string="Create Tracking Codes" method="create_track"/>
+        </button>
+    </head>
+
+        <tab string="General">
+            <group form_layout="stacked">
+                <field name="contact_id" span="2" create="1" onchange="onchange_contact" condition='[["customer", "=", "True"]]'/>
+                <field name="date" span="2"/>
+                <field name="number" span="2"/>
+                <field name="ref" span="2"/>
+                <field name="due_date" span="2"/>
+                <field name="is_delivered" span="2"/>
+                <newline/>
+                <field name="currency_id" span="2" onchange="onchange_currency"/>
+                <field name="tax_type" span="2" onchange="update_amounts"/>
+                <field name="price_list_id" span="2"/>
+                <field name="related_id" span="2"/>
+                <field name="is_paid" span="2"/>
+                <newline/>
+                <field name="bill_address_id" span="2" condition='[["contact_id","!=",null],["contact_id","=",contact_id]]'/>
+                <field name="ship_address_id" span="2" condition='[["contact_id","!=",null],["contact_id","=",contact_id]]'/>
+                <field name="delivery_slot_id" span="2"/>
+            </group>
+            <newline/>
+            <field name="lines" nolabel="1">
+                <list>
+                    <field name="sequence"/>
+                    <field name="product_id" onchange="onchange_product" condition='[["can_sell","=",true]]'/>
+                    <field name="description"/>
+                    <field name="qty" onchange="onchange_qty"/>
+                    <field name="uom_id" onchange="onchange_uom"/>
+                    <field name="unit_price" onchange="update_amounts"/>
+                    <field name="discount" onchange="update_amounts"/>
+                    <field name="discount_amount" onchange="update_amounts"/>
+                    <field name="promotion_amount"/>
+                    <field name="tax_id" onchange="update_amounts"/>
+                    <field name="amount"/>
+                    <field name="location_id"/>
+                    <field name="qty_stock"/>
+                    <field name="ship_method_id"/>
+                    <field name="qty_delivered"/>
+                    <field name="est_cost_amount"/>
+                    <field name="est_profit_amount"/>
+                    <field name="est_margin_percent"/>
+                    <field name="act_cost_amount"/>
+                    <field name="act_profit_amount"/>
+                    <field name="act_margin_percent"/>
+[xxx]                    <field name="production_id"/>
+                </list>
+
+
+
+sale_setting.xml
+
+<form model="settings" title="Sales Settings">
+    <separator string="Sales Workflow"/>
+    <field name="sale_copy_picking"/>
+    <field name="sale_copy_invoice"/>
+[xxx]    <field name="sale_copy_production"/>
+</form>
+
+sale_order_line.py
+
+
+        "production_id": fields.Many2One("production.order","Production Order"),
+
+sale_order.py
+
+
+        #"team_id": fields.Many2One("mfg.team", "Production Team"), move to mfg
+
+        "production_orders": fields.One2Many("production.order", "sale_id", "Production Orders"),
+
+        "production_status": fields.Json("Production", function="get_production_status"),
+
+
+    def confirm(self, ids, context={}):
+        obj = self.browse(ids)[0]
+        if obj.state != "draft":
+            raise Exception("Invalid state")
+        for line in obj.lines:
+            prod = line.product_id
+            if prod and prod.type in ("stock", "consumable", "bundle") and not line.location_id:
+                raise Exception("Missing location for product %s" % prod.code)
+        obj.write({"state": "confirmed"})
+        settings = get_model("settings").browse(1)
+        if settings.sale_copy_picking:
+            res=obj.copy_to_picking()
+            picking_id=res["picking_id"]
+            get_model("stock.picking").pending([picking_id])
+        if settings.sale_copy_invoice:
+            obj.copy_to_invoice()
+[xxx]        if settings.sale_copy_production:
+[xxx]            obj.copy_to_production()
+        obj.trigger("confirm")
+        return {
+            "next": {
+                "name": "sale",
+                "mode": "form",
+                "active_id": obj.id,
+            },
+            "flash": "Sales order %s confirmed" % obj.number,
+        }
+
+
+
+    def copy_to_production(self, ids, context={}):
+        order_ids = []
+        mfg_orders = {}
+        for obj in self.browse(ids):
+            for line in obj.lines:
+                prod = line.product_id
+                if not prod:
+                    continue
+                if prod.procure_method != "mto" or prod.supply_method != "production":
+                    continue
+                if line.production_id:
+                    raise Exception("Production order already created for sales order %s, product %s"%(obj.number,prod.code))
+                if not obj.due_date:
+                    raise Exception("Missing due date in sales order %s"%obj.number)
+                if not prod.mfg_lead_time:
+                    raise Exception("Missing manufacturing lead time in product %s"%prod.code)
+                k=(prod.id,obj.due_date)
+                mfg_orders.setdefault(k,[]).append(line.id)
+        for (prod_id,due_date),sale_line_ids in mfg_orders.items():
+            prod=get_model("product").browse(prod_id)
+            res=get_model("bom").search([["product_id","=",prod.id]]) # TODO: select bom in separate function
+            if not res:
+                raise Exception("BoM not found for product '%s'" % prod.name)
+            bom_id = res[0]
+            bom = get_model("bom").browse(bom_id)
+            loc_id = bom.location_id.id
+            if not loc_id:
+                raise Exception("Missing FG location in BoM %s" % bom.number)
+            routing = bom.routing_id
+            if not routing:
+                raise Exception("Missing routing in BoM %s" % bom.number)
+            loc_prod_id = routing.location_id.id
+            if not loc_prod_id:
+                raise Exception("Missing production location in routing %s" % routing.number)
+            uom = prod.uom_id
+            mfg_qty=0
+            for line in get_model("sale.order.line").browse(sale_line_ids):
+                if line.qty_stock:
+                    qty = line.qty_stock
+                else:
+                    qty = get_model("uom").convert(line.qty, line.uom_id.id, uom.id)
+                mfg_qty+=qty
+            if not prod.mfg_lead_time:
+                raise Exception("Missing manufacturing lead time for product %s"%prod.code)
+            mfg_date=(datetime.strptime(due_date,"%Y-%m-%d")-timedelta(days=prod.mfg_lead_time)).strftime("%Y-%m-%d")
+            order_vals = {
+                "product_id": prod.id,
+                "qty_planned": mfg_qty,
+                "uom_id": uom.id,
+                "bom_id": bom_id,
+                "routing_id": routing.id,
+                "production_location_id": loc_prod_id,
+                "location_id": loc_id,
+                "order_date": mfg_date,
+                "due_date": due_date,
+                "state": "waiting_confirm",
+            }
+            order_id = get_model("production.order").create(order_vals)
+            get_model("production.order").create_components([order_id])
+            get_model("production.order").create_operations([order_id])
+            order_ids.append(order_id)
+            get_model("sale.order.line").write(sale_line_ids,{"production_id":order_id})
+        if not order_ids:
+            return {
+                "flash": "No production orders to create",
+            }
+        get_model("production.order").copy_to_production_all(order_ids)
+        return {
+            "flash": "Production orders created successfully",
+        }
+
+
+    def get_production_status(self, ids, context={}):
+        vals = {}
+        for obj in self.browse(ids):
+            num_done = 0
+            num_total = 0
+            for prod in obj.production_orders:
+                if prod.state == "done":
+                    num_done += 1
+                if prod.state not in ("voided", "split"):
+                    num_total += 1
+            if num_total != 0:
+                percent = num_done * 100 / num_total
+                vals[obj.id] = {
+                    "percent": percent,
+                    "string": "%d / %d" % (num_done, num_total)
+                }
+            else:
+                vals[obj.id] = None
+        return vals
+
+
+sale_return.py
+
+
+        #"team_id": fields.Many2One("mfg.team", "Production Team"), # move to mfg
+
+        "production_orders": fields.One2Many("production.order", "sale_id", "Production Orders"),
+        "production_status": fields.Json("Production", function="get_production_status"),
