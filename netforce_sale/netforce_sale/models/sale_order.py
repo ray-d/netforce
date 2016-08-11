@@ -91,7 +91,7 @@ class SaleOrder(Model):
         "sequence_id": fields.Many2One("sequence", "Number Sequence"),
         "stock_moves": fields.One2Many("stock.move", "related_id", "Stock Movements"),
         "state_label": fields.Char("Status Label", function="get_state_label"),  # XXX: not needed
-        "ship_tracking": fields.Char("Tracking Numbers", function="get_ship_tracking"), # XXX: deprecated
+        "ship_tracking": fields.Char("Tracking Numbers", function="get_ship_tracking"),
         "job_template_id": fields.Many2One("job.template", "Service Order Template"),
         "jobs": fields.One2Many("job", "related_id", "Service Orders"),
         "agg_amount_total": fields.Decimal("Total Amount", agg_function=["sum", "amount_total"]),
@@ -1359,5 +1359,14 @@ class SaleOrder(Model):
 
     def payment_received(self,ids,context={}):
         print("SaleOrder.payment_received",ids)
+
+"""
+    def import_record(self,vals,context={}):
+        print("SaleOrder.import_record",vals)
+        if "contact" in vals:
+            contact_id=get_model("contact").import_record(vals["contact"],context=context)
+            vals["ship_address_id"]["contact_id"]=contact_id
+        return super().import_record(vals,context=context)
+"""
 
 SaleOrder.register()

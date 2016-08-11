@@ -41,7 +41,7 @@ class Template(Model):
         "contact": fields.Char("Contact"),
     }
 
-    def create_email(self, ids, data={}, name_id=None, related_id=None, mailbox_id=None, context={}):
+    def create_email(self, ids, data={}, name_id=None, related_id=None, mailbox_id=None, state=None, context={}):
         print("EmailTemplate.create_email",ids)
         obj = self.browse(ids)[0]
         try:
@@ -101,7 +101,7 @@ class Template(Model):
             "cc_addrs": cc_addrs,
             "subject": subject,
             "body": body,
-            "state": "to_send",
+            "state": state or "to_send",
             "attachments": attachments,
             "name_id": name_id,
             "related_id": related_id,

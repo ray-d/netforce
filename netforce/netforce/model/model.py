@@ -1634,6 +1634,7 @@ class Model(object):
                             raise Exception("Duplicate records of model %s (%s)"%(mr._name,cond))
                         rids.append(res[0])
                     vals2[n] = [("set",rids)]
+        vals2 = self._add_missing_defaults(vals2, context=context)
         if self._key:
             cond = [[n, "=", vals2.get(n)] for n in self._key]
             ids = self.search(cond,context=context)
@@ -1658,6 +1659,7 @@ class Model(object):
                     rvals2={f.relfield:rec_id}
                     rvals2.update(rvals)
                     mr.import_record(rvals2,context=context)
+        self.function_store([rec_id],context=context)
         return rec_id
 
     def import_csv(self, fname, context={}):
@@ -2673,6 +2675,7 @@ def add_default(model, field):
         return f
     return decorator
 
+# TODO: fix space bug "Lines / Product"
 def csv_to_json(path,root_model): # TODO: move this
     print("csv_to_json",path,root_model)
     f=open(path)

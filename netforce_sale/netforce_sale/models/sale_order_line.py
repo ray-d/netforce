@@ -69,6 +69,7 @@ class SaleOrderLine(Model):
         "ship_address_id": fields.Many2One("address", "Shipping Address"),
         "packaging_id": fields.Many2One("stock.packaging", "Packaging"),
         "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
+        "ship_tracking": fields.Char("Tracking Numbers", function="get_ship_tracking"),
     }
 
     def create(self, vals, context={}):
@@ -260,6 +261,17 @@ class SaleOrderLine(Model):
                 "act_profit_amount": profit,
                 "act_margin_percent": margin,
             }
+        return vals
+
+    def get_ship_tracking(self, ids, context={}):
+        vals = {}
+        for obj in self.browse(ids):
+            track_nos = []
+            if obj.due_date:
+                for pick in obj.order_id.pickings:
+                    if pick.date[:10]==obj.due_date and pick.ship_tracking:
+                        track_nos.append(pick.ship_tracking)
+            vals[obj.id] = ", ".join(track_nos)
         return vals
 
 SaleOrderLine.register()

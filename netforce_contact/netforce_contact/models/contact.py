@@ -135,7 +135,7 @@ class Contact(Model):
 
     _defaults = {
         "active": True,
-        "type": "org",
+        "type": "person",
         "code": _get_number,
     }
     _order = "name"

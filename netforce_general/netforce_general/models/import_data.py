@@ -47,10 +47,11 @@ class Import(Model):
 
     def do_import(self, ids, context={}):
         obj = self.browse(ids[0])
-        dbname = get_active_db()
-        data = open(os.path.join("static", "db", dbname, "files", obj.file), "rU", errors="replace").read()
+        #dbname = get_active_db()
+        #data = open(os.path.join("static", "db", dbname, "files", obj.file), "rU", errors="replace").read()
         m = get_model(obj.model)
-        m.import_data(data)
+        #m.import_data(data)
+        m.import_csv(obj.file)
         if obj.next:
             return {
                 "next": {
