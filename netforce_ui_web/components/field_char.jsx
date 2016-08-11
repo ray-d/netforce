@@ -7,7 +7,7 @@ var FieldChar=React.createClass({
         var val=this.props.data[this.props.name];
         var readonly=this.props.readonly?true:false;
         if (this.props.model) {
-            var f=ui_params.get_field(this.props.model,this.props.name);
+            var f=ui_params.get_field_by_path(this.props.model,this.props.name);
             if (f.readonly) readonly=true;
         }
         if (this.props.edit_focus) readonly=true;

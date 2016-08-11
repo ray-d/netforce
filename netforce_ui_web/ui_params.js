@@ -50,6 +50,31 @@ module.exports={
         return f;
     },
 
+    get_field_by_path: function(model,path) {
+        var m=this.get_model(model);
+        var f=null;
+        var field_model=model;
+        var field_name=null;
+        path.split(".").forEach((n)=>{
+            if (f) {
+                if (f.type=="many2one") {
+                    m=this.get_model(f.relation);
+                    field_model=f.relation;
+                } else {
+                    f=null;
+                    return;
+                }
+            }
+            f=m.fields[n];
+            field_name=n;
+            if (!f) return;
+        });
+        if (!f) throw "Field not found: "+model+"."+path;
+        f.name=field_name;
+        f.model=field_model;
+        return f;
+    },
+
     get_action: function(name) {
         if (!_ui_params) throw "UI params not found";
         var action=_ui_params.actions[name];

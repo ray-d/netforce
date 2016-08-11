@@ -8,12 +8,17 @@ var FieldChar=require("./field_char");
 var FieldDecimal=require("./field_decimal");
 var FieldSelect=require("./field_select");
 var FieldMany2One=require("./field_many2one");
+var FieldDateRange=require("./field_date_range");
 
 var Search=React.createClass({
     mixins: [ui_params],
 
     getInitialState() {
-        var layout=this.make_default_search_view(this.props.model);
+        if (this.props.search_fields) {
+            var layout=this.make_search_view(this.props.search_fields);
+        } else {
+            var layout=this.make_default_search_view(this.props.model);
+        }
         var doc=new dom().parseFromString(layout);
         var layout_el=doc.documentElement;
         return {layout_el:layout_el,data:{}};
@@ -28,7 +33,7 @@ var Search=React.createClass({
         var rows=[];
         field_els.forEach((el,i) => {
             var name=el.getAttribute("name");
-            var f=ui_params.get_field(this.props.model,name);
+            var f=ui_params.get_field_by_path(this.props.model,name);
             if (f.type=="char") {
                 var field_component=<FieldChar model={this.props.model} name={name} data={this.state.data}/>;
             } else if (f.type=="text") {
@@ -42,9 +47,9 @@ var Search=React.createClass({
             } else if (f.type=="decimal") {
                 var field_component=<FieldChar model={this.props.model} name={name} data={this.state.data}/>;
             } else if (f.type=="date") {
-                var field_component=<FieldChar model={this.props.model} name={name} data={this.state.data}/>;
+                var field_component=<FieldDateRange model={this.props.model} name={name} data={this.state.data}/>;
             } else if (f.type=="datetime") {
-                var field_component=<FieldChar model={this.props.model} name={name} data={this.state.data}/>;
+                var field_component=<FieldDateRange model={this.props.model} name={name} data={this.state.data}/>;
             } else if (f.type=="selection") {
                 var field_component=<FieldSelect model={this.props.model} name={name} data={this.state.data}/>;
             } else if (f.type=="file") {
@@ -58,14 +63,14 @@ var Search=React.createClass({
             }
             var col=<div key={cols.length} className="col-sm-2">
                 <div className="form-group">
-                    <label className="control-label">{f.string}</label>
+                    <label className="control-label nf-field-label">{f.string}</label>
                     {field_component}
                 </div>
             </div>
             cols.push(col);
         });
         rows.push(<div key={rows.length} className="row">{cols}</div>);
-        return <div className="panel panel-default" style={{margin:"10px 0"}}>
+        return <div className="panel panel-default nf-search" style={{margin:"10px 0"}}>
             <div className="panel-body">
                 {rows}
                 <button className="btn btn-primary" onClick={this.search}>Search</button>
@@ -91,7 +96,7 @@ var Search=React.createClass({
         for (var name in this.state.data) {
             var v=this.state.data[name];
             if (v==null) return;
-            var f=ui_params.get_field(this.props.model,name);
+            var f=ui_params.get_field_by_path(this.props.model,name);
             var clause=[];
             if (f.type=="char") {
                 clause=[name,"ilike",v];
@@ -104,10 +109,14 @@ var Search=React.createClass({
             } else if (f.type=="decimal") {
                 clause=[name,"=",v]; // XXX
             } else if (f.type=="date") {
-                clause=[name,"=",v]; // XXX
+                clause=[];
+                if (v[0]) clause.push([name,">=",v[0]]);
+                if (v[1]) clause.push([name,"<=",v[1]]);
             } else if (f.type=="datetime") {
-                clause=[name,"=",v]; // XXX
-            } else if (f.type=="select") {
+                clause=[];
+                if (v[0]) clause.push([name,">=",v[0]+" 00:00:00"]);
+                if (v[1]) clause.push([name,"<=",v[1]+" 23:59:59"]);
+            } else if (f.type=="selection") {
                 clause=[name,"=",v];
             } else if (f.type=="many2one") {
                 clause=[name,"=",v[0]]
@@ -150,7 +159,16 @@ var Search=React.createClass({
         });
         layout+="</search>";
         return layout;
-    }
+    },
+
+    make_search_view(fields) {
+        var layout="<search>";
+        _.each(fields,function(n) {
+            layout+='<field name="'+n+'"/>';
+        });
+        layout+="</search>";
+        return layout;
+    },
 });
 
 module.exports=Search;

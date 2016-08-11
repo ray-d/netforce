@@ -11,11 +11,15 @@ var FieldBoolean=require("./field_boolean");
 var FieldDecimal=require("./field_decimal");
 var FieldSelect=require("./field_select");
 var FieldFile=require("./field_file");
+var FieldDate=require("./field_date");
+var FieldDateTime=require("./field_datetime");
+var FieldTime=require("./field_time");
 var FieldMany2One=require("./field_many2one");
 var FieldOne2Many=require("./field_one2many");
 var FieldMany2Many=require("./field_many2many");
 var Group=require("./group");
 var Tabs=require("./tabs");
+var Separator=require("./separator");
 var views=require("../views");
 
 var FormLayout=React.createClass({
@@ -70,9 +74,9 @@ var FormLayout=React.createClass({
                     } else if (f.type=="decimal") {
                         var field_component=<FieldChar model={this.props.model} name={name} data={this.props.data}/>;
                     } else if (f.type=="date") {
-                        var field_component=<FieldChar model={this.props.model} name={name} data={this.props.data}/>;
+                        var field_component=<FieldDate model={this.props.model} name={name} data={this.props.data}/>;
                     } else if (f.type=="datetime") {
-                        var field_component=<FieldChar model={this.props.model} name={name} data={this.props.data}/>;
+                        var field_component=<FieldDateTime model={this.props.model} name={name} data={this.props.data}/>;
                     } else if (f.type=="selection") {
                         var field_component=<FieldSelect model={this.props.model} name={name} data={this.props.data}/>;
                     } else if (f.type=="file") {
@@ -106,6 +110,9 @@ var FormLayout=React.createClass({
                 rows.push(<div key={rows.length} className="row">{cols}</div>);
                 cols=[];
             } else if (el.tagName=="separator") {
+                rows.push(<div key={rows.length} className="row">{cols}</div>);
+                rows.push(<div key={rows.length} className="row"><div className="col-sm-12"><Separator string={el.getAttribute("string")}/></div></div>);
+                cols=[];
             } else if (el.tagName=="button") {
             } else if (el.tagName=="group") {
                 var col=<div key={cols.length} className="col-sm-12">

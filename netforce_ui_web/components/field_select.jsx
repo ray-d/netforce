@@ -4,7 +4,7 @@ var utils=require("../utils");
 
 var FieldSelect=React.createClass({
     getInitialState() {
-        var f=ui_params.get_field(this.props.model,this.props.name);
+        var f=ui_params.get_field_by_path(this.props.model,this.props.name);
         var val=this.props.data[this.props.name];
         var readonly=this.props.readonly?true:false;
         if (this.props.edit_focus) readonly=true;
@@ -18,7 +18,7 @@ var FieldSelect=React.createClass({
     },
 
     render() {
-        var f=ui_params.get_field(this.props.model,this.props.name);
+        var f=ui_params.get_field_by_path(this.props.model,this.props.name);
         var val=this.props.data[this.props.name];
         var val_str=utils.fmt_field_val(val,f);
         if (this.state.readonly) {

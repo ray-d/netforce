@@ -17,6 +17,7 @@ var Columns=require("./columns")
 var Grid=require("./grid")
 var Map=require("./map")
 var Form=require("./form")
+var Pivot=require("./pivot")
 var Button=require("./button")
 
 var ListContainer=React.createClass({
@@ -179,6 +180,8 @@ var ListContainer=React.createClass({
                                 return <button key={m} type="button" className={classNames("btn","btn-default",{"active":this.state.mode=="columns"})} style={{width:100}} onClick={this.set_mode.bind(this,"columns")}><i className="fa fa-columns"/> Columns</button>
                             } else if (m=="map") {
                                 return <button key={m} type="button" className={classNames("btn","btn-default",{"active":this.state.mode=="map"})} style={{width:100}} onClick={this.set_mode.bind(this,"map")}><i className="fa fa-map-o"/> Map</button>
+                            } else if (m=="pivot") {
+                                return <button key={m} type="button" className={classNames("btn","btn-default",{"active":this.state.mode=="pivot"})} style={{width:100}} onClick={this.set_mode.bind(this,"pivot")}><i className="fa fa-table"/> Pivot</button>
                             } else {
                                 throw "Invalid mode: "+m;
                             }
@@ -285,6 +288,8 @@ var ListContainer=React.createClass({
                             return <Columns key={this.state.list_key} model={this.props.model} condition={search_cond} order={this.props.order} on_select={this.on_select}/>
                         } else if (this.state.mode=="map") {
                             return <Map key={this.state.list_key} model={this.props.model} condition={search_cond} order={this.props.order} on_select={this.on_select}/>
+                        } else if (this.state.mode=="pivot") {
+                            return <Pivot key={this.state.list_key} model={this.props.model} condition={search_cond} order={this.props.order} no_search={true}/>
                         }
                     }.bind(this)()}
                 </div>

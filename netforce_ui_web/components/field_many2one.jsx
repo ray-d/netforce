@@ -7,7 +7,7 @@ var $=require("jquery");
 
 var FieldMany2One=React.createClass({
     getInitialState() {
-        var f=ui_params.get_field(this.props.model,this.props.name);
+        var f=ui_params.get_field_by_path(this.props.model,this.props.name);
         var val=this.props.data[this.props.name];
         var val_str=utils.fmt_field_val(val,f);
         var readonly=this.props.readonly?true:false;
@@ -73,7 +73,7 @@ var FieldMany2One=React.createClass({
     click_link(e) {
         console.log("FieldMany2One.click_link");
         e.preventDefault();
-        var f=ui_params.get_field(this.props.model,this.props.name);
+        var f=ui_params.get_field_by_path(this.props.model,this.props.name);
         var val=this.props.data[this.props.name];
         var val_id=val?val[0]:null;
         var action=ui_params.find_details_action(f.relation,val_id);
@@ -92,7 +92,7 @@ var FieldMany2One=React.createClass({
     },
 
     load_results(q) {
-        var f=ui_params.get_field(this.props.model,this.props.name);
+        var f=ui_params.get_field_by_path(this.props.model,this.props.name);
         var cond=[];
         if (this.props.condition) {
             cond=this.eval_condition();

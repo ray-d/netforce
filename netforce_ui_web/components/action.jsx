@@ -14,6 +14,7 @@ require("./crosstab");
 require("./labels");
 require("./field_code");
 require("./report");
+require("./field_time")
 
 var Action = React.createClass({
     childContextTypes: {

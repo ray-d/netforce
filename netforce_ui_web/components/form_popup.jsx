@@ -117,7 +117,7 @@ var FormPopup=React.createClass({
                             }
                         }.bind(this));
                 }.bind(this)()}
-                <button className="btn" onClick={this.close_modal}>Cancel</button>
+                <button className="btn btn-default" onClick={this.close_modal}>Cancel</button>
             </Modal.Footer> 
         </Modal>
     },

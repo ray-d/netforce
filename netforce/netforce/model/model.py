@@ -2069,8 +2069,15 @@ class Model(object):
         return res
 
     def search_read_path(self, condition, field_paths, context={}, **kw):
-        ids=self.search(condition,context=context,**kw)
-        return self.read_path(ids,field_paths,context=context)
+        res=self.search(condition,context=context,**kw)
+        if isinstance(res, tuple):
+            ids, count = res
+            data = self.read_path(ids, field_paths, context=context)
+            return data, count
+        else:
+            ids = res
+            data = self.read_path(ids, field_paths, context=context)
+            return data
 
     def save_data(self,data,context={}):
         print(">>> save_data %s %s"%(self._name,data))
