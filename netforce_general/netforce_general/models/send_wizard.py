@@ -37,6 +37,7 @@ class SendWizard(Model):
         "custom_template_id": fields.Many2One("report.template", "Custom Report Template"),
         "email_contact_field": fields.Char("Email Contact Field"),
         "email_template_id": fields.Many2One("email.template", "Email Template"),
+        "email_state": fields.Selection([["draft","Draft"],["to_send","To Send"]],"Email Status"),
     }
 
     _defaults = {
@@ -48,6 +49,7 @@ class SendWizard(Model):
         "template_format": lambda self, ctx: ctx.get("template_format"),
         "custom_template_type": lambda self, ctx: ctx.get("custom_template_type"),
         "email_contact_field": lambda self, ctx: ctx.get("email_contact_field"),
+        "email_state": "to_send",
     }
 
     def send(self, ids, context={}):
@@ -90,7 +92,7 @@ class SendWizard(Model):
             "obj": pobj,
             "attachments": attachments,
         }
-        email_id = obj.email_template_id.create_email(data, related_id="%s,%d" % (obj.print_model, obj.print_id))
+        email_id = obj.email_template_id.create_email(data, related_id="%s,%d" % (obj.print_model, obj.print_id), state=obj.email_state)
         return {
             "next": {
                 "name": "email",

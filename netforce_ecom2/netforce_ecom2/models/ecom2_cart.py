@@ -41,6 +41,7 @@ class Cart(Model):
         "ship_addresses": fields.Json("Shipping Addresses",function="get_ship_addresses"),
         "amount_voucher": fields.Decimal("Voucher Amount",function="get_amount_voucher",function_multi=True),
         "voucher_error_message": fields.Text("Voucher Error Message",function="get_amount_voucher",function_multi=True),
+        "free_ship_address": fields.Boolean("Is free Ship"),
     }
     _order="date desc"
 
@@ -86,6 +87,7 @@ class Cart(Model):
         "currency_id": _get_currency,
         "company_id": _get_company,
         "ship_method_d": _get_ship_method,
+        "free_ship_address":False,
     }
 
     def get_ship_amount_details(self,ids,context={}):
@@ -95,7 +97,7 @@ class Cart(Model):
             delivs=[]
             for line in obj.lines:
                 date=line.delivery_date
-                meth_id=line.ship_method_id.id
+                meth_id=line.ship_method_id.id or line.cart_id.ship_method_id.id
                 addr_id=line.ship_address_id.id or line.cart_id.ship_address_id.id
                 if not date or not meth_id or not addr_id:
                     continue
@@ -104,10 +106,13 @@ class Cart(Model):
             details=[]
             for date,meth_id,addr_id in delivs:
                 ctx={
+                    "contact_id": obj.customer_id.id,
                     "ship_address_id": addr_id,
                 }
                 meth=get_model("ship.method").browse(meth_id,context=ctx)
                 details.append({
+                    "ship_addr_id":addr_id,
+                    "date": date,
                     "ship_method_id": meth.id,
                     "ship_amount": meth.ship_amount,
                 })
@@ -154,6 +159,7 @@ class Cart(Model):
         vals={
             "contact_id": obj.customer_id.id,
             "ship_address_id": obj.ship_address_id.id,
+            "ship_method_id": obj.ship_method_id.id,
             "bill_address_id": obj.bill_address_id.id,
             "due_date": obj.delivery_date,
             "lines": [],
@@ -161,8 +167,10 @@ class Cart(Model):
             "delivery_slot_id": obj.delivery_slot_id.id,
             "pay_method_id": obj.pay_method_id.id,
             "other_info": obj.comments,
+            "voucher_id": obj.voucher_id.id,
             "ref": obj.comments, # XXX
         }
+        print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Ship Method Id ",ship_method_id)
         for line in obj.lines:
             prod=line.product_id
             if line.lot_id and line.qty_avail<=0:
@@ -179,6 +187,7 @@ class Cart(Model):
                 "location_id": location_id,
                 "lot_id": line.lot_id.id,
                 "due_date": line.delivery_date,
+                "delivery_slot_id": obj.delivery_slot_id.id,
                 "ship_address_id": line.ship_address_id.id,
             }
             vals["lines"].append(("create",line_vals))
@@ -297,7 +306,7 @@ class Cart(Model):
                 get_model("ecom2.cart.line").write([line_id],{"qty":qty})
         else:
             if qty!=0:
-                ctx={"cart_id":obj.id,"delivery_date":due_date}
+                ctx={"cart_id":obj.id,"delivery_date":due_date,"product_id":prod_id}
                 get_model("ecom2.cart.line").create({"cart_id": obj.id, "product_id": prod_id, "qty": qty, "delivery_date": due_date},context=ctx)
 
     def add_lot(self,ids,prod_id,lot_id,context={}):
@@ -323,63 +332,86 @@ class Cart(Model):
             raise Exception("Lot not found in cart")
         get_model("ecom2.cart.line").delete([line_id])
 
-    def add_product(self,ids,prod_id,context={}):
-        print("Cart.add_product",ids,prod_id)
+    def set_qty_auto_select_lot(self,ids,prod_id,qty,context={}):
+        print("Cart.set_qty_auto_select_lot",ids,prod_id,qty)
+        obj=self.browse(ids[0])
+        cur_qty=0
+        for line in obj.lines:
+            if line.product_id.id==prod_id:
+                cur_qty+=line.qty
+        diff_qty=qty-cur_qty
+        if diff_qty>0:
+            self.add_lots_auto_select(ids,prod_id,diff_qty,context=context)
+        elif diff_qty<0:
+            self.remove_lots_auto_select(ids,prod_id,-diff_qty,context=context)
+
+    def add_lots_auto_select(self,ids,prod_id,add_qty,context={}):
+        print("Cart.add_lots_auto_select",ids,prod_id,add_qty)
         obj=self.browse(ids[0])
         exclude_lot_ids=[]
         for line in obj.lines:
-            if line.lot_id:
+            if line.product_id.id==prod_id and line.lot_id:
                 exclude_lot_ids.append(line.lot_id.id)
         prod=get_model("product").browse(prod_id)
-        found_lot_id=None
+        avail_qty=prod.stock_qty
+        add_lot_ids=[]
         for lot in prod.stock_lots:
-            if lot.id not in exclude_lot_ids:
-                found_lot_id=lot.id
+            if len(add_lot_ids)>=avail_qty:
                 break
-        if found_lot_id:
+            if lot.id not in exclude_lot_ids:
+                add_lot_ids.append(lot.id)
+                if len(add_lot_ids)>=add_qty:
+                    break
+        print("add_lot_ids",add_lot_ids)
+        for lot_id in add_lot_ids:
             get_model("ecom2.cart.line").create({
                 "cart_id": obj.id,
                 "product_id": prod_id,
-                "lot_id": found_lot_id,
+                "lot_id": lot_id,
                 "qty": 1
             })
-        else:
+        remain_qty=add_qty-len(add_lot_ids)
+        print("remain_qty",remain_qty)
+        if remain_qty>0:
             found_line=None
             for line in obj.lines:
                 if line.product_id.id==prod_id and not line.lot_id:
                     found_line=line
                     break
             if found_line:
-                found_line.write({"qty":found_line.qty+1})
+                found_line.write({"qty":found_line.qty+remain_qty})
             else:
-                get_model("ecom2.cart.line").create({"cart_id": obj.id, "product_id": prod_id, "qty": 1})
+                get_model("ecom2.cart.line").create({"cart_id": obj.id, "product_id": prod_id, "qty": remain_qty})
 
-    def remove_product(self,ids,prod_id,context={}):
-        print("Cart.remove_product",ids,prod_id)
+    def remove_lots_auto_select(self,ids,prod_id,remove_qty,context={}):
+        print("Cart.remove_lots_auto_select",ids,prod_id,remove_qty)
         obj=self.browse(ids[0])
-        del_line=None
-        max_date=None
+        remain_qty=remove_qty
         for line in obj.lines:
-            if line.product_id.id!=prod_id:
-                continue
-            lot=line.lot_id
-            if lot:
-                d=lot.received_date or "1900-01-01"
-                if max_date is None or d>max_date:
-                    max_date=d
-                    del_line=line
-            else:
-                del_line=line
-                break
-        if not del_line:
-            raise Exception("No cart line found to remove")
-        if del_line.qty>1:
-            del_line.write({"qty":del_line.qty-1})
-        else:
-            del_line.delete()
+            if line.product_id.id==prod_id and not line.lot_id:
+                if line.qty<=remain_qty:
+                    remain_qty-=line.qty
+                    line.delete()
+                else:
+                    line.write({"qty":line.qty-remain_qty})
+                    remain_qty=0
+        print("remain_qty",remain_qty)
+        if remain_qty>0:
+            lots=[]
+            for line in obj.lines:
+                if line.product_id.id==prod_id and line.lot_id:
+                    d=line.lot_id.received_date or "1900-01-01"
+                    lots.append((d,line.id))
+            lots.sort()
+            del_ids=[]
+            for d,line_id in lots:
+                del_ids.append(line_id)
+                if len(del_ids)>=remain_qty:
+                    break
+            print("del_ids",del_ids)
+            get_model("ecom2.cart.line").delete(del_ids)
 
     def get_delivery_delay(self,ids,context={}):
-        settings=get_model("ecom2.settings").browse(1)
         vals={}
         for obj in self.browse(ids):
             vals[obj.id]=max(l.delivery_delay for l in obj.lines) if obj.lines else 0
@@ -400,14 +432,16 @@ class Cart(Model):
         for slot in get_model("delivery.slot").search_browse([]):
             slots.append([slot.id,slot.name,slot.time_from])
         slot_num_sales={}
-        for sale in get_model("sale.order").search_browse([["date",">=",time.strftime("%Y-%m-%d")]]):
+        for sale in get_model("sale.order").search_browse([["plr_order_type","=","grocery"],["date",">=",time.strftime("%Y-%m-%d")]]):
             k=(sale.due_date,sale.delivery_slot_id.id)
             slot_num_sales.setdefault(k,0)
             slot_num_sales[k]+=1
+        print("slot_num_sales",slot_num_sales)
         slot_caps={}
         for cap in get_model("delivery.slot.capacity").search_browse([]):
             k=(cap.slot_id.id,int(cap.weekday))
             slot_caps[k]=cap.capacity
+        print("slot_caps",slot_caps)
         delivery_weekdays=None
         for line in obj.lines:
             prod=line.product_id
@@ -419,6 +453,18 @@ class Cart(Model):
                     delivery_weekdays=[d for d in delivery_weekdays if d in days]
         days=[]
         now=datetime.now()
+        tomorrow=now+timedelta(days=1)
+        tomorrow_seconds=0
+        if settings.work_time_start and settings.work_time_end:
+            today_end=datetime.strptime(date.today().strftime("%Y-%m-%d")+" "+settings.work_time_end,"%Y-%m-%d %H:%M")
+            tomorrow_start=datetime.strptime(tomorrow.strftime("%Y-%m-%d")+" "+settings.work_time_start,"%Y-%m-%d %H:%M")
+            if now<today_end and now.weekday()!=6:
+                remain_seconds=(today_end-now).total_seconds()
+            else:
+                remain_seconds=0
+            if remain_seconds<min_hours*3600:
+                tomorrow_seconds=min_hours*3600-remain_seconds
+        print("tomorrow_seconds=%s"%tomorrow_seconds)
         while d<=d_to:
             ds=d.strftime("%Y-%m-%d")
             res=get_model("hr.holiday").search([["date","=",ds]])
@@ -435,8 +481,12 @@ class Cart(Model):
                 capacity=slot_caps.get((slot_id,w))
                 num_sales=slot_num_sales.get((ds,slot_id),0)
                 state="avail"
-                if t_from<now or (t_from-now).seconds<min_hours*3600:
-                    state="full"
+                if d==now.date():
+                    if t_from<now or (t_from-now).total_seconds()<min_hours*3600 or tomorrow_seconds:
+                        state="full"
+                elif d==tomorrow.date() and tomorrow_seconds:
+                    if (t_from-tomorrow_start).total_seconds()<tomorrow_seconds:
+                        state="full"
                 if capacity is not None and num_sales>=capacity:
                     state="full"
                 day_slots.append([slot_id,slot_name,state,num_sales,capacity])
@@ -496,7 +546,7 @@ class Cart(Model):
         for a in settings.extra_ship_addresses:
             addr_vals={
                 "id": a.id,
-                "name": a.company+", "+a.address,
+                "name": a.address or "",
             }
             if obj.ship_method_id:
                 meth_id=obj.ship_method_id.id
@@ -556,12 +606,38 @@ class Cart(Model):
     def update_date_delivery(self,ids,date,vals,context={}):
         print("cart.update_date_delivery",ids,date,vals)
         obj=self.browse(ids[0])
+        settings=get_model("ecom2.settings").browse(1)
         for line in obj.lines:
             if line.delivery_date==date:
                 line.write(vals)
+        #for a in settings.extra_ship_addresses:
+            #if a.id == vals['ship_address_id']:
+                #return {'free_ship':True}
+        return {'free_ship':False}
 
     def empty_cart(self,ids,context={}):
         obj=self.browse(ids[0])
         obj.write({"lines":[("delete_all",)]})
+
+    def check_due_dates(self,ids,context={}):
+        obj=self.browse(ids[0])
+        today=time.strftime("%Y-%m-%d")
+        if obj.delivery_date and obj.delivery_date<today:
+            raise Exception("Delivery date is in the past %s"%obj.delivery_date)
+        for line in obj.lines:
+            if line.delivery_date and line.delivery_date<today:
+                raise Exception("Delivery date is in the past %s for product %s"%(line.delivery_date,line.product_id.name))
+
+    def free_ship_address(self,ids,context={}):
+        obj=self.browse(ids[0])
+        settings=get_model("ecom2.settings").browse(1)
+        data=[]
+        for a in settings.extra_ship_addresses:
+            if obj.ship_method_id:
+                data["is_free"]=False
+            else:
+                data["is_free"]=True
+            data.append(data)
+        return {obj.id: addrs}
 
 Cart.register()

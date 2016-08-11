@@ -566,7 +566,7 @@ def create_thumbnails(fname):
     basename,ext=os.path.splitext(fname)
     fname,rand = basename.split(",")
     for s in [512,256,128,64,32]:
-        fname_thumb =fname+ "-resize-512"+"," +rand + ext
+        fname_thumb =fname+ "-resize-%s"%s+"," +rand + ext
         path_thumb = os.path.join(fdir, fname_thumb)
         os.system(r"convert -resize %sx%s\> '%s' '%s'" % (s,s,path, path_thumb))
 

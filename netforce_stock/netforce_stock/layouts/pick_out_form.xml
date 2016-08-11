@@ -12,7 +12,7 @@
             <item string="Copy To Good Receipt" method="copy_to_receipt"/>
             <divider/>
             <item string="To Draft" method="to_draft" states="pending,approved,done,voided"/>
-            <item string="Void" method="void" confirm="Are you sure you want to void this goods issue?" states="done"/>
+            <item string="Void" method="void" confirm="Are you sure you want to void this goods issue?" states="done,draft,pending,approved"/>
             <divider/>
             <item string="Assign Lots" method="assign_lots" states="draft"/>
             <divider/>
@@ -56,10 +56,8 @@
         <tab string="Shipping">
             <field name="ship_method_id"/>
             <field name="ship_tracking" readonly="0"/>
+            <field name="ship_route" readonly="0"/>
             <field name="ship_state"/>
-            <separator/>
-            <field name="from_coords"/>
-            <field name="to_coords"/>
             <separator/>
             <field name="ship_cost"/>
             <field name="ship_pay_by"/>

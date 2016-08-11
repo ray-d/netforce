@@ -19,6 +19,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from netforce.model import Model, fields, get_model
+from netforce.utils import get_data_path
 from datetime import *
 import time
 
@@ -57,5 +58,15 @@ class Bom(Model):
     _defaults = {
         "number": _get_number,
     }
+
+    def onchange_product(self,context={}):
+        data=context['data']
+        path=context['path']
+        line=get_data_path(data,path,parent=True)
+        product_id=line['product_id']
+        if product_id:
+            product=get_model('product').browse(product_id)
+            line['uom_id']=product.uom_id.id
+        return data
 
 Bom.register()

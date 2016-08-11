@@ -34,7 +34,7 @@ class CartLine(Model):
         prod_id=vals["product_id"]
         prod=get_model("product").browse(prod_id)
         vals["uom_id"]=prod.uom_id.id
-        if prod.ecom_select_lot:
+        if prod.sale_invoice_uom_id.name=="KG": # XXX: too specific
             lot_id=vals.get("lot_id")
             if lot_id:
                 lot=get_model("stock.lot").browse(lot_id)
@@ -43,16 +43,21 @@ class CartLine(Model):
                 sale_price=math.ceil((prod.sale_price or 0)*(prod.sale_to_invoice_uom_factor or 0)) # XXX: too specific
             vals["unit_price"]=sale_price
         else:
-            vals["unit_price"]=prod.sale_price
+            #vals["unit_price"]=prod.sale_price
+            vals["unit_price"]=prod.sale_price_order_uom ### sijan changed issue I0651
         return super().create(vals,*args,**kw)
 
     def get_qty_avail(self,ids,context={}):
         vals={}
         for obj in self.browse(ids):
             prod=obj.product_id
+            loc_ids=[loc.location_id.id for loc in prod.locations]
+            cond=[["product_id","=",prod.id],["location_id","in",loc_ids]]
+            if obj.lot_id:
+                cond.append(["lot_id","=",obj.lot_id.id])
             qty=0
-            for bal in get_model("stock.balance").search_browse([["product_id","=",prod.id]]):
-                qty+=bal.qty_virt # XXX: chek this
+            for bal in get_model("stock.balance").search_browse(cond):
+                qty+=bal.qty_virt
             vals[obj.id]=qty
         return vals
 
@@ -62,7 +67,7 @@ class CartLine(Model):
         for obj in self.browse(ids):
             delay=0
             prod=obj.product_id
-            if obj.qty_avail<=0:
+            if obj.qty_avail<=0 and not prod.sale_lead_time_nostock == 0: ### REVIEW 
                 delay=max(delay,prod.sale_lead_time_nostock or settings.sale_lead_time_nostock or 0)
             vals[obj.id]=delay
         return vals

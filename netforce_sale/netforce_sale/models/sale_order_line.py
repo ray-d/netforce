@@ -46,6 +46,7 @@ class SaleOrderLine(Model):
         "qty2": fields.Decimal("Secondary Qty"),
         "location_id": fields.Many2One("stock.location", "Location", condition=[["type", "=", "internal"]]),
         "product_categs": fields.Many2Many("product.categ", "Product Categories", function="_get_related", function_context={"path": "product_id.categs"}, function_search="_search_related", search=True),
+        "product_categ_id": fields.Many2Many("product.categ", "Product Category", function="_get_related", function_context={"path": "product_id.categ_id"}, function_search="_search_related", search=True),
         "discount": fields.Decimal("Disc %"),  # XXX: rename to discount_percent later
         "discount_amount": fields.Decimal("Disc Amt"),
         "qty_avail": fields.Decimal("Qty In Stock", function="get_qty_avail"),
@@ -67,6 +68,8 @@ class SaleOrderLine(Model):
         "lot_id": fields.Many2One("stock.lot","Lot / Serial Number"),
         "ship_address_id": fields.Many2One("address", "Shipping Address"),
         "packaging_id": fields.Many2One("stock.packaging", "Packaging"),
+        "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
+        "ship_tracking": fields.Char("Tracking Numbers", function="get_ship_tracking"),
     }
 
     def create(self, vals, context={}):
@@ -258,6 +261,17 @@ class SaleOrderLine(Model):
                 "act_profit_amount": profit,
                 "act_margin_percent": margin,
             }
+        return vals
+
+    def get_ship_tracking(self, ids, context={}):
+        vals = {}
+        for obj in self.browse(ids):
+            track_nos = []
+            if obj.due_date:
+                for pick in obj.order_id.pickings:
+                    if pick.date[:10]==obj.due_date and pick.ship_tracking:
+                        track_nos.append(pick.ship_tracking)
+            vals[obj.id] = ", ".join(track_nos)
         return vals
 
 SaleOrderLine.register()

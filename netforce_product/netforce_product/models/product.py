@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2015 Netforce Co. Ltd.
+# copyright (c) 2012-2015 Netforce Co. Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +20,13 @@
 
 from netforce.model import Model, fields, get_model
 from netforce import database
-from netforce.database import get_active_db
 from netforce import utils
-import os.path
-from PIL import Image, ImageChops
 from netforce import access
 from decimal import Decimal
 import time
 import math
+import os
+import base64
 
 class Product(Model):
     _name = "product"
@@ -41,7 +40,7 @@ class Product(Model):
         "name": fields.Char("Name", required=True, search=True, translate=True, size=256),
         "code": fields.Char("Code", required=True, search=True),
         "type": fields.Selection([["stock", "Stockable"], ["consumable", "Consumable"], ["service", "Service"], ["master", "Master"], ["bundle", "Bundle"]], "Product Type", required=True, search=True),
-        "uom_id": fields.Many2One("uom", "Default UoM", required=True),
+        "uom_id": fields.Many2One("uom", "Default UoM", required=True, search=True),
         "parent_id": fields.Many2One("product", "Master Product"),
         "categ_id": fields.Many2One("product.categ", "Product Category", search=True),
         "description": fields.Text("Description", translate=True),
@@ -162,12 +161,11 @@ class Product(Model):
         "approve_date": fields.DateTime("Approve Date"),
         "service_items": fields.One2Many("service.item","product_id","Service Items"),
         "lots": fields.One2Many("stock.lot","product_id","Lots"),
-        "stock_plan_horizon": fields.Integer("Inventory Planning Horizon (days)"),
+        "stock_plan_horizon": fields.Integer("Inventory Planning Horizon (days)"), # XXX: deprecated
         "ecom_hide_qty": fields.Boolean("Hide Stock Qty From Website"),
         "ecom_hide_unavail": fields.Boolean("Hide From Website When Out Of Stock"),
         "ecom_no_order_unavail": fields.Boolean("Prevent Orders When Out Of Stock"),
-        "ecom_select_lot": fields.Boolean("Customers Select Lot When Ordering"),
-        "ecom_lot_before_invoice": fields.Boolean("Require Lot Before Invoicing"),
+        "ecom_select_lot": fields.Boolean("Customers Can Select Lot When Ordering"),
         "product_origin": fields.Char("Product Origin"),
         "stock_balances": fields.One2Many("stock.balance","product_id","Stock Balances"),
         "check_lot_neg_stock": fields.Boolean("Check Lot Negative Stock"),
@@ -196,6 +194,7 @@ class Product(Model):
         return vals
 
     def name_search(self, name, condition=None, context={}, limit=None, **kw):
+        print("condition",condition)
         search_mode = context.get("search_mode")
         print("##############################")
         print("search_mode", search_mode)
@@ -238,13 +237,25 @@ class Product(Model):
             #"parent_id": obj.parent_id.id, XXX
             "description": obj.description,
             "image": obj.image,
+            "categ_id": obj.categ_id.id,
             "categs": [("set", [c.id for c in obj.categs])],
+            "supply_method": obj.supply_method,
+            "procure_method": obj.procure_method,
+            "can_sell": obj.can_sell,
+            "can_purchase": obj.can_purchase,
+            "sale_uom_id": obj.sale_uom_id.id,
+            "sale_invoice_uom_id": obj.sale_invoice_uom_id.id,
+            "sale_to_stock_uom_factor": obj.sale_to_stock_uom_factor,
+            "sale_to_invoice_uom_factor": obj.sale_to_invoice_uom_factor,
+            "purchase_uom_id": obj.purchase_uom_id.id,
+            "purchase_invoice_uom_id": obj.purchase_invoice_uom_id.id,
+            "purchase_to_stock_uom_factor": obj.purchase_to_stock_uom_factor,
+            "purchase_to_invoice_uom_factor": obj.purchase_to_invoice_uom_factor,
             "purchase_price": obj.purchase_price,
             "purchase_account_id": obj.purchase_account_id.id,
             "purchase_tax_id": obj.purchase_tax_id.id,
             "supplier_id": obj.supplier_id.id,
             "sale_price": obj.sale_price,
-            "categ_id": obj.categ_id.id,
             "sale_account_id": obj.sale_account_id.id,
             "sale_tax_id": obj.sale_tax_id.id,
             "sale_return_account_id": obj.sale_return_account_id.id,
@@ -498,8 +509,8 @@ class Product(Model):
         vals={}
         for obj in self.browse(ids):
             qty=0
-            for bal in get_model("stock.balance").search_browse([["product_id","=",obj.id]]):
-                qty+=bal.qty_virt # XXX: check this
+            for loc in obj.locations:
+                qty+=loc.stock_qty
             vals[obj.id]=qty
         return vals
 
@@ -578,6 +589,29 @@ class Product(Model):
         for obj in self.browse(ids):
             if not obj.image:
                 continue
-            utils.create_thumbnails(obj.image)
+            dbname = database.get_active_db()
+            if not dbname:
+                return None
+            fdir = os.path.join(os.getcwd(), "static", "db", dbname, "files")
+            path=os.path.join(fdir,obj.image)
+            basename,ext=os.path.splitext(obj.image)
+            res = "," in basename
+            if not res:
+                rand = base64.urlsafe_b64encode(os.urandom(8)).decode()
+                res = os.path.splitext(obj.image)
+                basename, ext = res
+                fname2 = basename + "," + rand + ext
+                #rename image
+                dest_path=fdir+"/"+fname2
+                print("destination path and file name ",dest_path)
+                cmd="cp %s %s"%(path, dest_path)
+                os.system(cmd)
+                obj.write({
+                    'image': fname2,
+                })
+                utils.create_thumbnails(fname2)
+            else:
+                print ("called",obj.image)
+                utils.create_thumbnails(obj.image)
 
 Product.register()

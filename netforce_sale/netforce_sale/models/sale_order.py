@@ -1,4 +1,4 @@
-# copyright (c) 2012-2015 Netforce Co. Ltd.
+# Copyright (c) 2012-2015 Netforce Co. Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -63,10 +63,10 @@ class SaleOrder(Model):
         "location_id": fields.Many2One("stock.location", "Warehouse", search=True),  # XXX: deprecated
         "price_list_id": fields.Many2One("price.list", "Price List", condition=[["type", "=", "sale"]]),
         "payment_terms": fields.Text("Payment Terms"),
-        "delivery_date": fields.Date("Due Date"),  # XXX; deprecated
+        "delivery_date": fields.Date("Due Date"),
         "due_date": fields.Date("Due Date"),
         "team_id": fields.Many2One("mfg.team", "Production Team"),
-        "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),  # XXX: deprecated
+        "ship_method_id": fields.Many2One("ship.method", "Shipping Method"),
         "emails": fields.One2Many("email.message", "related_id", "Emails"),
         "documents": fields.One2Many("document", "related_id", "Documents"),
         "addresses": fields.One2Many("address", "related_id", "Addresses"),
@@ -91,7 +91,7 @@ class SaleOrder(Model):
         "sequence_id": fields.Many2One("sequence", "Number Sequence"),
         "stock_moves": fields.One2Many("stock.move", "related_id", "Stock Movements"),
         "state_label": fields.Char("Status Label", function="get_state_label"),  # XXX: not needed
-        "ship_tracking": fields.Char("Tracking Numbers", function="get_ship_tracking"), # XXX: deprecated
+        "ship_tracking": fields.Char("Tracking Numbers", function="get_ship_tracking"),
         "job_template_id": fields.Many2One("job.template", "Service Order Template"),
         "jobs": fields.One2Many("job", "related_id", "Service Orders"),
         "agg_amount_total": fields.Decimal("Total Amount", agg_function=["sum", "amount_total"]),
@@ -266,8 +266,9 @@ class SaleOrder(Model):
         settings = get_model("settings").browse(1)
         if settings.sale_copy_picking:
             res=obj.copy_to_picking()
-            picking_id=res["picking_id"]
-            get_model("stock.picking").pending([picking_id])
+            picking_ids=res.get("picking_ids")
+            if picking_ids:
+                get_model("stock.picking").pending(picking_ids)
         if settings.sale_copy_invoice:
             obj.copy_to_invoice()
         if settings.sale_copy_production:
@@ -454,18 +455,19 @@ class SaleOrder(Model):
             qty_remain = (line.qty_stock or line.qty) - line.qty_delivered
             if qty_remain <= 0:
                 continue
+            ship_address_id = line.ship_address_id.id or obj.ship_address_id.id
             ship_method_id = line.ship_method_id.id or obj.ship_method_id.id
             due_date = line.due_date or obj.due_date
             if not due_date:
                 raise Exception("Missing due date for sales order %s"%obj.number)
-            pick_key = (ship_method_id,due_date)
+            pick_key = (ship_address_id,ship_method_id,due_date)
             if pick_key not in pick_vals:
                 pick_vals[pick_key] = {
                     "type": "out",
                     "ref": obj.number,
                     "related_id": "sale.order,%s" % obj.id,
                     "contact_id": contact.id,
-                    "ship_address_id": obj.ship_address_id.id,
+                    "ship_address_id": ship_address_id,
                     "lines": [],
                     "state": "draft",
                     "ship_method_id": ship_method_id,
@@ -500,17 +502,19 @@ class SaleOrder(Model):
                     pick_vals[pick_key]["lines"].append(("create", line_vals))
         if not pick_vals:
             Exception("Nothing left to deliver")
+        pick_ids=[]
         for pick_key, pick_val in pick_vals.items():
             pick_id = get_model("stock.picking").create(pick_val, context={"pick_type": "out"})
-            pick = get_model("stock.picking").browse(pick_id)
+            pick_ids.append(pick_id)
         return {
             "next": {
                 "name": "pick_out",
                 "mode": "form",
                 "active_id": pick_id,
             },
-            "flash": "Picking %s created from sales order %s" % (pick.number, obj.number),
-            "picking_id": pick_id,
+            "flash": "Picking created from sales order %s" % obj.number,
+            "picking_ids": pick_ids,
+            "picking_id": pick_ids[0] if pick_ids else None, # XXX: remove later
         }
 
     def copy_to_invoice(self, ids, context={}):
@@ -1355,5 +1359,14 @@ class SaleOrder(Model):
 
     def payment_received(self,ids,context={}):
         print("SaleOrder.payment_received",ids)
+
+"""
+    def import_record(self,vals,context={}):
+        print("SaleOrder.import_record",vals)
+        if "contact" in vals:
+            contact_id=get_model("contact").import_record(vals["contact"],context=context)
+            vals["ship_address_id"]["contact_id"]=contact_id
+        return super().import_record(vals,context=context)
+"""
 
 SaleOrder.register()

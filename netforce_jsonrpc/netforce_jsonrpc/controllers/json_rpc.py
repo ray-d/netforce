@@ -22,8 +22,10 @@ from netforce.controller import Controller
 from netforce.model import get_model, clear_cache
 from netforce import database
 from netforce import access
+from netforce.locale import set_active_locale
 import json
 import sys
+from datetime import *
 import time
 import random
 from netforce.locale import translate
@@ -59,6 +61,8 @@ class JsonRpc(Controller):
                     cookies = params[4] or {}
                 else:
                     cookies = {}
+                if "locale" in cookies:
+                    set_active_locale(cookies["locale"])
                 user_id = access.get_active_user()
                 rpc_log.info("EXECUTE db=%s model=%s method=%s user=%s" %
                              (database.get_active_db(), model, method, user_id))
@@ -72,7 +76,7 @@ class JsonRpc(Controller):
                 ctx.update(cookies);
                 ctx.update(opts.get("context",{}))
                 opts["context"]=ctx
-                with timeout(seconds=300):  # XXX: can make this faster? (less signal sys handler overhead)
+                with timeout(seconds=900):  # XXX: can make this faster? (less signal sys handler overhead)
                     t0 = time.time()
                     res = f(*args, **opts)
                     t1 = time.time()
@@ -125,8 +129,9 @@ class JsonRpc(Controller):
             db.begin()
         try:
             clear_cache()
-            model = self.get_argument("model")
+            print(self)
             method = self.get_argument("method")
+            model = self.get_argument("model")
             if method.startswith("_"):
                 raise Exception("Invalid method")
             args = self.get_argument("args",None)
@@ -139,6 +144,13 @@ class JsonRpc(Controller):
                 opts=json.loads(opts)
             else:
                 opts={}
+            cookies = self.get_argument("cookies",None)
+            if cookies:
+                cookies = json.loads(cookies)
+            else:
+                cookies = {}
+            if "locale" in cookies:
+                set_active_locale(cookies["locale"])
             user_id = access.get_active_user()
             rpc_log.info("EXECUTE db=%s model=%s method=%s user=%s" %
                          (database.get_active_db(), model, method, user_id))
@@ -150,7 +162,7 @@ class JsonRpc(Controller):
             }
             ctx.update(self.get_cookies())
             opts.setdefault("context", {}).update(ctx)
-            with timeout(seconds=300):  # XXX: can make this faster? (less signal sys handler overhead)
+            with timeout(seconds=900):  # XXX: can make this faster? (less signal sys handler overhead)
                 t0 = time.time()
                 res = f(*args, **opts)
                 t1 = time.time()
@@ -182,12 +194,13 @@ class JsonRpc(Controller):
             resp = {
                 "result": None,
                 "error": err,
-                "id": req["id"],
+                "id": self.get_argument("id",None),
             }
         access.clear_active_user()
         try:
             data = json_dumps(resp)
             self.add_header("Access-Control-Allow-Origin","*")
+            self.add_header("Last-Modified",datetime.utcnow())
             self.write(data)
         except:
             print("JSONRPC ERROR: invalid response")

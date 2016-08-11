@@ -19,9 +19,9 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from netforce.model import Model, fields, get_model
+from netforce import access
 import time
 import requests
-import re
 
 class SmsMessage(Model):
     _name = "sms.message"

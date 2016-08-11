@@ -33,6 +33,8 @@
             <newline/>
             <field name="opened"/>
             <field name="clicked"/>
+            <newline/>
+            <field name="template_id"/>
         </tab>
         <tab string="Links">
             <field name="name_id"/>

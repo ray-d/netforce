@@ -574,7 +574,7 @@ class Payment(Model):
                         "due_date": inv.due_date,
                         "contact_id": inv.contact_id.id,
                     }
-                    inv_pay_amt = line.amount_invoice
+                    inv_pay_amt = line.amount_invoice or line.amount
                     if obj.type==inv.type:
                         inv_pay_amt = -inv_pay_amt
                     if inv.inv_type=="credit":

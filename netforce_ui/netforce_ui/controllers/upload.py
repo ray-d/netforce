@@ -51,15 +51,23 @@ class Upload(Controller):
         open(path, "wb").write(data)
         self.write(fname2)
         if ext.lower() in (".jpg", ".jpeg", ".png", ".gif"):
-            fname3 = basename + "-resize-256" + "," + rand + ext
-            path_thumb = os.path.join(fdir, fname3)
-            os.system(r"convert -resize 256x256\> '%s' '%s'" % (path, path_thumb))
             fname4 = basename + "-resize-512" + "," + rand + ext
             path_thumb2 = os.path.join(fdir, fname4)
             os.system(r"convert -resize 512x512\> '%s' '%s'" % (path, path_thumb2))
+            fname3 = basename + "-resize-256" + "," + rand + ext
+            path_thumb = os.path.join(fdir, fname3)
+            os.system(r"convert -resize 256x256\> '%s' '%s'" % (path, path_thumb))
             fname5 = basename + "-resize-128" + "," + rand + ext
             path_thumb3 = os.path.join(fdir, fname5)
             os.system(r"convert -resize 128x128\> '%s' '%s'" % (path, path_thumb3))
+            fname6 = basename + "-resize-64" + "," + rand + ext
+            path_thumb6 = os.path.join(fdir, fname6)
+            os.system(r"convert -resize 64x64\> '%s' '%s'" % (path, path_thumb6))
+            fname7 = basename + "-resize-32" + "," + rand + ext
+            path_thumb7 = os.path.join(fdir, fname7)
+            os.system(r"convert -resize 32x32\> '%s' '%s'" % (path, path_thumb7))
+            print(fname4,fname3,fname5,fname6,fname7)
+            print (path_thumb2,path_thumb,path_thumb3,path_thumb6)
         print("<<< upload %s" % fname)
 
     def options(self):

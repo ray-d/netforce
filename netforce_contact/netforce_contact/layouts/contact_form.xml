@@ -84,6 +84,7 @@
         </tab>
         <tab string="Sales">
             <field name="sale_price_list_id"/>
+            <field name="ship_free"/>
             <newline/>
             <field name="request_product_groups"/>
             <field name="exclude_product_groups"/>

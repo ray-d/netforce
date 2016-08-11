@@ -119,6 +119,7 @@ class Contact(Model):
         "exclude_product_groups": fields.Many2Many("product.group","Exclude Product Groups",reltable="m2m_contact_exclude_product_groups",relfield="contact_id",relfield_other="group_id"),
         "picture": fields.File("Picture"),
         "users": fields.One2Many("base.user","contact_id","Users"),
+        "ship_free": fields.Boolean("Free Shipping"),
     }
 
     def _get_number(self, context={}):
@@ -134,7 +135,7 @@ class Contact(Model):
 
     _defaults = {
         "active": True,
-        "type": "org",
+        "type": "person",
         "code": _get_number,
     }
     _order = "name"

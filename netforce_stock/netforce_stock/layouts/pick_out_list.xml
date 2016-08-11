@@ -1,4 +1,7 @@
 <list model="stock.picking" priority="20">
+    <top>
+        <button string="Create Delivery Orders" method="create_delivery_order_batch"/>
+    </top>
     <head>
         <button string="Print" icon="print" action="report_pick_out_form" action_options="convert=pdf"/>
     </head>
@@ -10,6 +13,7 @@
     <field name="related_id"/>
     <field name="ship_method_id"/>
     <field name="ship_tracking"/>
+    <field name="ship_route"/>
     <field name="ship_state"/>
     <field name="state"/>
 </list>

@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2015 Netforce Co. Ltd.
+# copyright (c) 2012-2015 Netforce Co. Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,10 +19,11 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from netforce.model import Model, fields, get_model
-import time
 from netforce.utils import get_data_path
 from netforce.access import get_active_company, get_active_user, set_active_user
-
+from netforce import database
+from datetime import *
+import time
 
 class Picking(Model):
     _name = "stock.picking"
@@ -57,6 +58,7 @@ class Picking(Model):
         "employee_id": fields.Many2One("hr.employee", "Employee"),
         "ship_method_id": fields.Many2One("ship.method", "Shipping Method",search=True),
         "ship_tracking": fields.Char("Tracking Number"),
+        "ship_route": fields.Char("Delivery Route"),
         "documents": fields.One2Many("document", "related_id", "Documents"),
         "ship_cost": fields.Decimal("Shipping Cost"),
         "ship_pay_by": fields.Selection([["company", "Company"], ["customer", "Customer"], ["supplier", "Supplier"]], "Shipping Paid By"),
@@ -67,7 +69,7 @@ class Picking(Model):
         "product_id2": fields.Many2One("product","Product",store=False,function_search="search_product2",search=True), #XXX ICC
         "sequence": fields.Decimal("Sequence",function="_get_related",function_context={"path":"ship_address_id.sequence"}),
         "delivery_slot_id": fields.Many2One("delivery.slot","Delivery Slot"),
-        "ship_state": fields.Selection([["wait_pick","Waiting Pickup"],["in_transit","In Transit"],["delivered","Delivered"]],"Shipping Status"),
+        "ship_state": fields.Selection([["wait_pick","Waiting Pickup"],["in_transit","In Transit"],["delivered","Delivered"],["error","Can not deliver"]],"Shipping Status"),
         "from_coords": fields.Char("Source Coordinates",function="get_from_coords"),
         "to_coords": fields.Char("Destination Coordinates",function="get_to_coords"),
     }
@@ -169,10 +171,13 @@ class Picking(Model):
                 raise Exception("Lot %s is out of stock (product %s)"%(move.lot_id.number,prod.code))
 
     def approve(self, ids, context={}):
+        settings=get_model("settings").browse(1)
         for obj in self.browse(ids):
             for move in obj.lines:
                 move.write({"state": "approved", "date": obj.date})
             obj.write({"state": "approved"})
+            if obj.type=="out" and settings.auto_create_delivery_order and obj.ship_method_id and not obj.ship_tracking:
+                obj.create_delivery_order()
 
     def void(self, ids, context={}):
         for obj in self.browse(ids):
@@ -778,20 +783,26 @@ class Picking(Model):
             meth=obj.ship_method_id
             if not meth:
                 raise Exception("Missing shipping method for picking %s"%obj.number)
-            from_coords=obj.from_coords
-            if not from_coords:
-                raise Exception("Missing source coordinates for picking %s"%obj.number)
-            to_coords=obj.to_coords
-            if not to_coords:
-                raise Exception("Missing destination coordinates for picking %s"%obj.number)
             item_desc=", ".join(["%sx%s"%(int(l.qty),l.product_id.code) for l in obj.lines])
             delivery_date=obj.date[:10] # XXX
+            contact=obj.contact_id
+            if not contact:
+                raise Exception("Missing contact for picking %s"%obj.number)
+            addr=obj.ship_address_id
+            if not addr:
+                raise Exception("Missing shipping address for picking %s"%obj.number)
             ctx={
-                "from_coords": from_coords,
-                "to_coords": to_coords,
-                "item_desc": item_desc,
                 "delivery_date": delivery_date,
-                "contact_id": obj.contact_id.id,
+                "time_from": obj.delivery_slot_id.time_from if obj.delivery_slot_id else None,
+                "time_to": obj.delivery_slot_id.time_to if obj.delivery_slot_id else None,
+                "item_desc": item_desc,
+                "cust_first_name": contact.first_name,
+                "cust_last_name": contact.last_name,
+                "cust_code": contact.code,
+                "postal_code": addr.postal_code,
+                "street_address": addr.address_text,
+                "email": contact.email,
+                "mobile": addr.mobile,
             }
             if obj.delivery_slot_id:
                 ctx["time_slot"]=obj.delivery_slot_id.name
@@ -801,10 +812,23 @@ class Picking(Model):
                     raise Exception("No handler found")
                 tracking_no=res["tracking_no"]
                 obj.write({"ship_tracking": tracking_no,"ship_state": "wait_pick"})
-                return {
-                    "flash": "Delivery order %s created successfully for picking %s"%(tracking_no,obj.number),
-                }
+                db=database.get_connection()
+                db.commit()
             except Exception as e:
                 raise Exception("Failed to create delivery order for picking %s: %s"%(obj.number,e))
+        return {
+            "flash": "%d delivery orders created"%len(ids),
+        }
+
+
+    def create_delivery_order_batch(self,context={}):
+        today=datetime.today().strftime("%Y-%m-%d")
+        tomorrow=(datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+        cond=[["date",">=",today+" 00:00:00"],["date","<=",tomorrow+" 23:59:59"],["state","=","approved"],["ship_tracking","=",None]]
+        ids=self.search(cond)
+        self.create_delivery_order(ids)
+        return {
+            "flash": "%d delivery orders created"%len(ids),
+        }
 
 Picking.register()

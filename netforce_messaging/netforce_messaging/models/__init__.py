@@ -26,6 +26,7 @@ from . import email_event
 from . import email_reject
 from . import sms_account
 from . import sms_message
+from . import sms_template
 from . import message
 from . import message_tmpl
 from . import email_mailbox

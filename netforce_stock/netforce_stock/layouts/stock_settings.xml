@@ -31,4 +31,6 @@
     <field name="stock_cost_auto_compute"/>
     <newline/>
     <field name="stock_cost_mode"/>
+    <newine/>
+    <field name="auto_create_delivery_order"/>
 </form>

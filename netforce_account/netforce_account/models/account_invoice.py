@@ -342,8 +342,8 @@ class Invoice(Model):
                     if not line.related_id:
                         line.write({"related_id":"%s,%d"%(obj.related_id._model,obj.related_id.id)})
             obj.check_related()
-            if obj.amount_total == 0:
-                raise Exception("Invoice total is zero")
+            #if obj.amount_total == 0:
+            #    raise Exception("Invoice total is zero") # need in some cases
             if obj.amount_total < 0:
                 raise Exception("Invoice total is negative")
             if not obj.taxes:
@@ -530,7 +530,7 @@ class Invoice(Model):
 
     def to_draft(self, ids, context={}):
         obj = self.browse(ids)[0]
-        if obj.state != "waiting_payment":
+        if obj.state not in ("waiting_payment","voided"):
             raise Exception("Invalid status")
         if obj.payment_entries:
             raise Exception("There are still payment entries for this invoice")

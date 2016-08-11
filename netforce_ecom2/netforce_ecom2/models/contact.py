@@ -9,7 +9,7 @@ class Contact(Model):
 
     def get_previous_sale_products(self,ids,context={}):
         db=database.get_connection()
-        res=db.query("SELECT contact_id,product_id,COUNT(*) FROM sale_order_line l JOIN sale_order o ON o.id=l.order_id WHERE o.contact_id IN %s GROUP BY contact_id,product_id",tuple(ids))
+        res=db.query("SELECT contact_id,product_id,COUNT(*) FROM sale_order_line l JOIN sale_order o ON o.id=l.order_id and plr_order_type='grocery' WHERE o.contact_id IN %s GROUP BY contact_id,product_id",tuple(ids))
         contact_prods={}
         for r in res:
             contact_prods.setdefault(r.contact_id,[]).append(r.product_id)

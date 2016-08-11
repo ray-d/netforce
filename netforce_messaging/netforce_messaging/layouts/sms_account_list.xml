@@ -2,5 +2,5 @@
     <field name="name"/>
     <field name="type"/>
     <field name="username"/>
-    <field name="password"/>
+    <field name="sequence"/>
 </list>

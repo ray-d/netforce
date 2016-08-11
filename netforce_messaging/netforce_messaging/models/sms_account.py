@@ -34,9 +34,8 @@ class Account(Model):
         "sender": fields.Char("Sender", required=True),
         "username": fields.Char("User", required=True),
         "password": fields.Char("Password", required=True),
+        "sequence": fields.Integer("Sequence"),
     }
-    _defaults = {
-        "uuid": lambda *a: str(uuid.uuid4()),
-    }
+    _order="sequence"
 
 Account.register()
