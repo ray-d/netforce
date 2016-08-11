@@ -137,6 +137,9 @@ class Move(Model):
             for line in obj.lines:
                 if line.reconcile_id:
                     rec_ids.append(line.reconcile_id.id)
+            ## delete Depreciation Periods in Fix asset
+            for period in get_model("account.fixed.asset.period").search_browse([["move_id","=",obj.id]]):
+                period.delete()
         super().delete(ids, **kw)
         if rec_ids:
             get_model("account.reconcile").function_store(rec_ids)
