@@ -1,0 +1,156 @@
+<div class="container main-container headerOffset">
+  <div class="row">
+    <div class="breadcrumbDiv col-lg-12">
+      <ul class="breadcrumb">
+        <li> <a href="/cms_index">หน้าหลัก</a> </li>
+        <li> <a href="/Cart">ตะกร้า</a> </li>
+      </ul>
+    </div>
+  </div><!--/.row-->
+  
+{{#with cart}}
+<form action="ecom_cart" method="post">  
+    {{#if promotion_message}}
+        <div class="alert alert-success" style="font-weight:bold">
+            <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">×</span><span class="sr-only">Close</span>
+            </button>
+            {{{promotion_message}}}
+        </div>
+    {{/if}}
+
+  <div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-7">
+      <div class="row userInfo">
+        <div class="col-xs-12 col-sm-12">
+          <div class="cartContent w100">
+            <table class="cartTable table-responsive" style="width:100%">
+              <tbody>
+              
+                <tr class="CartProduct cartTableHeader">
+                  <td style="width:15%">สินค้า</td>
+                  <td style="width:40%">รายละเอียด</td>
+                  <td style="width:15%">จำนวน</td>
+                  <td style="width:15%">ราคารวม</td>
+                  <td style="width:15%" class="delete">ลบ</td>
+                </tr>
+                
+                {{#each lines}}
+                <tr class="CartProduct">
+                    <td class="CartProductThumb"><div> <a href="/ecom_product?product_id={{product_id.id}}"><img src="{{file_path image thumbnail=1}}" alt="img"></a> </div></td>
+                  <td><div class="CartDescription">
+                          <h4> <a href="/ecom_product?product_id={{product_id.id}}">
+                            {{#if variant_id}}
+                                {{variant_id.name}}
+                            {{else}}
+                                {{product_id.name}} 
+                            {{/if}}
+                        </a> </h4>
+                    {{#if variant_id.description}}
+                        <span class="size">{{variant_id.description}}</span>
+                    {{else}}
+                        <span class="size">{{product_id.description}}</span>
+                    {{/if}}
+                    <div class="price">
+                        {{#if has_discount}}<span style="text-decoration:line-through;font-size:small">{{currency unit_price}}</span><br/>{{/if}}
+                        <span>{{currency special_price}} ฿</span>
+                    </div>
+                    </div></td>
+                    <td><input type="number" style="min-width:45px" name="qty_{{sequence}}" value="{{qty}}" class="form-control" min="1"/></td>
+                  <td class="price">
+                      {{#if has_discount}}<span style="text-decoration:line-through;font-size:small">{{currency amount_before_discount}}</span><br/>{{/if}}
+                      <span>{{currency amount}} ฿<span>
+                  </td>
+                    <td class="delete"><a title="Delete" href="/ecom_cart_change?line={{sequence}}&qty=0"> <i class="glyphicon glyphicon-trash fa-2x"></i></a></td>
+                </tr>
+                {{/each}} 
+              </tbody>
+            </table>
+          </div>
+          <!--cartContent-->
+          
+          <div class="cartFooter w100">
+            <div class="box-footer">
+                <div class="col-sm-6">
+                    <div class="pull-left"> <a href="/cms_index" class="btn btn-default"> <i class="fa fa-arrow-left"></i>กลับสู่ร้านค้า</a> </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="pull-right">
+                        <input type="submit" name="update" value='อัพเดทตะกร้า' class="btn btn-default btn-large"/>
+                    </div>
+                </div>
+            </div>
+          </div> <!--/ cartFooter --> 
+          
+        </div>
+      </div>
+      <!--/row end--> 
+      
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-5 rightSidebar">
+      <div class="contentBox">
+        <div class="w100 costDetails">
+          <div class="table-block" id="order-detail-content"> 
+            <input type="submit" name="checkout" value='ชำระเงิน' class="btn btn-primary btn-lg btn-block" style="margin-bottom:20px">
+            <div class="w100 cartMiniTable">
+              <table id="cart-summary" class="std table" style="margin-bottom:0px">
+                <tbody>
+                  <tr>
+                    <!--
+                    <td>ราคารวมสินค้าทั้งหมด</td>
+                    <td class="price">{{currency amount_without_ship}} ฿</td>
+                  </tr>
+                    {{#if is_coupon_free_ship}}
+                        <tr style="">
+                            <td>ค่าจัดส่ง</td>
+                            <td class="price">                        
+                                <span class="success">จัดส่งฟรี!</span>
+                            </td>
+                        </tr>
+                    {{else}}
+                        {{#if amount_ship}}
+                            <tr style="">
+                                <td>ค่าาจัดส่ง</td>
+                                <td class="price">                        
+                                    <span>{{currency amount_ship}} ฿</span>
+                                </td>
+                            <tr>
+                        {{/if}}
+                    {{/if}}
+                    -->
+                    <td>ราคารวมทั้งหมด</td>
+                    <td class=" site-color" id="total-price">{{currency amount_total}} ฿</td>
+                  </tr>
+                  <!--
+                  <tr>
+                      <td colspan="2">
+                          <div class="input-append couponForm">
+                              <input class="col-lg-8" id="appendedInputButton" type="text" name="coupon_code" value="{{coupon_id.code}}" placeholder="Coupon code">
+                              <input class="col-lg-4 btn btn-success" type="submit" name="update" value="ส่งคูปอง"></input>
+                          </div>
+                      </td>
+                  </tr>  
+                    -->
+                </tbody>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End popular --> 
+      
+    </div>
+    <!--/rightSidebar--> 
+    
+  </div><!--/row-->
+</form>
+{{else}}
+    <p>ไม่มีสินค้าในตะกร้า</p>
+    <a href="/cms_index" class="btn btn-default"><i class="fa fa-arrow-left"></i> กลับสู่ร้านค้า </a>
+{{/with}}
+  <div style="clear:both"></div>
+</div><!-- /.main-container -->
+
+<div class="gap"> </div>

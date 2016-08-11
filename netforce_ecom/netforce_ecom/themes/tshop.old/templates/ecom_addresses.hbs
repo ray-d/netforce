@@ -1,0 +1,461 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/cms_account">บัญชีของฉัน</a> </li>
+                <li> <a href="/ecom_address">ที่อยู่ของฉํน</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span><i class="fa fa-map-marker"></i>ที่อยู่ของฉัน</span>
+    </h1>
+    {{#each customer.addresses}}
+        <div style="margin-top:20px" class="address">
+            <div class="view-address" style="{{#if_lookup ../show_edit_address id}}display:none{{/if_lookup}}">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="panel panel-default">
+                          <div class="panel-heading">
+                              <h3 class="panel-title"><strong>My Address</strong></h3>
+                          </div>
+                          <div class="panel-body">
+                            <ul>
+                                <li> <span class="address-name"> <strong>{{first_name}} {{last_name}}</strong></span></li>
+                                <li> <span> {{company}} </span></li>
+                                <li> <span class="address-line1"> {{address}} </span></li>
+                                <li> <span class="address-line2"> {{address2}} </span></li>
+                                <li> <span class="address-company"> {{subdistrict_id.name}} {{district_id.name}} {{province_id.name}} {{country_id.name}} {{postal_code}} </span></li>
+                                <li> <span> <strong>Phone</strong> : {{phone}} </span></li>
+                            </ul>
+                          </div>
+                          <div class="panel-footer panel-footer-address"> 
+                              <a href="#" class="btn btn-sm btn-success btn-edit-address"> 
+                                  <i class="fa fa-edit"></i> Edit 
+                              </a>
+                              <a href="#" class="btn btn-sm btn-danger" onclick="delete_address({{id}}); return false;">
+                                  <i class="fa fa-minus-circle"></i> Delete 
+                              </a>
+                          </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row edit-address" style="{{#unless_lookup ../show_edit_address id}}display:none{{/unless_lookup}}">
+                <div class="col-sm-6">
+                    {{#if_lookup ../edit_error_message id}}
+                        <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            {{lookup ../../edit_error_message id}}
+                        </div>
+                    {{/if_lookup}}
+                    <form action="/ecom_addresses" method="post" class="form-horizontal">
+                        <input type="hidden" name="id" value="{{id}}"/>
+                        <div class='form-group {{#if_lookup ../edit_field_errors id "first_name"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "First Name"}}*</label>
+                            <div class="col-sm-9">
+                                <input placeholder='{{t "First Name"}}*' class="form-control checkout-form" name="first_name" value='{{lookup ../edit_form_vals id "first_name"}}'/>
+                            </div>
+                        </div>
+                        <div class='form-group {{#if_lookup ../edit_field_errors id "last_name"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "First Name"}}*</label>
+                            <div class="col-sm-9">
+                                <input placeholder='{{t "Last Name"}}*' class="form-control checkout-form" name="last_name" value='{{lookup ../edit_form_vals id "last_name"}}'/>
+                            </div>
+                        </div>
+                        <div class='form-group {{#if_lookup ../edit_field_errors id "company"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "Company"}}</label>
+                            <div class="col-sm-9">
+                                <input placeholder='{{t "Company"}}' class="form-control checkout-form" name="company" value='{{lookup ../edit_form_vals id "company"}}'/>
+                            </div>
+                        </div>
+                        <div class='form-group required-field {{#if_lookup ../edit_field_errors id "address"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "Address1"}}*</label>
+                            <div class="col-sm-9">
+                                <input placeholder='{{t "Address1"}}*' class="form-control checkout-form" name="address" value='{{lookup ../edit_form_vals id "address"}}'/>
+                            </div>
+                        </div>
+                        <div class='form-group {{#if_lookup ../edit_field_errors id "address2"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "Address1"}}*</label>
+                            <div class="col-sm-9">
+                                <input placeholder='{{t "Address2"}}' class="form-control checkout-form" name="address2" value='{{lookup ../edit_form_vals id "address2"}}'/>
+                            </div>
+                        </div>
+                        <div class='form-group required-field {{#if_lookup ../edit_field_errors id "country"}}has-error{{/if_lookup}}' style="display:none">
+                            <label class="control-label col-md-3">{{t "Country"}}*</label>
+                            <div class="col-sm-9">
+                                <select class="form-control checkout-form edit_select_country" name="country">
+                                    {{#each ../countries}}
+                                        <option value="{{id}}" {{#ifeq id ../country_id.id}}selected{{/ifeq}}>{{name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class='form-group required-field {{#if_lookup ../edit_field_errors id "province"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "Province"}}*</label>
+                            <div class="col-sm-9">
+                                <select class="form-control checkout-form edit_select_province" name="province" data-province_id="{{province_id.id}}">
+                                    <option value="">Please select country...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='form-group required-field {{#if_lookup ../edit_field_errors id "district"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "District"}}*</label>
+                            <div class="col-sm-9">
+                                <select class="form-control checkout-form edit_select_district" name="district" data-district_id="{{district_id.id}}">
+                                    <option value="">Please select province</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='form-group required-field {{#if_lookup ../edit_field_errors id "subdistrict"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "Subdistrict"}}*</label>
+                            <div class="col-sm-9">
+                                <select class="form-control checkout-form edit_select_subdistrict" name="subdistrict" data-subdistrict_id="{{subdistrict_id.id}}"> 
+                                    <option value="">Please select district</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='form-group required-field {{#if_lookup ../edit_field_errors id "postal_code"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "Postal Code"}}*</label>
+                            <div class="col-sm-9">
+                                <select class="form-control checkout-form edit_select_postal_code" name="postal_code" data-postal_code="{{postal_code}}"> 
+                                    <option value="">Please select subdistrict</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='form-group {{#if_lookup ../edit_field_errors id "phone"}}has-error{{/if_lookup}}'>
+                            <label class="control-label col-md-3">{{t "Phone"}}*</label>
+                            <div class="col-sm-9">
+                                <input placeholder='{{t "Phone"}}*' class="form-control checkout-form" name="phone" value='{{lookup ../edit_form_vals id "phone"}}'/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <a href="#" class="btn-cancel-edit pull-right" style="margin-left:15px">
+                                    <button class="btn btn-default btn-cancel">Cancel</button>
+                                </a>
+                                <button class="btn btn-primary pull-right" type="submit">Update Address</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {{/each}}
+    <div class="clearfix"></div>
+    <div style="margin-top:30px">
+        <a href="#" class="btn-add-address btn btn-primary"><i class="fa fa-plus-circle"></i>เพิ่มที่อยู่</a>
+    </div>
+    <div class="row add-address" style="margin-top:20px;{{#unless show_add_address}}display:none{{/unless}}">
+        <div class="col-xs-4 col-sm-6">
+            {{#if error_message}}
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{error_message}}
+                </div>
+            {{/if}}
+            <form action="/ecom_addresses" method="post" class="form-horizontal">
+                <div class="form-group required-field {{#if field_errors.first_name}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "First Name"}}*</label>
+                    <div class="col-sm-9">
+                        <input placeholder='{{t "First Name"}}*' class="form-control checkout-form" name="first_name" value="{{form_vals.first_name}}"/>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.last_name}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "First Name"}}*</label>
+                    <div class="col-sm-9">
+                        <input placeholder='{{t "Last Name"}}*' class="form-control checkout-form" name="last_name" value="{{form_vals.last_name}}"/>
+                    </div>
+                </div>
+                <div class="form-group {{#if field_errors.company}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "Company"}}</label>
+                    <div class="col-sm-9">
+                        <input placeholder='{{t "Company"}}' class="form-control checkout-form" name="company" value="{{form_vals.company}}"/>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.address}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "Address1"}}*</label>
+                    <div class="col-sm-9">
+                        <input placeholder='{{t "Address1"}}*' class="form-control checkout-form" name="address" value="{{form_vals.address}}"/>
+                    </div>
+                </div>
+                <div class="form-group {{#if field_errors.address2}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "Address2"}}</label>
+                    <div class="col-sm-9">
+                        <input placeholder='{{t "Address2"}}' class="form-control checkout-form" name="address2" value="{{form_vals.address2}}"/>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.country}}has-error{{/if}}" style="display:none">
+                    <label class="control-label col-md-3">{{t "Country"}}*</label>
+                    <div class="col-sm-9">
+                        <select class="form-control checkout-form edit_select_country" name="country">
+                            {{#each countries}}
+                                <option value="{{id}}">{{name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.province}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "Province"}}*</label>
+                    <div class="col-sm-9">
+                        <select class="form-control checkout-form edit_select_province" name="province">
+                            <option value="">Please select country...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.district}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "District"}}*</label>
+                    <div class="col-sm-9">
+                        <select class="form-control checkout-form edit_select_district" name="district">
+                            <option value="">Please select province...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.subdistrict}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "SubDistrict"}}*</label>
+                    <div class="col-sm-9">
+                        <select class="form-control checkout-form edit_select_subdistrict" name="subdistrict">
+                            <option value="">Please select district...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.postal_code}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "Postal Code"}}*</label>
+                    <div class="col-sm-9">
+                        <select class="form-control checkout-form edit_select_postal_code" name="postal_code">
+                            <option value="">Please select subdistrict...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group {{#if field_errors.phone}}has-error{{/if}}">
+                    <label class="control-label col-md-3">{{t "Phone"}}</label>
+                    <div class="col-sm-9">
+                        <input placeholder='{{t "Phone"}}' class="form-control checkout-form" name="phone" value="{{form_vals.phone}}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <a href="#" class="btn-cancel-add pull-right" style="margin-left:15px">
+                            <button class="btn btn-default btn-cancel">Cancel</button>
+                        </a>
+                        <button class="btn btn-primary pull-right">Add Address</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="gap"></div>
+</div>
+<script>
+
+function edit_get_postal_code(id,index){
+    //console.log("POSTAL");
+    if($(".edit_select_subdistrict").eq(index).val()){
+        var str ="<option value='' disabled selected>Please select postal code...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_postal_code",
+            cache: false,
+            data: "subdistrict_id="+id+"&district_id="+$(".edit_select_district").eq(index).val()+"&province_id="+$(".edit_select_province").eq(index).val(),
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.code+"'>"+item.code+"</option>";
+                });
+                $(".edit_select_postal_code").eq(index).html(str);
+                if($(".edit_select_postal_code").eq(index).data("postal_code")){
+                    selected_id=$(".edit_select_postal_code").eq(index).data("postal_code");
+                    //console.log(selected_id);
+                    $(".edit_select_postal_code option[value='"+selected_id+"']").prop("selected",true);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>Please select subdistrict...</option>";
+        $(".edit_select_postal_code").eq(index).html(str);
+    }
+}
+
+function edit_get_subdistrict(id,index){
+    if($(".edit_select_district").eq(index).val()){
+        var str ="<option value='' disabled selected>Please select subdistrict...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_subdistricts",
+            cache: false,
+            data: "district_id="+id,
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.id+"'>"+item.name+"</option>";
+                });
+                $(".edit_select_subdistrict").eq(index).html(str);
+                if($(".edit_select_subdistrict").eq(index).data("subdistrict_id")){
+                    selected_id=$(".edit_select_subdistrict").eq(index).data("subdistrict_id");
+                    //console.log(selected_id);
+                    $(".edit_select_subdistrict option[value='"+selected_id+"']").prop("selected",true);
+                    edit_get_postal_code(selected_id,index);
+                }
+                else{
+                    edit_get_postal_code(0,index);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>Please select district...</option>";
+        $(".edit_select_subdistrict").eq(index).html(str);
+    }
+}
+
+function edit_get_district(id,index){
+    if($(".edit_select_province").eq(index).val()){
+        var str ="<option disabled selected>Please select district...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_districts",
+            cache: false,
+            data: "province_id="+id,
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.id+"'>"+item.name+"</option>";
+                });
+                $(".edit_select_district").eq(index).html(str);
+                if($(".edit_select_district").eq(index).data("district_id")){
+                    selected_id=$(".edit_select_district").eq(index).data("district_id");
+                    //console.log(selected_id);
+                    $(".edit_select_district option[value='"+selected_id+"']").prop("selected",true);
+                    edit_get_subdistrict(selected_id,index);
+                    edit_get_postal_code(0,index);
+                }
+                else{
+                    edit_get_subdistrict(0,index);
+                    edit_get_postal_code(0,index);
+                }
+            }
+        });
+    }
+    else{
+        var str="<option value='' disable selected>Please select province...</option>";
+        $(".edit_select_district").eq(index).html(str);
+    }
+}
+
+function edit_get_province(id,index){
+    var str ="<option disabled selected>Please select province...</option>";
+    var province_id
+    $.ajax({
+        type: "GET",
+        url: "get_provinces",
+        cache: false,
+        data: "country_id="+id,
+        success: function(data){
+            data=JSON.parse(data);
+            $.each(data, function(i, item) {
+                if(i==0){
+                    province_id=item.id;
+                }
+                str+="<option value='"+item.id+"'>"+item.name+"</option>";
+            });
+            $(".edit_select_province").eq(index).html(str);
+            if($(".edit_select_province").eq(index).data("province_id")){
+                //console.log("SDSDSD");
+                selected_id=$(".edit_select_province").eq(index).data("province_id");
+                $(".edit_select_province option[value='"+selected_id+"']").prop("selected",true);
+                //console.log(selected_id);
+                province_id=selected_id;
+            }
+            edit_get_district(province_id,index);
+        }
+    });
+}
+
+$(".edit_select_country").change(function() {
+    var id=$(this).val();
+    var index=$(".edit_select_country").index(this);
+    //console.log(id);
+    //console.log(index);
+    edit_get_province(id,index);
+});
+
+$(".edit_select_province").change(function() {
+    var id=$(this).val();
+    var index=$(".edit_select_province").index(this);
+    //console.log(id);
+    //console.log(index);
+    edit_get_district(id,index);
+});
+
+$(".edit_select_district").change(function() {
+    var id=$(this).val();
+    var index=$(".edit_select_district").index(this);
+    //console.log(id);
+    //console.log(index);
+    edit_get_subdistrict(id,index);
+});
+
+$(".edit_select_subdistrict").change(function() {
+    var id=$(this).val();
+    var index=$(".edit_select_subdistrict").index(this);
+    //console.log(id);
+    //console.log(index);
+    edit_get_postal_code(id,index);
+});
+
+$(".btn-add-address").on("click",function(e) {
+    e.preventDefault();
+    $(".add-address").toggle();
+    var id=$(".edit_select_country").val();
+    var index=$(".btn-edit-address").index(this);
+    //console.log(id);
+    //console.log(index);
+    edit_get_province(id,index);
+});
+
+$(".btn-cancel-add").on("click",function(e) {
+    e.preventDefault();
+    $(".add-address").hide();
+});
+
+$(".btn-edit-address").on("click",function(e) {
+    e.preventDefault();
+    var p=$(e.target).parents(".address");
+    p.find(".view-address").hide();
+    p.find(".edit-address").show();
+    var id=$(".edit_select_country").val();
+    var index=$(".btn-edit-address").index(this);
+    //console.log(id);
+    //console.log(index);
+    edit_get_province(id,index);
+});
+
+$(".btn-cancel-edit").on("click",function(e) {
+    e.preventDefault();
+    var p=$(e.target).parents(".address");
+    p.find(".edit-address").hide();
+    p.find(".view-address").show();
+});
+
+function delete_address(id) {
+    //console.log("delete_address",id);
+    var res=confirm("Are you sure you want to delete this address?");
+    if (!res) return;
+    var data={
+        "method": "delete",
+        "id": id,
+    };
+    $.ajax({
+        "url": "/ecom_addresses",
+        "method": "post",
+        "data": data,
+        "success": function() {
+            //console.log("success");
+            window.location.reload();
+        },
+        "error": function() {
+            //console.log("error");
+        }
+    });
+}
+</script>

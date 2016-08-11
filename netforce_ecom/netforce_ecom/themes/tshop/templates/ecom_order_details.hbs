@@ -1,0 +1,124 @@
+<div class="container main-container headerOffset">
+      <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+          <ul class="breadcrumb">
+            <li> <a href="/cms_index">หน้าหลัก</a> </li>
+            <li> <a href="/cms_account">บัญชีของฉัน</a> </li>
+            <li> <a href="#">รายการซื้่อ</a> </li>
+          </ul>
+        </div>
+      </div>
+    <h1 class="section-title-inner">
+        <i class="fa fa-shopping-cart"></i> Order #{{order.number}}
+    </h1>
+    <p>สถานะ: <b>{{order.state_label}}</b></p>
+    <p>เมื่อวันที่ {{order.date}}</p>
+    <div class="row">
+        <div class="col-sm-8">
+            <table class="table">
+                <thead>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th style="text-align:right">Price</th>
+                    <th style="text-align:right">Quantity</th>
+                    <th style="text-align:right">Total</th>
+                </thead>
+                {{#each order.lines}}
+                    <tr>
+                        {{#if_match product_id.code "SHIPPING"}}
+                            <td>{{product_id.name}}</td>
+                        {{else}}
+                            {{#if_match product_id.code "COUPON"}}
+                                <td>{{product_id.name}}</td>
+                            {{else}}
+                                {{#if product_id.parent_id}}
+                                    <td><a href="/ecom_product?product_id={{product_id.parent_id.id}}">{{product_id.name}}</a></td>
+                                {{else}}
+                                    <td><a href="/ecom_product?product_id={{product_id.id}}">{{product_id.name}}</a></td>
+                                {{/if}}
+                            {{/if_match}}
+                        {{/if_match}}
+                        <td>{{product_id.code}}</td>
+                        <td style="text-align:right">{{currency unit_price}}</td>
+                        <td style="text-align:right">{{fmt_qty qty}}</td>
+                        <td style="text-align:right">{{currency amount}}</td>
+                    </tr>
+                {{/each}}
+            </table>
+            <div class="row">
+                <div class="col-sm-9" style="text-align:right">
+                    Subtotal:
+                </div>
+                <div class="col-sm-3" style="text-align:right">
+                    {{currency order.amount_subtotal}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-9" style="text-align:right">
+                    Tax:
+                </div>
+                <div class="col-sm-3" style="text-align:right">
+                    {{currency order.amount_tax}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-9" style="text-align:right">
+                    Total:
+                </div>
+                <div class="col-sm-3" style="text-align:right">
+                    <b>{{currency order.amount_total}}</b>
+                </div>
+            </div>
+            <div>
+                <form action="/ecom_order_details" method="post">
+                    <input type="hidden" name="order_id" value="{{order.id}}"/>
+                    {{#if payment_slip_report_url}}
+                        <a href="{{payment_slip_report_url}}" class="btn btn-primary"><span class="glyphicon glyphicon-print"></span>พิมพ์ Pay-in Slip</a>
+                    {{/if}}
+                    {{#if order.ecom_can_cancel}}
+                        <button type="submit" name="action" value="cancel_order" class="btn btn-danger" onclick="return confirm('คุณแน่ใจที่จะยกเลิกรายการนี้?')"><i class="glyphicon glyphicon-remove"></i>ยกเลิกรายการสั่งซื้อ</button>
+                    {{/if}}
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            {{#with order.bill_address_id}}
+                <div class="panel panel-default">
+                      <div class="panel-heading">
+                          <h3 class="panel-title"><strong>ที่อยู่ออกบิล</strong></h3>
+                      </div>
+                      <div class="panel-body">
+                        <ul>
+                            <li> <span> <strong>Payment Status</strong> : {{#if ../order.is_paid}}Paid{{else}}Not Paid{{/if}} </span></li>
+                            <li> <span class="address-name"> <strong>{{first_name}} {{last_name}}</strong></span></li>
+                            <li> <span> {{company}} </span></li>
+                            <li> <span class="address-line1"> {{address}} </span></li>
+                            <li> <span class="address-line2"> {{address2}} </span></li>
+                            <li> <span class="address-company"> {{city}} {{province_id.name}} {{country_id.name}} {{postal_code}} </span></li>
+                            <li> <span> <strong>Phone</strong> : {{phone}} </span></li>
+                        </ul>
+                      </div>
+                </div>
+            {{/with}}
+            {{#with order.ship_address_id}}
+                <div class="panel panel-default">
+                      <div class="panel-heading">
+                          <h3 class="panel-title"><strong>ที่อยู่จัดส่ง</strong></h3>
+                      </div>
+                      <div class="panel-body">
+                        <ul>
+                            <li> <span> <strong>Shipment Status</strong> : {{#if ../order.is_delivered}}Shipped{{else}}Not Shipped{{/if}} </span></li>
+                            <li> <span class="address-name"> <strong>{{first_name}} {{last_name}}</strong></span></li>
+                            <li> <span> {{company}} </span></li>
+                            <li> <span class="address-line1"> {{address}} </span></li>
+                            <li> <span class="address-line2"> {{address2}} </span></li>
+                            <li> <span class="address-company"> {{city}} {{province_id.name}} {{country_id.name}} {{postal_code}} </span></li>
+                            <li> <span> <strong>Phone</strong> : {{phone}} </span></li>
+                        </ul>
+                      </div>
+                </div>
+            {{/with}}
+        </div>
+    </div>
+</div>
+<div class="gap"></div>

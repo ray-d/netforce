@@ -1,0 +1,690 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/ecom_checkout">ชำระเงิน หน้าแรก</a> </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        {{#if error_message}}
+            <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                {{error_message}}
+            </div>
+        {{/if}}
+        <div class="col-xs-12">
+            <h4>คุณได้ซื้อสินค้าดังนี้:</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-7">
+            <div class="row userInfo">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="cartContent w100">
+                        <table class="cartTable table-responsive" style="width:100%">
+                            <tbody>
+                                <tr class="CartProduct cartTableHeader">
+                                    <td style="width:15%">สินค้า</td>
+                                    <td style="width:40%">รายละเอียด</td>
+                                    <td style="width:15%">จำนวน</td>
+                                    <td style="width:30%">ราคารวม</td>
+                                </tr> 
+                                {{#each cart.lines}}
+                                <tr class="CartProduct">
+                                    <td class="CartProductThumb"><div> <a href="/ecom_product?product_id={{product_id.id}}"><img src="{{file_path image thumbnail=1}}" alt="img"></a> </div></td>
+                                    <td><div class="CartDescription">
+                                        <h4> <a href="/ecom_product?product_id={{product_id.id}}">
+                                            {{#if variant_id}}
+                                                {{variant_id.name}}
+                                            {{else}}
+                                                {{product_id.name}} 
+                                            {{/if}}
+                                        </a> </h4>
+                                    {{#if variant_id.description}}
+                                        <span class="size">{{variant_id.description}}</span>
+                                    {{else}}
+                                        <span class="size">{{product_id.description}}</span>
+                                    {{/if}}
+                                    <div class="price">
+                                {{#if has_discount}}<span style="text-decoration:line-through;font-size:small">{{currency unit_price}}</span><br/>{{/if}}
+                                        <span>{{currency special_price}} ฿</span>
+                                    </div>
+                                </div></td>
+                    <td>{{qty}}</td>
+                  <td class="price">
+                      {{#if has_discount}}<span style="text-decoration:line-through;font-size:small">{{currency amount_before_discount}}</span><br/>{{/if}}
+                      <span>{{currency amount}} ฿<span>
+                  </td>
+                </tr>
+                {{/each}} 
+              </tbody>
+            </table>
+          </div>
+          <!--cartContent-->
+        </div>
+      </div>
+      <!--/row end--> 
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-5 rightSidebar">
+      <div class="contentBox">
+        <div class="w100 costDetails">
+          <div class="table-block" id="order-detail-content"> 
+            <div class="w100 cartMiniTable">
+              <table id="cart-summary" class="std table" style="margin-bottom:0px">
+                <tbody>
+                  <tr>
+                    <!--
+                    <td>ราคารวมสินค้าทั้งหมด</td>
+                    <td class="price">{{currency amount_without_ship}} ฿</td>
+                  </tr>
+                    {{#if is_coupon_free_ship}}
+                        <tr style="">
+                            <td>ค่าจัดส่ง</td>
+                            <td class="price">                        
+                                <span class="success">จัดส่งฟรี!</span>
+                            </td>
+                        </tr>
+                    {{else}}
+                        {{#if amount_ship}}
+                            <tr style="">
+                                <td>ค่าาจัดส่ง</td>
+                                <td class="price">                        
+                                    <span>{{currency amount_ship}} ฿</span>
+                                </td>
+                            <tr>
+                        {{/if}}
+                    {{/if}}
+                    -->
+                    <td>ราคารวมทั้งหมด</td>
+                    <td class=" site-color" id="total-price">{{currency cart.amount_total}} ฿</td>
+                  </tr>
+                </tbody>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End popular --> 
+      
+    </div>
+    <!--/rightSidebar--> 
+    
+  </div><!--/row-->
+    <hr/>
+    <form action="/ecom_checkout" method="post">
+    <input type="hidden" name="cart_id" value="{{cart.id}}"/>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>กรุณากรอกรายละเอียด</h4>
+            <div class="form-horizontal">
+                <div class="form-group required-field {{#if field_errors.email}}has-error{{/if}}">
+                    <label class="control-label col-md-3">อีเมล*</label>
+                    <div class="col-md-9">
+                        <input type="email" class="form-control checkout-form" name="email" value="{{form_vals.email}}" {{#if customer}}readonly="true"{{/if}}/>
+                    </div>
+                </div>
+                {{#unless customer}}
+                    มีบัญชีอยู่แล้วใช่ไหม? <a href="/cms_login?return_url=/ecom_checkout" style="color:#428bca">เข้าสู่ระบบ<span class="glyphicon glyphicon-arrow-right"></span></a>
+                {{/unless}}
+            </div>
+        </div>
+        {{#if customer}}
+        <div class="col-md-6">
+            <span>*คุณได้ทำการLoginเข้าสู่ระบบ ระบบจะใช้อีเมลที่คุณสมัครในการทำรายการ หากคุณต้องการทำรายการสั่งซื้อด้วยอีเมลอื่นกรุณาลงชื่อออก <a href="/cms_logout?redirect=ecom_checkout" style="color:#428bca">คลิ๊กที่นี่</a></span>
+        </div>
+        {{/if}}
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>ที่อยู่การออกบิล</h4>
+            <div class="form-horizontal">
+            <div class="form-group required-field {{#if field_errors.bill_first_name}}has-error{{/if}}">
+                <label class="control-label col-md-3">ชื่อ*</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control checkout-form" name="bill_first_name" value="{{form_vals.bill_first_name}}"/>
+                </div>
+            </div>
+            <div class="form-group required-field {{#if field_errors.bill_last_name}}has-error{{/if}}">
+                <label class="control-label col-md-3">นามสกุล*</label>
+                <div class="col-md-9">
+                    <input type="text"  class="form-control checkout-form" name="bill_last_name" value="{{form_vals.bill_last_name}}"/>
+                </div>
+            </div>
+            <div class="form-group {{#if field_errors.bill_company}}has-error{{/if}}">
+                <label class="control-label col-md-3">บริษัท</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control checkout-form" name="bill_company" value="{{form_vals.bill_company}}"/>
+                </div>
+            </div>
+            <div class="form-group required-field {{#if field_errors.bill_address}}has-error{{/if}}">
+                <label class="control-label col-md-3">ที่อยู่1*</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control checkout-form" name="bill_address" value="{{form_vals.bill_address}}"/>
+                </div>
+            </div>
+            <div class="form-group {{#if field_errors.bill_address2}}has-error{{/if}}">
+                <label class="control-label col-md-3">ที่อยู่2</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control checkout-form" name="bill_address2" value="{{form_vals.bill_address2}}"/>
+                </div>
+            </div>
+            <div class="form-group required-field {{#if field_errors.bill_country_id}}has-error{{/if}}" style="display:none">
+                <label class="control-label col-md-3">ประเทศ*</label>
+                <div class="col-md-9">
+                    <select class="form-control checkout-form" name="bill_country_id" id="bill_select_country">
+                        {{#each countries}}
+                            <option value="{{id}}" {{#ifeq id ../form_vals.bill_country_id}}selected{{/ifeq}}>{{name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group required-field {{#if field_errors.bill_province_id}}has-error{{/if}}">
+                <label class="control-label col-md-3">จังหวัด*</label>
+                <div class="col-md-9">
+                    <select class="form-control checkout-form" id="bill_select_province" name="bill_province_id" data-province_id="{{#if form_vals.bill_province_id}}{{form_vals.bill_province_id}}{{else}}{{#with customer.default_address_id}}{{province_id.id}}{{/with}}{{/if}}">
+                        <option value="">กรุณาเลือกประเทศ...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group required-field {{#if field_errors.bill_district_id}}has-error{{/if}}">
+                <label class="control-label col-md-3">เขต/อำเภอ*</label>
+                <div class="col-md-9">
+                    <select class="form-control checkout-form" name="bill_district_id" id="bill_select_district" data-district_id="{{#if form_vals.bill_district_id}}{{form_vals.bill_district_id}}{{else}}{{#with customer.default_address_id}}{{district_id.id}}{{/with}}{{/if}}">
+                        <option value="">กรุณาเลือกจังหวัด...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group required-field {{#if field_errors.bill_subdistrict_id}}has-error{{/if}}">
+                <label class="control-label col-md-3">แขวง/ตำบล*</label>
+                <div class="col-md-9">
+                    <select class="form-control checkout-form" name="bill_subdistrict_id" id="bill_select_subdistrict" data-subdistrict_id="{{#if form_vals.bill_subdistrict_id}}{{form_vals.bill_subdistrict_id}}{{else}}{{#with customer.default_address_id}}{{subdistrict_id.id}}{{/with}}{{/if}}">
+                        <option value="">กรุณาเลือกเขต/อำเภอ...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group required-field {{#if field_errors.bill_postal_code}}has-error{{/if}}">
+                <label class="control-label col-md-3">รหัสไปรษณีย์*</label>
+                <div class="col-md-9">
+                    <select class="form-control checkout-form" name="bill_postal_code" id="bill_select_postal_code" data-postal_code="{{form_vals.bill_postal_code}}">
+                        <option value="">กรุณาเลือกแขวง/ตำบล...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group {{#if field_errors.bill_phone}}has-error{{/if}}">
+                <label class="control-label col-md-3">โทรศัพท์*</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control checkout-form" name="bill_phone" value="{{form_vals.bill_phone}}"/>
+                </div>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="ship_to_bill" id="ship_to_bill" {{#if form_vals.ship_to_bill}}checked{{/if}}> จัดส่งสินค้าไปยังที่อยู่การออกบิล
+                </label>
+            </div>
+            </div>
+            <div class="gap"></div>
+        </div>
+        <div class="col-md-6">
+            <h4>ที่อยู่จัดส่งสินค้า</h4>
+            <div id="ship_to_bill_yes">
+                <p>สินค้าจะถูกจัดส่งไปยังที่อยู่จัดส่งสินค้า</p>
+            </div>
+            <div id="ship_to_bill_no" style="display:none">
+                <div class="form-horizontal">
+                <div class="form-group required-field {{#if field_errors.ship_first_name}}has-error{{/if}}">
+                    <label class="control-label col-md-3">ชื่อ*</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control checkout-form" name="ship_first_name" value="{{form_vals.ship_first_name}}"/>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_last_name}}has-error{{/if}}">
+                    <label class="control-label col-md-3">นามสกุล*</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control checkout-form" name="ship_last_name" value="{{form_vals.ship_last_name}}"/>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_company}}has-error{{/if}}">
+                    <label class="control-label col-md-3">บริษัท</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control checkout-form" name="ship_company" value="{{form_vals.ship_company}}"/>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_address}}has-error{{/if}}">
+                    <label class="control-label col-md-3">ที่อยู่1*</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control checkout-form" name="ship_address" value="{{form_vals.ship_address}}"/>
+                    </div>
+                </div>
+                <div class="form-group {{#if field_errors.ship_address2}}has-error{{/if}}">
+                    <label class="control-label col-md-3">ที่อยู่2</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control checkout-form" name="ship_address2" value="{{form_vals.ship_address2}}"/>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_country_id}}has-error{{/if}}" style="display:none">
+                    <label class="control-label col-md-3">ประเทศ*</label>
+                    <div class="col-md-9">
+                        <select class="form-control checkout-form" name="ship_country_id" id="ship_select_country">
+                            {{#each countries}}
+                                <option value="{{id}}" {{#ifeq id ../form_vals.ship_country_id}}selected{{/ifeq}}>{{name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_province_id}}has-error{{/if}}">
+                    <label class="control-label col-md-3">จังหวัด*</label>
+                    <div class="col-md-9">
+                        <select class="form-control checkout-form" name="ship_province_id" id="ship_select_province" data-province_id="{{#if form_vals.ship_province_id}}{{form_vals.ship_province_id}}{{else}}{{#with customer.default_address_id}}{{province_id.id}}{{/with}}{{/if}}">
+                            <option value="">กรุณาเลือกประเทศ...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_district_id}}has-error{{/if}}">
+                    <label class="control-label col-md-3">เขต/อำเภอ*</label>
+                    <div class="col-md-9">
+                        <select class="form-control checkout-form" name="ship_district_id" id="ship_select_district" data-district_id="{{#if form_vals.ship_district_id}}{{form_vals.ship_district_id}}{{else}}{{#with customer.default_address_id}}{{district_id.id}}{{/with}}{{/if}}">
+                            <option value="">กรุณาเลือกจังหวัด...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_subdistrict_id}}has-error{{/if}}">
+                    <label class="control-label col-md-3">แขวง/ตำบล*</label>
+                    <div class="col-md-9">
+                        <select class="form-control checkout-form" name="ship_subdistrict_id" id="ship_select_subdistrict" data-subdistrict_id="{{#if form_vals.ship_subdistrict_id}}{{form_vals.ship_subdistrict_id}}{{else}}{{#with customer.default_address_id}}{{subdistrict_id.id}}{{/with}}{{/if}}">
+                            <option value="">กรุณาเลือกเขต/อำเภอ...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group required-field {{#if field_errors.ship_postal_code}}has-error{{/if}}">
+                    <label class="control-label col-md-3">รหัสไปรษณีย์*</label>
+                    <div class="col-md-9">
+                        <select class="form-control checkout-form" name="ship_postal_code" id="ship_select_postal_code" data-postal_code="{{form_vals.ship_postal_code}}">
+                            <option value="">กรุณาเลือกแขวง/ตำบล...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group {{#if field_errors.ship_phone}}has-error{{/if}}">
+                    <label class="control-label col-md-3">โทรศัพท์*</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control checkout-form" name="ship_phone" value="{{form_vals.ship_phone}}"/>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <!--
+    <a href="/cms_index" class="btn btn-default"><i class="fa fa-arrow-left"></i> กลับสู่ร้านค้า </a> <span style="margin:0px 3px"> หรือ </span> 
+    -->
+    {{#if hide_checkout}}
+        <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{error_message}}
+        </div>
+    {{else}}
+        <input id="modalbtn" type="button" value='ขั้นตอนถัดไป' class="btn btn-primary"/>
+    {{/if}}
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel" style="text-align:center"><b>การรับชำระสินค้าและบริการ</b></h4>
+                </div>
+                <div class="modal-body" style="overflow-y:scroll;max-height:450px">
+                    <h4><b>1. การชำระเงินด้วยบัตร VISA และ MASTER ผ่านระบบออนไลน์</b></h4>
+                    <p style="text-indent:30px">เพื่อความปลอดภัยสูงสุดของข้อมูลบัตรเครดิตของท่าน shopicc.com 
+                    ได้ร่วมมือกับธนาคาร ในการให้บริการชำระเงินทางอินเตอร์เน็ต สำหรับผู้ถือบัตร 
+                    VISA และ MASTER ของทุกธนาคาร หลังจากที่ท่านยืนยันการสั่งซื้อสินค้าในหน้า 
+                    shopicc.com แล้ว ระบบจะแสดงหน้าต่างการชำระเงินด้วยบัตรเครดิตของธนาคาร 
+                    โดยท่านจะต้องกรอกข้อมูลเพิ่มเติมเกี่ยวกับบัตรเครดิตของท่านในหน้านี้* 
+                    เมื่อท่านกรอกข้อมูลเสร็จสิ้นและได้รับการอนุมัติการใช้บัตรจากระบบของธนาคารแล้ว
+                    ระบบจะนำท่านกลับมาสู่หน้าการสั่งซื้อสุดท้ายของ shopicc.com ซึ่งมี "หมายเลขการสั่งซื้อ" 
+                    แสดงอยู่ หากท่านไม่สามารถกลับมายังหน้าดังกล่าวเพื่อรับหมายเลขการสั่งซื้อ 
+                    อาจเป็นไปได้ว่า ระบบปลายทางของธนาคารเกิดขัดข้อง กรุณาติดต่อ " Call Center " 
+                    โดยท่านสามารถติดต่อมาที่หมายเลข 02-296-9959 หรืออีเมล์มาที่ service@shopicc.com
+                    เพื่อเปลี่ยนวิธีการชำระเงินหรือทำรายการสั่งซื้อใหม่ภายหลังอีกครั้งหนึ่ง
+                    *การรับส่งข้อมูลและรับชำระเงินด้วยบัตรเครดิตผ่านทางอินเตอร์เน็ตของ shopicc.com
+                    ได้เชื่อมต่อกับธนาคารผ่านระบบที่มีการรักษาความปลอดภัยขั้นสูงตามมาตรฐานสากล
+                    ทั้งนี้ข้อมูลบัตรเครดิตของท่านจะถูกจัดเก็บไว้ที่ธนาคารเพียงแห่งเดียวเท่านั้น
+                    โดยไม่มีการเก็บข้อมูลไว้ที่ฐานข้อมูลของ shopicc.com แต่อย่างใด</p>
+                    <h4><b>2. ชำระเงินผ่านเคาร์เตอร์ธนาคาร/ATM</b></h4>
+                    <p style="text-indent:30px">ท่านสามารถเลือกชำระเงินโดยการชำระค่าบริการผ่านสาขาของธนาคารหรือผ่านระบบ ATM มายังบัญชีของบริษัท ไอ.ซี.ซี อินเตอร์เนชั่นแนล จำกัด (มหาชน) ผ่าน ธนาคารดังนี้</p>
+                    <p style="text-indent:50px">1) บมจ. ธนาคารไทยพาณิชย์ เลขที่บัญชี 001-3-49964-6 (TR.CODE: 3650)</p>
+                    <p style="text-indent:50px">2) บมจ. ธนาคารกสิกรไทย เลขที่บัญชี 041-1-11488-0</p>
+                    <p style="text-indent:50px">3) บมจ. ธนาคารกรุงศรีอยุธยา สาขาถนนสาธุประดิษฐ์ เลขที่บัญชี 328-000952-5</p>
+                    <p style="text-indent:50px">4) บมจ. ธนาคารซีไอเอ็มบี ไทย สาขาสาธุประดิษฐ์ เลขที่บัญชี 80-0005898-6</p>
+                    <p style="text-indent:50px">5) บมจ. ธนาคารกรุงเทพ สาขาบุคคโล (BR.NO.114)</p>
+                    <p style="text-indent:50px">6) บมจ. ธนาคารกรุงไทย Comp. Code: 3518</p>
+                    <p style="text-indent:50px">7) บมจ. ธนาคารทหารไทย Comp. Code: 485</p>
+                    <p style="text-indent:50px">8) บมจ. ธนาคารธนชาต (Service Code: 1023)</p>
+                    <p style="text-indent:50px"><b>กรณีลูกค้าต้องการ ยกเลิกคำสั่งซื้อ</b> : สำหรับท่านลูกค้าที่ต้องการยกเลิกคำสั่งซื้อสามารถทำได้ด้วยตัวเองผ่านทางเว็ปไซต์ หรือ ติดต่อมาที่ คอลเซ็นเตอร์ 02-296-9959 หรือ อีเมล์ service@shopicc.com โดยเราจะเก็บใบสั่งซื้อของคุณไว้เป็นเวลา 3 วันทำการหากเกินจากนั้น เราจะทำการยกเลิกคำสั่งซื้อนั้นๆ </p>
+                    <p style="text-indent:30px"><b>หมายเหตุ</b> :</p>
+                    <p style="text-indent:30px">- ในแต่ละช่องทางการชำระเงิน ธนาคารจะส่งยอดเงินเข้าระบบโดยใช้เวลาที่แตกต่างกัน
+                    โดยบางธนาคารจะนำส่งในวันทำการ ถัดจากวันที่มีการตัดเงินจากระบบของท่าน</p>                                                  
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" name="commit" value="ยืนยัน" class="btn btn-primary"/>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+<div class="gap"></div>
+<script>
+function set_ship_to_bill() {
+    var val=$("#ship_to_bill").is(":checked");
+    if (val) {
+        $("#ship_to_bill_yes").show();
+        $("#ship_to_bill_no").hide();
+    } else {
+        $("#ship_to_bill_yes").hide();
+        $("#ship_to_bill_no").show();
+    }
+}
+
+$(function() {
+    set_ship_to_bill();
+    $("#ship_to_bill").change(function() {
+        set_ship_to_bill();
+    });
+});
+
+function get_postal_code_bill(id){
+    //console.log("POSTAL");
+    if($("#bill_select_subdistrict").val()){
+        var str ="<option value='' disabled selected>กรุณาเลือกรหัสไปรษณีย์...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_postal_code",
+            cache: false,
+            data: "subdistrict_id="+id+"&district_id="+$("#bill_select_district").val()+"&province_id="+$("#bill_select_province").val(),
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.code+"'>"+item.code+"</option>";
+                });
+                $("#bill_select_postal_code").html(str);
+                if($("#bill_select_postal_code").data("postal_code")){
+                    selected_id=$("#bill_select_postal_code").data("postal_code");
+                    //console.log(selected_id);
+                    $("#bill_select_postal_code option[value='"+selected_id+"']").prop("selected",true);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>กรุณาเลือกแขวง/ตำบล...</option>";
+        $("#bill_select_postal_code").html(str);
+    }
+}
+
+function get_subdistrict_bill(id){
+    if($("#bill_select_district").val()){
+        var str ="<option value='' disabled selected>กรุณาเลือกแขวง/ตำบล...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_subdistricts",
+            cache: false,
+            data: "district_id="+id,
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.id+"'>"+item.name+"</option>";
+                });
+                $("#bill_select_subdistrict").html(str);
+                if($("#bill_select_subdistrict").data("subdistrict_id")){
+                    selected_id=$("#bill_select_subdistrict").data("subdistrict_id");
+                    //console.log(selected_id);
+                    $("#bill_select_subdistrict option[value='"+selected_id+"']").prop("selected",true);
+                    get_postal_code_bill(selected_id);
+                }
+                else{
+                    get_postal_code_bill(0);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>กรุณาเลือกเขต/อำเภอ...</option>";
+        $("#bill_select_subdistrict").html(str);
+    }
+}
+
+function get_district_bill(id){
+    if($("#bill_select_province").val()){
+        var str ="<option value='' disabled selected>กรุณาเลือกเขต/อำเภอ...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_districts",
+            cache: false,
+            data: "province_id="+id,
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.id+"'>"+item.name+"</option>";
+                });
+                $("#bill_select_district").html(str);
+                if($("#bill_select_district").data("district_id")){
+                    selected_id=$("#bill_select_district").data("district_id");
+                    //console.log(selected_id);
+                    $("#bill_select_district option[value='"+selected_id+"']").prop("selected",true);
+                    district_id=selected_id;
+                    get_subdistrict_bill(district_id);
+                    get_postal_code_bill(0);
+                }
+                else{
+                    get_subdistrict_bill(0);
+                    get_postal_code_bill(0);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>กรุณาเลือกจังหวัด...</option>";
+        $("#bill_select_district").html(str);
+    }
+}
+
+function get_province_bill(id){
+    var str ="<option value='' disabled selected>กรุณาเลือกจังหวัด...</option>";
+    var province_id
+    $.ajax({
+        type: "GET",
+        url: "get_provinces",
+        cache: false,
+        data: "country_id="+id,
+        success: function(data){
+            data=JSON.parse(data);
+            $.each(data, function(i, item) {
+                if(i==0){
+                    province_id=item.id;
+                }
+                str+="<option value='"+item.id+"'>"+item.name+"</option>";
+            });
+            $("#bill_select_province").html(str);
+            if($("#bill_select_province").data("province_id")){
+                selected_id=$("#bill_select_province").data("province_id");
+                $("#bill_select_province option[value='"+selected_id+"']").prop("selected",true);
+                province_id=selected_id;
+                get_district_bill(province_id);
+            }
+        }
+    });
+}
+
+function get_postal_code_ship(id){
+    //console.log("POSTAL");
+    if($("#ship_select_subdistrict").val()){
+        var str ="<option value='' disabled selected>กรุณาเลือกรหัสไปรษณีย์...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_postal_code",
+            cache: false,
+            data: "subdistrict_id="+id+"&district_id="+$("#ship_select_district").val()+"&province_id="+$("#ship_select_province").val(),
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.code+"'>"+item.code+"</option>";
+                });
+                $("#ship_select_postal_code").html(str);
+                if($("#ship_select_postal_code").data("postal_code")){
+                    selected_id=$("#ship_select_postal_code").data("postal_code");
+                    //console.log(selected_id);
+                    $("#ship_select_postal_code option[value='"+selected_id+"']").prop("selected",true);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>กรุณาเลือกแขวง/ตำบล...</option>";
+        $("#ship_select_postal_code").html(str);
+    }
+}
+
+function get_subdistrict_ship(id){
+    if($("#ship_select_district").val()){
+        var str ="<option value='' disabled selected>กรุณาเลือกแขวง/ตำบล...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_subdistricts",
+            cache: false,
+            data: "district_id="+id,
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.id+"'>"+item.name+"</option>";
+                });
+                $("#ship_select_subdistrict").html(str);
+                if($("#ship_select_subdistrict").data("subdistrict_id")){
+                    selected_id=$("#ship_select_subdistrict").data("subdistrict_id");
+                    //console.log(selected_id);
+                    $("#ship_select_subdistrict option[value='"+selected_id+"']").prop("selected",true);
+                    get_postal_code_ship(selected_id);
+                }
+                else{
+                    get_postal_code_ship(0);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>กรุณาเลือกเขต/อำเภอ...</option>";
+        $("#ship_select_subdistrict").html(str);
+    }
+}
+
+function get_district_ship(id){
+    if($("#ship_select_province").val()){
+        var str ="<option disabled selected>กรุณาเลือกเขต/อำเภอ...</option>";
+        $.ajax({
+            type: "GET",
+            url: "get_districts",
+            cache: false,
+            data: "province_id="+id,
+            success: function(data){
+                data=JSON.parse(data);
+                $.each(data, function(i, item) {
+                    str+="<option value='"+item.id+"'>"+item.name+"</option>";
+                });
+                $("#ship_select_district").html(str);
+                if($("#ship_select_district").data("district_id")){
+                    selected_id=$("#ship_select_district").data("district_id");
+                    //console.log(selected_id);
+                    $("#ship_select_district option[value='"+selected_id+"']").prop("selected",true)
+                    get_subdistrict_ship(selected_id);
+                    get_postal_code_ship(0);
+                }
+                else{
+                    get_subdistrict_ship(0);
+                    get_postal_code_ship(0);
+                }
+            }
+        });
+    }
+    else{
+        var str ="<option value='' disabled selected>กรุณาเลือกจังหวัด...</option>";
+        $("#ship_select_district").html(str);
+    }
+}
+
+function get_province_ship(id){
+    var str ="<option disabled selected>กรุณาเลือกจังหวัด...</option>";
+    var province_id
+    $.ajax({
+        type: "GET",
+        url: "get_provinces",
+        cache: false,
+        data: "country_id="+id,
+        success: function(data){
+            data=JSON.parse(data);
+            $.each(data, function(i, item) {
+                if(i==0){
+                    province_id=item.id;
+                }
+                str+="<option value='"+item.id+"'>"+item.name+"</option>";
+            });
+            $("#ship_select_province").html(str);
+            if($("#ship_select_province").data("province_id")){
+                selected_id=$("#ship_select_province").data("province_id");
+                $("#ship_select_province option[value='"+selected_id+"']").prop("selected",true)
+                province_id=selected_id;
+                get_district_ship(province_id);
+            }
+        }
+    });
+}
+
+$("#bill_select_country").change(function() {
+    var country_id = $("#bill_select_country").val();
+    get_province_bill(country_id);
+});
+$("#bill_select_province").change(function() {
+    var province_id = $("#bill_select_province").val();
+    get_district_bill(province_id);
+});
+$("#bill_select_district").change(function() {
+    var district_id = $("#bill_select_district").val();
+    get_subdistrict_bill(district_id);
+});
+$("#bill_select_subdistrict").change(function() {
+    var subdistrict_id = $("#bill_select_subdistrict").val();
+    get_postal_code_bill(subdistrict_id);
+});
+
+
+$("#ship_select_subdistrict").change(function() {
+    var subdistrict_id = $("#ship_select_subdistrict").val();
+    get_postal_code_ship(subdistrict_id);
+});
+$("#ship_select_district").change(function() {
+    var district_id = $("#ship_select_district").val();
+    get_subdistrict_ship(district_id);
+});
+$("#ship_select_country").change(function() {
+    var country_id = $("#ship_select_country").val();
+    get_province_ship(country_id);
+});
+$("#ship_select_province").change(function() {
+    var province_id = $("#ship_select_province").val();
+    get_district_ship(province_id);
+});
+
+$("#modalbtn").click( function(){
+    $("#myModal").modal('show'); 
+});
+
+$(document).ready(function() {
+    country_id=$("#bill_select_country").val();
+    get_province_bill(country_id);
+    get_province_ship(country_id);
+});
+</script>

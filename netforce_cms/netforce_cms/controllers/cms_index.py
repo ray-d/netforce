@@ -25,6 +25,8 @@ from netforce.database import get_connection,get_active_db # XXX: move this
 from netforce.locale import set_active_locale,get_active_locale
 from netforce.access import set_active_user
 from .cms_base import BaseController
+from netforce_cms.controllers.cms_base import BaseController
+
 
 class Index(BaseController):
     _path="/cms_index"

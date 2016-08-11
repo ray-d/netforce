@@ -1,0 +1,50 @@
+<div class="container main-container headerOffset">
+
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/cms_account">บัญชีของฉัน</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span><i class="fa fa-cog"></i>เปลี่ยนพาสเวิร์ด</span>
+    </h1>
+
+    <div class "row">
+        {{#if error_message}}
+            <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                {{error_message}}
+            </div>
+        {{/if}}
+        <form class="form-horizontal" action="/cms_change_pass" role="form" method="post">
+            <div class="form-group {{#if field_error.old_password}}has-error{{/if}}">
+                <label class="col-sm-3 control-label">พาสเวิร์ดเก่า*</label>
+                <div class="col-sm-9">
+                    <input class="form-control" name="old_password" id="old_password" type="password" value="{{form_vals.old_password}}"/>
+                </div>
+            </div>
+            <div class="form-group {{#if field_error.new_password}}has-error{{/if}}">
+                <label class="col-sm-3 control-label">พาสเวิร์ดใหม่*</label>
+                <div class="col-sm-9">
+                    <input class="form-control" name="new_password" id="new_password" type="password" value="{{form_vals.new_password}}"/>
+                </div>
+            </div>
+            <div class="form-group {{#if field_error.re_password}}has-error{{/if}}">
+                <label class="col-sm-3 control-label">ยืนยันพาสเวิร์ดใหม่*</label>
+                <div class="col-sm-9">
+                    <input class="form-control" name="re_password" id="re_password" type="password" value="{{form_vals.re_password}}"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-lg-offset-3 col-lg-9">
+                    <button type="submit" class="btn btn-primary">ยืนยัน</button>
+                    <button type="reset" class="btn btn-default">ล้าง</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="gap"></div>
+</div>

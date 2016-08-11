@@ -1,0 +1,45 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/cms_account">บัญชีของฉัน</a> </li>
+                <li> <a href="/ecom_wishlist">สิ่งที่ปรารถนา</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span><i class="fa fa-heart"></i> สิ่งที่ปรารถนา</span>
+    </h1>
+    <div class="row">
+        <div class="col-sm-12">
+            {{#if customer.wishlist}}
+                <table class="table">
+                    {{#each customer.wishlist}}
+                        <form action="ecom_wishlist_remove" method="post">
+                            <input type="hidden" id="wishlist_id" name="wishlist_id" value="{{id}}"/>
+                              <tr class="CartProduct">
+                                <td style="width:10%" class="CartProductThumb">
+                                    <div> <a href="/ecom_product?product_id={{product_id.id}}"><img src="{{file_path product_id.image thumbnail=1}}" alt="{{product_id.description}}"></a> </div></td>
+                                <td style="width:40%"><div class="CartDescription">
+                                    <h4> <a href="/ecom_product?product_id={{product_id.id}}">{{product_id.name}} </a> </h4>
+                                    <div class="price"> <span>{{product_id.sale_price}} ฿</span> </div>
+                                  </div></td>
+                                <td style="width:15%">
+                                    <a class="btn btn-primary btn-sm" href="/ecom_product?product_id={{product_id.id}}"> 
+                                    <span class="add2cart"><i class="glyphicon glyphicon-shopping-cart"> </i> ไปที่สินค้า </span> 
+                                    </a>
+                                </td>
+                                <td style="width:40%" class="delete"><button title="Delete" class="btn btn-sm btn-danger" type="submit"> <i class="glyphicon glyphicon-trash"></i>ลบ</button></td>
+                              </tr>
+                        </form>
+                    {{/each}}
+                </table>
+            {{else}}
+            <p>คุณยังไม่มีสินค้าที่ปรารถนา</p><br/>
+            <a href="/cms_index" class="btn btn-default"><i class="fa fa-arrow-left"></i>กลับสู่ร้านค้า</a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+<div class="gap"></div>

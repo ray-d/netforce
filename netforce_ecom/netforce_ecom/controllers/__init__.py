@@ -57,3 +57,4 @@ from . import ecom_coupon
 from . import ecom_coupons
 from . import ecom_helpers
 from . import ecom_brands
+from . import store_home

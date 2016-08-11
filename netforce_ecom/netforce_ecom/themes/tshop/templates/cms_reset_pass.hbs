@@ -1,0 +1,30 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li><a href="/cms_index">หน้าหลัก</a> </li>
+                <li><a href="/cms_reset_pass">รีเซ็ตพาสเวิร์ด</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span><i class="fa fa-refresh"></i> รีเซ็ตพาสเวิร์ด </span>
+    </h1>
+    <div class="alert alert-info">
+        {{{message}}}
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="login-form">
+                <form action="/cms_reset_pass" method="post">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">อีเมลล์</label>
+                        <input class="col-sm-9" name="email" type="email"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">ยืนยัน</button>
+                    <a class="btn btn-default btn-lg" href="/cms_login">ยกเลิก</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

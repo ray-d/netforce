@@ -935,7 +935,7 @@ class SaleOrder(Model):
         for obj in self.browse(ids):
             if obj.state == "draft":
                 s = "Draft"
-            if obj.state == "confirmed":
+            elif obj.state == "confirmed":
                 s = "Confirmed"
             elif obj.state == "done":
                 s = "Completed"

@@ -1,0 +1,379 @@
+<div class="banner">
+  <div class="full-container">
+    <!--/.slider-content--> 
+    {{#editable_block "slideshow"}}
+    <div class="carousel slide" data-ride="carousel" id="carousel-example-generic"><!-- Indicators -->
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner" style="height:auto">
+            <div class="item active"><img alt="" src="/static/db/{{database}}/files/01,JfdlaihyTaE=.jpg" width="100%"/>
+                <div class="carousel-caption"></div>
+            </div>
+            <div class="item"><img alt="..." lazy-src="/static/db/{{database}}/files/02,Jx-SNCNvJ4w=.jpg" width="100%"/>
+                <div class="carousel-caption"></div>
+            </div>
+
+            <div class="item"><img alt="..." lazy-src="/static/db/{{database}}/files/03,mNN0cMaaU1c=.jpg" width="100%"/>
+                <div class="carousel-caption"></div>
+            </div>
+
+            <div class="item"><img alt="..." lazy-src="/static/db/{{database}}/files/04,Bgm54vLdgRM=.jpg" width="100%"/>
+                <div class="carousel-caption"></div>
+            </div>
+
+            <div class="item"><img alt="..." lazy-src="/static/db/{{database}}/files/05,b0FSzEHHBaY=.jpg" width="100%"/>
+                <div class="carousel-caption"></div>
+            </div>
+
+            <div class="item"><img alt="..." lazy-src="/static/db/{{database}}/files/06,EHTdwneS6Wc=.jpg" width="100%"/>
+                <div class="carousel-caption"></div>
+            </div>
+        </div>
+        <!-- Controls -->
+        <a class="left carousel-control" data-slide="prev" href="#carousel-example-generic" role="button"><span class="glyphicon glyphicon-chevron-left"></span> </a> <a class="right carousel-control" data-slide="next" href="#carousel-example-generic" role="button"> <span class="glyphicon glyphicon-chevron-right"></span> </a>
+    </div>
+    {{/editable_block}}
+  </div>
+  <!--/.full-container--> 
+</div>
+<!--/.banner style1-->
+
+<div class="container main-container"> 
+  
+  <!-- Main component call to action -->
+  
+  <div class="row featuredPostContainer globalPadding style2">
+    <h3 class="section-title style2 text-center"><span>สินค้ามาใหม่</span></h3>
+    <div class="container">
+      <div class="row xsResponse">
+        {{#each collections.new.products order="name"}}
+        <div class="item col-lg-3 col-md-3 col-sm-4 col-xs-6">
+          <div class="product">
+              <!--
+              <a class="add-fav tooltipHere add-wishlist" data-product-id="{{id}}" data-toggle="tooltip" data-original-title="Add to Wishlist" data-placement="left">
+                  <i class="glyphicon glyphicon-heart" data-product-id="{{id}}"></i>
+              </a>
+            -->
+          
+            <div class="image"> <a href="/ecom_product?product_id={{id}}"><img src="{{file_path image thumbnail=1}}" alt="img" class="img-responsive"></a>
+                <div class="promotion"> 
+                    <span class="new-product"> NEW</span> 
+                    {{#if discount_text}}
+                        <span class="discount">{{discount_text}}</span>
+                    {{/if}}
+                </div>
+            </div>
+            <div class="description">
+                <h4><a href="/ecom_product?product_id={{id}}">{{name}}</a></h4>
+                <p>{{description}}</p>
+            </div>
+              <div class="price"> 
+                  <span>{{currency ecom_sale_price}} ฿</span>
+                  {{#if ecom_has_discount}}
+                      <span class="old-price">{{currency sale_price}}</span>
+                  {{/if}}
+              </div>
+              <div class="action-control"> <a class="btn btn-primary" href="/ecom_product?product_id={{id}}"> <span class="add2cart"><i class="glyphicon glyphicon-shopping-cart"> </i> ซื้อ </span> </a> </div>
+          </div>
+        </div>
+        {{/each}}
+        <!--/.item--> 
+      </div>
+      <!-- /.row -->
+    </div>
+    
+  </div>
+  <!--/.featuredPostContainer--> 
+</div>
+<!--
+<div class="parallax-section parallax-image-1" style="background-position: 50% 2px;">
+  <div class="container">
+    <div class="row ">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="parallax-content clearfix">
+          {{#editable_block "band1"}}
+              <h1 class="parallaxPrce"> $200 </h1>
+              <h2 class="uppercase">FREE INTERNATIONAL SHIPPING! Get Free Shipping Coupons</h2>
+              <h3> Energistically develop parallel mindshare rather than premier deliverables. </h3>
+              <div style="clear:both"></div>
+              <a class="btn btn-discover "> <i class="fa fa-shopping-cart"></i> SHOP NOW </a> </div>
+          {{/editable_block}}
+      </div>
+    </div>
+  </div>
+</div>
+-->
+
+<div class="container main-container"> 
+  
+  <!-- Main component call to action -->
+  
+  <div class="morePost row featuredPostContainer style2 globalPaddingTop ">
+    <h3 class="section-title style2 text-center"><span>สินค้าแนะนำ</span></h3>
+    <div class="container">
+      <div class="row xsResponse">
+        {{#each collections.frontpage.products order="name"}}
+        <div class="item col-lg-3 col-md-3 col-sm-4 col-xs-6">
+          <div class="product">
+              <!--
+              <a class="add-fav tooltipHere add-wishlist" data-product-id="{{id}}" data-toggle="tooltip" data-original-title="Add to Wishlist" data-placement="left" style="z-index:100">
+                  <i class="glyphicon glyphicon-heart" data-product-id="{{id}}"></i>
+            </a>
+            --> 
+            <div class="image"> <a href="/ecom_product?product_id={{id}}"><img src="{{file_path image thumbnail=1}}" alt="img" class="img-responsive"></a>
+                <div class="promotion"> 
+                    {{#if discount_text}}
+                        <span class="discount">{{discount_text}}</span>
+                    {{/if}}
+                </div>
+            </div>
+            <div class="description">
+                <h4><a href="/ecom_product?product_id={{id}}">{{name}}</a></h4>
+                <p>{{description}}</p>
+            </div>
+              <div class="price"> 
+                  <span>{{currency ecom_sale_price}} ฿</span>
+                  {{#if ecom_has_discount}}
+                      <span class="old-price">{{currency sale_price}}</span>
+                  {{/if}}
+              </div>
+              <div class="action-control"> <a class="btn btn-primary" href="/ecom_product?product_id={{id}}"> <span class="add2cart"><i class="glyphicon glyphicon-shopping-cart"> </i> ซื้อ </span> </a> </div>
+          </div>
+        </div>
+        {{/each}}
+        <!--/.item--> 
+      </div>
+      <!-- /.row -->
+    </div>
+    <!--/.container--> 
+  </div>
+  <!--/.featuredPostContainer-->
+  <div class="gap"></div>
+  
+  <hr class="no-margin-top">
+  <div class="width100 section-block ">
+    <div class="row featureImg">
+        <div class="col-md-3 col-sm-3 col-xs-6">{{#editable_block "foot_banner1"}} <a href="/cms_page?page=shipping"><img src="static/db/{{database}}/themes/tshop/images/sm_banner_01.png" class="img-responsive" alt="img"></a>{{/editable_block}} </div>
+        <div class="col-md-3 col-sm-3 col-xs-6">{{#editable_block "foot_banner2"}} <a href="/cms_page?page=how_to_buy"><img src="static/db/{{database}}/themes/tshop/images/sm_banner_02.png" class="img-responsive" alt="img"></a>{{/editable_block}} </div>
+        <div class="col-md-3 col-sm-3 col-xs-6">{{#editable_block "foot_banner3"}} <a href="/ecom_collection?collection=best_seller"><img src="/static/db/{{database}}/themes/tshop/images/sm_banner_03.png" class="img-responsive" alt="img"></a>{{/editable_block}} </div>
+        <div class="col-md-3 col-sm-3 col-xs-6">{{#editable_block "foot_banner4"}} <a href="/cms_page?page=returns"><img src="/static/db/{{database}}/themes/tshop/images/sm_banner_04.png" class="img-responsive" alt="img"></a>{{/editable_block}} </div>
+    </div>
+    <!--/.row--> 
+  </div>
+  <!--/.section-block-->
+  
+  <div class="width100 section-block">
+    <h3 class="section-title"><span>แบรนด์</span> <a id="nextBrand" class="link pull-right carousel-nav"> <i class="fa fa-angle-right"></i></a> <a id="prevBrand" class="link pull-right carousel-nav"> <i class="fa fa-angle-left"></i> </a> </h3>
+    <div class="row">
+      <div class="col-lg-12">
+        <ul class="no-margin brand-carousel owl-carousel owl-theme" style="opacity: 1; display: block;">
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/5%20UP%2CbBSErmY8RhA%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ABSORBA%2C2JH_WwK5CjQ%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ARROW%2CSTGIjUDccqQ%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BASIC%20DE%20NUVO%2CD28beooutoM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BECKY%20RUSSELL%2C4ivOLlr-Wo4%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/bewitch%2CrzLB2E2Zz_E%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BJE%2Ch7dpqQznZ6U%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20ARTY%2CF_fRPLR9pCg%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20COSMETOLOGY%2CXf1cMlgx9Mw%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20EX%2C8gE_qaJk-UM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20INNER%20WEAR%2CdAiCt0rarZM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20JEANS%2CJVg67eKUzsY%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20JUNIOR%2CmknGfJt7Co4%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20LEATHER%20GOODS%2Cj4Bm-Hdu0B4%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20PANADDA%2CUlUCPtIZ6zs%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20PURE%20CARE%2C_bgG96MfL10%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20SHOES%2CuvpaNDnkbao%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20SIGNATURE%2C908Oxy7-a-s%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20STREAM%20LINE%2C6yXPUwMDIlo%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/BSC%20SWIMWEAR%2CoICSMwzdP3Q%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/DAKS%2CSkaxe-gA470%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/DERMACEUTIQUE%2CTO0P6cHOPwg%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/DXS%2C_sp46AYGXHw%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ELLE%2CQzXiNI9kh0U%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ELLE%20GIRL%2CtL1TGfKZNFA%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ELLEHOMME%2C_fC73a6pCuI%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ELLE%20LINGERIES%2CHKUtBabRReE%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ELLE%20WATCH%2C8DhqUckJcos%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ENFANT%2CtaWUZTVsUcU%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/EXCELLENCY%2C7QZ-Qg4YDYQ%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/GUNZE%2CmZvKaIlsjFU%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/GUY%20DE%20GUY%20LAROCHE%2CMefBCRfnfFI%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/GUY%20LAROCHE%20INNER%20WEAR%2CXqquCKJO5hs%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/GUY%20LAROCHE%20WATCH%2COp3tG8FM0wM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/HAZZYS%2CML1aAiUXI58%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/HIS%20%26%20HER%20PLUS%20POINT%2CHttd0xk5GSw%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/HOW%2C5dHuETrADKM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ITOKIN%20%20NICE%20CAREER%20(NEW)%2CohU4e1DE5I0%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/JEAN%20LOUIS%20SCHERRER%2Clw44bqDPRJM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/KULLASTRI%2CNvXM7kQEdVM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/lacoste%2Cz057w-yzr9A%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/LA%20FEMME%2COO1nir3CkcI%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/le%20coq%20sportif%2CGttDe-VSeek%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/LITTLE%20WACOAL%2CLsy8_iGWvoU%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/LOUIS%20FONTAINE%2C-AO0n2RUCVU%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/MIX%20-%20SELF%2C69sBJIXPxeY%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/MIZUNO%2CUPtchm2Pkag%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/NATURALIZER%2Czsv_1JKnxiY%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/NNNN%2C4K0hBb45fI4%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/PANADDA%2CbdDGeGC7b0k%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/PEARL%20OF%20SIAM%2C0P12WxN51gI%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/REGAL%2Cdv2Rn-_-txk%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/SAVITREE%2CNlwyq6n7ClM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/SBY%2CyLjPoS5rlWw%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/SELF%20SELECTION%2CLYSC-jndyU4%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/SHOP%20SMART%2CxWLT_a5jr90%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/St.Andrews%2CQ5ij1MYCsfY%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/ST.ANDREWS%20BABY%2CNqV9I3OgWxE%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/TROMBONE%2CGD02lwapwtM%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/WACOAL%2C43dmbRP3t0c%3D.jpg" alt="img"></li>
+            </div>
+            <div class="owl-item" style="width: 143px;">
+                <li><img src="/static/db/shopicc_prod/files/WACOAL%20BLOUSE%2C21ifUiyzl6o%3D.jpg" alt="img"></li>
+            </div>
+        </ul>
+      </div>
+    </div>
+    <!--/.row--> 
+  </div>
+  <!--/.section-block--> 
+  
+</div>
+<!--main-container-->
+<!--
+<div class="parallax-section parallax-image-2" style="background-position: 50% 13px;">
+  <div class="w100 parallax-section-overley">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <div class="parallax-content clearfix">
+            {{#editable_block "band2"}}
+                <h1 class="xlarge"> Trusted Seller 500+ </h1>
+                <h5 class="parallaxSubtitle"> Lorem ipsum dolor sit amet consectetuer </h5>
+            {{/editable_block}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+-->
+<!--/.parallax-section-->

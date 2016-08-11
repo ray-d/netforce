@@ -17,6 +17,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
+import urllib.request as reg
 
 from netforce.controller import Controller
 from netforce.template import render
@@ -63,14 +64,31 @@ class Login(BaseController):
                         field_errors[n]=True
                 if field_errors:
                     raise Exception("Some required fields are missing")
-                user_id=get_model("base.user").check_password(form_vals["email"],form_vals["password"])
+                #user_id=get_model("base.user").check_password(form_vals["email"],form_vals["password"])
+                data_login={
+                    'data' : {
+                        'login' : form_vals["email"],
+                        'password' : form_vals['password'],
+                        'db_name' : get_active_db()
+                    }
+                }
+                vals_user=get_model("login").login(context=data_login)
+                if not vals_user:
+                    raise Exception("Invalid login")
+                user_id = vals_user['cookies']['user_id']
                 if not user_id:
                     raise Exception("Invalid login")
                 set_active_user(user_id)
                 dbname=get_active_db()
-                token=new_token(dbname,user_id)
-                self.set_cookie("user_id",str(user_id))
-                self.set_cookie("token",token)
+                #token=new_token(dbname,user_id)
+                for k,v in vals_user['cookies'].items():
+                    if isinstance(v, int):
+                        v=str(v)
+                    if v:
+                        v = reg.pathname2url(v)
+                        self.set_cookie(k,v)
+                #self.set_cookie("user_id",str(user_id))
+                #self.set_cookie("token",token)
                 cart_id=self.get_cookie("cart_id")
                 if cart_id:
                     cart_id=int(cart_id)

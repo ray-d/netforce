@@ -28,6 +28,7 @@ class AttributeValue(Model):
         "attribute_id": fields.Many2One("product.attribute", "Attribute", required=True),
         "value": fields.Char("Value"),  # Deprecated
         "option_id": fields.Many2One("product.attribute.option", "Value"),
+        "options": fields.Many2Many("product.attribute.option", "Values"),
     }
 
 AttributeValue.register()

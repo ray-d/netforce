@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<!-- Fav and touch icons -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/static/db/{{database}}/themes/tshop/images/144.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/db/{{database}}/themes/tshop/images/114.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/db/{{database}}/themes/tshop/images/72">
+<link rel="apple-touch-icon-precomposed" href="/static/db/{{database}}/themes/tshop/images/57.png">
+<link rel="shortcut icon" href="/static/db/{{database}}/themes/tshop/images/favicon.ico"/>
+<!-- Bootstrap core CSS -->
+<link href="/static/db/{{database}}/themes/tshop/css/bootstrap.css" rel="stylesheet">
+<!-- add theme styles for this template -->
+<link id="pagestyle" rel="stylesheet" type="text/css" href="/static/db/{{database}}/themes/tshop/css/skin-3.css">
+
+<!-- css3 animation effect for this template -->
+<link href="/static/db/{{database}}/themes/tshop/css/animate.min.css" rel="stylesheet">
+
+<link href="/static/db/{{database}}/themes/tshop/css/owl.carousel.css" rel="stylesheet">
+
+<link href="/static/db/{{database}}/themes/tshop/css/owl.theme.css" rel="stylesheet">
+
+<!-- styles needed by mCustomScrollbar -->
+<link href="/static/db/{{database}}/themes/tshop/css/jquery.mCustomScrollbar.css" rel="stylesheet">
+
+<!-- Just for debugging purposes. -->
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+
+<!-- include pace script for automatic web page progress bar  -->
+
+<!-- Custom styles for this template -->
+<link href="/static/db/{{database}}/themes/tshop/css/style.css" rel="stylesheet">
+{{{ga_script}}}
+
+{{#if_perm "edit_website"}}
+    <link href="/static/nf_editor.min.css" rel="stylesheet">
+    <link href="/static/db/{{database}}/themes/tshop/css/edit_web.css" rel="stylesheet">
+    <script src="/static/ckeditor/ckeditor.js"></script>
+    <script src="/static/nf_editor.min.js"></script>
+{{/if_perm}}
+
+{{#if page}}
+    <title>{{page.title}}</title>
+    <meta name="description" content="{{page.meta_description}}"/>
+    <meta name="keywords" content="{{page.meta_keywords}}"/>
+{{else}}
+    {{#if product}}
+        <title>{{product.name}}</title>
+        <meta name="description" content="{{product.name}}"/>
+        <meta name="keywords" content="{{product.name}}"/>
+    {{else}}
+        <title>{{settings.shop_name}}</title>
+    {{/if}}
+{{/if}}
+
+
+<script>
+    paceOptions = {
+      elements: true
+    };
+</script>
+<script src="/static/db/{{database}}/themes/tshop/js/pace.min.js"></script>
+    <script type="text/javascript">
+function swapStyleSheet(sheet){
+document.getElementById('pagestyle').setAttribute('href', sheet);
+}
+</script>    <style>
+
+	.themeControll {
+		background:#2d3e50;
+		height: auto;
+		width:100px;
+		position:fixed;
+		left:0;
+		padding:20px;
+		top:20%;
+		z-index:999999;
+		-webkit-transform: translateX(0);
+		-moz-transform: translateX(0);
+		-o-transform: translateX(0);
+		-ms-transform: translateX(0);
+		transform: translateX(0);
+		opacity: 1;
+		-ms-filter: none;
+		filter: none;
+		-webkit-transition: opacity .5s linear, -webkit-transform .7s cubic-bezier(.56, .48, 0, .99);
+		-moz-transition: opacity .5s linear, -moz-transform .7s cubic-bezier(.56, .48, 0, .99);
+		-o-transition: opacity .5s linear, -o-transform .7s cubic-bezier(.56, .48, 0, .99);
+		-ms-transition: opacity .5s linear, -ms-transform .7s cubic-bezier(.56, .48, 0, .99);
+		transition: opacity .5s linear, transform .7s cubic-bezier(.56, .48, 0, .99);
+	}
+	
+	.themeControll.active {
+		display: block;
+		-webkit-transform: translateX(-100px);
+		-moz-transform: translateX(-100px);
+		-o-transform: translateX(-100px);
+		-ms-transform: translateX(-1020px);
+		transform: translateX(-100px);
+		-webkit-transition: opacity .5s linear, -webkit-transform .7s cubic-bezier(.56, .48, 0, .99);
+		-moz-transition: opacity .5s linear, -moz-transform .7s cubic-bezier(.56, .48, 0, .99);
+		-o-transition: opacity .5s linear, -o-transform .7s cubic-bezier(.56, .48, 0, .99);
+		-ms-transition: opacity .5s linear, -ms-transform .7s cubic-bezier(.56, .48, 0, .99);
+		transition: opacity .5s linear, transform .7s cubic-bezier(.56, .48, 0, .99);
+	
+	}
+	
+	.themeControll a {
+    border-radius: 3px;
+    clear: both;
+    display: block;
+    height: 25px;
+    margin-bottom: 4px;
+    width: 50px;
+	}
+	
+	.tbtn {
+    background:#2D3E50;
+    color: #FFFFFF !important;
+    font-size: 30px;
+    height: auto;
+    padding: 10px;
+    position: absolute;
+    right: -40px;
+    top: 0;
+    width: 40px;
+	cursor:pointer;
+   }
+   
+   	@media (max-width: 780px) {
+    .themeControll {
+        display:none;
+    }
+}
+	
+</style>
+<script type="text/javascript" src="/static/db/{{database}}/themes/tshop/js/jquery.js"></script> 
+<script src="/static/db/{{database}}/themes/tshop/js/jquery.raty.js"></script>
+<script src="/static/db/{{database}}/themes/tshop/js/underscore.js"></script>
+</head>
+
+<body class=" pace-done">
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v2.0";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<div class="pace  pace-inactive">
+    <div class="pace-progress" data-progress-text="100%" data-progress="99" style="width: 100%;">
+        <div class="pace-progress-inner"></div>
+    </div>
+    <div class="pace-activity"></div>
+</div>
+<!-- Modal Login start -->
+
+<!-- Fixed navbar start -->
+<div class="navbar navbar-tshop navbar-fixed-top megamenu" role="navigation" id="web_header">
+    <div class="navbar-top">
+        <div class="container">
+      <div class="row">
+        <div class="col-lg-6 col-sm-6 col-xs-6 col-md-6">
+          <div class="pull-left ">
+            <ul class="userMenu ">
+                <!--<li> <a href="/cms_page?page=help"> <span class="hidden-xs">HELP</span><i class="glyphicon glyphicon-info-sign hide visible-xs "></i> </a> </li>-->
+              <li class="phone-number"> <a href="tel:+6622969959"> <span> <i class="glyphicon glyphicon-phone-alt "></i></span> <span style="margin-left:5px">02-296-9959</span> </a> </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-6 col-sm-6 col-xs-6 col-md-6 no-margin no-padding">
+          <div class="pull-right">
+            <ul class="userMenu">
+              {{#if customer}}
+              <li> <welcome style="margin-right:25px" class="hidden-xs">ยินดีต้อนรับ {{customer.first_name}}  {{customer.last_name}}</welcome><a href="/cms_account"><span>บัญชีของฉัน</span></a> </li>
+                  <li> <a href="/cms_logout"> <span>ลงชื่อออก</span></a> </li>
+              {{else}}
+                  <li> <a href="/cms_login"> <span>เข้าสู่ระบบ</span></a> </li>
+              {{/if}}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--/.navbar-top-->
+  
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> <span class="sr-only"> Toggle navigation </span> <span class="icon-bar"> </span> <span class="icon-bar"> </span> <span class="icon-bar"> </span> </button>
+      <a href="/ecom_cart"><button type="button" class="navbar-toggle"> <i class="fa fa-shopping-cart colorWhite"> </i> 
+              {{#with cart}}
+              <span class="cartRespons colorWhite"> ตะกร้า ({{currency amount_total}} ฿) </span> 
+              {{else}}
+              <span class="cartRespons colorWhite"> ตะกร้า </span> 
+              {{/with}}
+      </button></a>
+      <a class="navbar-brand" href="/cms_index" style="padding-top:3px;padding-bottom:3px"> 
+          {{#editable_block "logo"}}
+          <img src="/static/db/{{database}}/files/shopicc2,vmVgP4EzRvM=.png" alt="shopicc" height="43px"> 
+          {{/editable_block}}
+      </a> 
+      
+      <!-- this part for mobile -->
+      <div class="search-box pull-right hidden-lg hidden-md hidden-sm">
+        <div class="input-group">
+          <button class="btn btn-nobg getFullSearch" type="button"> <i class="fa fa-search"> </i> </button>
+        </div>
+        <!-- /input-group --> 
+        
+      </div>
+    </div>
+    
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"> <a href="/cms_index"> หน้าหลัก </a> </li>
+        {{#each linklists.main_menu.top_items}}
+            {{#if sub_items}}
+            <li class="dropdown megamenu-80width"> <a data-toggle="dropdown" class="dropdown-toggle" href="#"> {{title}} <b class="caret"> </b> </a>
+                  <ul class="dropdown-menu" style="padding-bottom:0px">
+                    <li class="megamenu-content ">
+                      <ul class="col-lg-3  col-sm-3 col-md-3 unstyled noMarginLeft newCollectionUl">
+                      {{#each sub_items}}
+                          <li> <a href="{{url}}"> {{title}} </a> </li>
+                      {{/each}}
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+            {{else}}
+                <li> <a href="{{url}}"> {{title}} </a> </li>
+            {{/if}}
+        {{/each}}
+      </ul>
+      
+      <!--- this part will be hidden for mobile version -->
+      <div class="nav navbar-nav navbar-right hidden-xs">
+        <div class="dropdown  cartMenu ">
+        {{#with cart}}
+              <a href="/ecom_cart" class="dropdown-toggle" data-toggle="dropdown"> 
+                  <i class="fa fa-shopping-cart"> </i> <span class="cartRespons"> ตะกร้า ({{currency amount_total}} ฿) </span> 
+                  <b class="caret"> </b> 
+              </a>
+              <div class="dropdown-menu col-lg-4 col-xs-12 col-md-4 ">
+                  <div class="w100 miniCartTable scroll-pane mCustomScrollbar _mCS_2" style="overflow: hidden;">
+                      <div class="mCustomScrollBox mCS-dark-2" id="mCSB_2" style="position: relative; height: 100%; overflow-y: scroll; max-width: 100%; max-height: 300px;">
+                          <div class="mCSB_container mCS_no_scrollbar" style="position: relative; top: 0px;">
+                              <table>
+                                <tbody>
+                                {{#each lines}}
+                                  <tr class="miniCartProduct">
+                                      <td style="width:20%" class="miniCartProductThumb"><div> <a href="/ecom_product?product_id={{product_id.id}}"> <img src="{{file_path image thumbnail=1}}" alt="img"> </a> </div></td>
+                                      <td style="width:40%"><div class="miniCartDescription">
+                                        <h4> <a href="/ecom_product?product_id={{product_id.id}}"> {{product_id.name}} </a> </h4>
+                                        <div class="price"> <span> {{#if has_discount}}{{currency special_price}}{{else}}{{currency unit_price}}{{/if}} ฿</span> </div>
+                                      </div></td>
+                                      <td style="width:10%" class="miniCartQuantity"><a> x {{qty}} </a></td>
+                                      <td style="width:15%" class="miniCartSubtotal"><span> {{currency amount}} ฿</span></td>
+                                      <td style="width:5%" class="delete"><a href="/ecom_cart_change?line={{sequence}}&qty=0"> <i class="fa fa-times"></i> </a></td>
+                                  </tr>
+                                {{/each}}
+                                </tbody>
+                              </table>
+                          </div>
+                          <div class="mCSB_scrollTools" style="position: absolute; display: none;">
+                              <div class="mCSB_draggerContainer">
+                                  <div class="mCSB_dragger" style="position: absolute; top: 0px; height: 194px;" oncontextmenu="return false;">
+                                      <div class="mCSB_dragger_bar" style="position: relative; line-height: 194px;">
+                                      </div>
+                                  </div>
+                                  <div class="mCSB_draggerRail">
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                    <!--/.miniCartTable-->
+            
+                  <div class="miniCartFooter text-right">
+                        <h3 class="text-right subtotal"> ราคารวมทั้้งหมด: {{currency amount_total}} ฿</h3>
+                        <a class="btn btn-sm btn-danger" href="/ecom_cart"> <i class="fa fa-shopping-cart"> </i> ดูตะกร้า </a> 
+                        <a class="btn btn-sm btn-primary" href="/ecom_checkout"> ชำระเงิน </a>
+                  </div>
+                    <!--/.miniCartFooter--> 
+               </div>
+        {{else}}
+          <a href="/ecom_cart" class="dropdown-toggle"> 
+              <i class="fa fa-shopping-cart"> </i> <span class="cartRespons"> ตะกร้า </span> 
+          </a>
+        {{/with}}  
+          <!--/.dropdown-menu--> 
+        </div>
+        <!--/.cartMenu-->
+        
+        <div class="search-box">
+          <div class="input-group">
+            <button class="btn btn-nobg getFullSearch" type="button"> <i class="fa fa-search"> </i> </button>
+          </div>
+          <!-- /input-group --> 
+          
+        </div>
+        <!--/.search-box --> 
+      </div>
+      <!--/.navbar-nav hidden-xs--> 
+    </div>
+    <!--/.nav-collapse --> 
+    
+  </div>
+  <!--/.container -->
+  
+<div class="search-full text-right"> <a class="pull-right search-close"> <i class=" fa fa-times-circle"> </i> </a>
+    <div class="searchInputBox pull-right">
+        <form role="search" action="/cms_search" method="get">
+            <input type="search" data-searchurl="search?=" name="q" placeholder="start typing and hit enter to search" class="search-input">
+            <button class="btn-nobg search-btn" type="submit"> <i class="fa fa-search"> </i> </button>
+        </form>
+    </div>
+</div>
+  <!--/.search-full--> 
+  
+</div>
+<!-- /.Fixed navbar  -->
+
+{{{content}}}
+
+<footer>
+  <div class="footer" id="footer" style="padding-bottom:0px">
+    <div class="container">
+      <div class="row">
+        {{#editable_block "footer"}}
+        <div class="panel-group" id="accordion_footer" style="margin-bottom:0px">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title" style="text-align:center">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_footer" href="#collapseOne">
+                        ช่วยเหลือ
+                    </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body" style="padding:5px 10px">
+                        <div class="col-xs-12">
+                            <ul style="margin-top:0px">
+                                <li> <a href="/cms_page?page=help"> ช่วยเหลือ </a> </li>
+                                <li> <a href="/cms_page?page=faq"> คำถามที่พบบ่อย </a> </li>
+                                <li> <a href="/cms_page?page=how_to_buy"> ขั้นตอนการสั่งซื้อสินค้า </a> </li>
+                                <li> <a href="/cms_page?page=shipping"> วิธีการและระยะเวลาการจัดส่งสินค้า </a> </li>
+                                <li> <a href="/cms_page?page=returns"> เงื่อนไขการเปลี่ยนสินค้า </a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default" style="margin-top:0px">
+                <div class="panel-heading">
+                    <h4 class="panel-title" style="text-align:center">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_footer" href="#collapseTwo">
+                        ติดต่อเรา
+                    </a>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body" style="padding:5px 10px">
+                        <div class="col-xs-12">
+                            <ul style="margin-top:0px">
+                                <li class="supportLi">
+                                    <h4> <a class="inline" href="tel:+6622969959"> <strong> <i class="fa fa-phone"> </i> 02-296-9959 </strong> </a> </h4>
+                                    <h4> <a class="inline" href="mailto:service@shopicc.com"> <i class="fa fa-envelope-o"> </i> service@shopicc.com </a> </h4>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default" style="margin-top:0px">
+                <div class="panel-heading">
+                    <h4 class="panel-title" style="text-align:center">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_footer" href="#collapseThree">
+                        ข้อมูล
+                    </a>
+                    </h4>
+                </div>
+                <div id="collapseThree" class="accordion-body collapse">
+                    <div class="panel-body" style="padding:5px 10px">
+                        <div class="col-xs-12">
+                            <ul style="margin-top:0px"> 
+                                <li> <a href="/cms_page?page=about_us"> เกี่ยวกับเรา </a> </li>
+                                <li> <a href="/cms_page?page=contact_us"> ติดต่อเรา </a> </li>
+                                <li> <a href="/cms_page?page=privacy_policy"> นโยบาย ความเป็นส่วนตัว </a> </li>
+                                <li> <a href="/cms_page?page=terms_conditions"> ข้อตกลง และ เงื่อนไข </a> </li>
+                           </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/editable_block}}
+        <!--
+        <div class="col-lg-3  col-md-3 col-sm-6 col-xs-12 ">
+          <h3> จดหมายข่าวสาร </h3>
+          <ul>
+            <li>
+              <div class="input-append newsLatterBox text-center">
+                  <form action="ecom_newsletter_add" class="newsletter-form" method="post">
+                    <input type="text" class="full text-center" placeholder="Name " id="newsletter_name" name="newsletter_name" required="">
+                    <input type="text" class="full text-center" placeholder="Email " id="newsletter_email" name="newsletter_email" required="">
+                    <button class="btn  bg-gray" type="submit"> Subscribe <i class="fa fa-long-arrow-right"> </i> </button>
+                  </form>
+              </div>
+            </li>
+          </ul>
+          <ul class="social">
+            <li> <a href="http://facebook.com/iccjust4u"> <i class=" fa fa-facebook"> &nbsp; </i> </a> </li>
+            <li> <a href="http://twitter.com/"> <i class="fa fa-twitter"> &nbsp; </i> </a> </li>
+            <li> <a href="https://plus.google.com/"> <i class="fa fa-google-plus"> &nbsp; </i> </a> </li>
+            <li> <a href="http://youtube.com/"> <i class="fa fa-pinterest"> &nbsp; </i> </a> </li>
+            <li> <a href="http://youtube.com/brandiccclub"> <i class="fa fa-youtube"> &nbsp; </i> </a> </li>
+          </ul>
+        </div>
+        <div id="newsletter_modal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-body" style="text-align:center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 style="margin-top:40px;color:#444">คุณได้สมัครจดหมายข่าวสารแล้ว ขอบคุณค่ะ</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
+      </div>
+      <!--/.row--> 
+    </div>
+    <!--/.container--> 
+  </div>
+  <!--/.footer-->
+  
+  <div class="footer-bottom">
+    <div class="container">
+    {{#editable_block "footer_botttom"}}
+      <p class="pull-left"> © 2014 ICC International Public Company Limited </p>
+      <!--
+      <div class="pull-right paymentMethodImg"> <img height="30" class="pull-right" src="/static/db/{{database}}/themes/tshop/images/master_card.png" alt="img"> <img height="30" class="pull-right" src="/static/db/{{database}}/themes/tshop/images/paypal.png" alt="img"> <img height="30" class="pull-right" src="/static/db/{{database}}/themes/tshop/images/american_express_card.png" alt="img"> <img height="30" class="pull-right" src="/static/db/{{database}}/themes/tshop/images/discover_network_card.png" alt="img"> <img height="30" class="pull-right" src="/static/db/{{database}}/themes/tshop/images/google_wallet.png" alt="img"> </div>
+      -->
+    {{/editable_block}}
+    </div>
+  </div>
+  <!--/.footer-bottom--> 
+</footer>
+
+<!-- Le javascript
+================================================== --> 
+
+<!-- Placed at the end of the document so the pages load faster --> 
+<script src="/static/db/{{database}}/themes/tshop/js/bootstrap.min.js"></script> 
+
+<!-- include jqueryCycle plugin --> 
+<script src="/static/db/{{database}}/themes/tshop/js/jquery.cycle2.min.js"></script> 
+
+<!-- include easing plugin --> 
+<script src="/static/db/{{database}}/themes/tshop/js/jquery.easing.1.3.js"></script> 
+
+<!-- include  parallax plugin --> 
+<script type="text/javascript" src="/static/db/{{database}}/themes/tshop/js/jquery.parallax-1.1.js"></script> 
+
+<!-- optionally include helper plugins --> 
+<script type="text/javascript" src="/static/db/{{database}}/themes/tshop/js/jquery.mousewheel.min.js"></script> 
+
+<!-- include mCustomScrollbar plugin //Custom Scrollbar  --> 
+
+<script type="text/javascript" src="/static/db/{{database}}/themes/tshop/js/jquery.mCustomScrollbar.js"></script> 
+
+<!-- include grid.js // for equal Div height  --> 
+<script src="/static/db/{{database}}/themes/tshop/js/grids.js"></script> 
+
+<!-- include carousel slider plugin  --> 
+<script src="/static/db/{{database}}/themes/tshop/js/owl.carousel.min.js"></script> 
+
+
+<!-- include touchspin.js // touch friendly input spinner component   --> 
+<script src="/static/db/{{database}}/themes/tshop/js/bootstrap.touchspin.js"></script> 
+
+<!-- include custom script for only homepage  --> 
+<script src="/static/db/{{database}}/themes/tshop/js/home.js"></script> 
+<!-- include custom script for site  --> 
+<script src="/static/db/{{database}}/themes/tshop/js/script.js"></script> 
+
+<script src="/static/db/{{database}}/themes/tshop/js/lazy-bootstrap-carousel-v3.js"></script>
+
+<script>
+$(".add-wishlist").click(function(e) {
+    product_id = $(e.target).data("product-id");
+    url = "ecom_wishlist_add";
+    //console.log("XXX"+product_id);
+    var posting=$.post(url, {product_id: product_id});
+
+    posting.done(function(data) {
+        location.replace("/ecom_wishlist");
+    });
+});
+
+$(".newsletter-form").submit(function(e) {
+    e.preventDefault();
+    var url="/ecom_newsletter_add",
+        newsletter_name = $("#newsletter_name").val(),
+        newsletter_email = $("#newsletter_email").val();
+    //console.log(newsletter_name);
+    //console.log(newsletter_email);
+    var posting = $.post(url, {newsletter_name: newsletter_name, newsletter_email: newsletter_email});
+
+    posting.done(function(data) {
+        $("#newsletter_modal").modal('show');
+    });
+});
+
+function change_banner_height(){
+    var height = $("#web_header").height();
+    $(".banner").css( "margin-top", height+"px" );
+    if($(".headerOffset").length){
+        height=height+40;
+        $(".headerOffset").css( "padding-top", height+"px" );
+    }
+}
+
+$(window).resize(function(){
+    change_banner_height();
+});
+
+$(document).ready(function(){
+    $('.carousel').carousel({interval:5000});
+    change_banner_height();
+});
+
+</script>
+
+</body></html>
