@@ -122,8 +122,9 @@ class CreditAlloc(Model):
                 "narration": desc,
             }
             lines = []
-            use_ratio = obj.amount / cred.amount_total
-            cur_total = get_model("currency").convert(obj.amount, cred.currency_id.id, settings.currency_id.id)
+            use_ratio = obj.amount / inv.amount_total
+            inv_amt=inv_line_id=inv.move_id.lines[0].debit-inv.move_id.lines[0].credit # XXX: to fix rounding reconcile
+            cur_total = get_model("currency").round(settings.currency_id.id,inv_amt*use_ratio) # XXX
             if inv.type == "in":
                 sign = 1
             else:
@@ -138,9 +139,10 @@ class CreditAlloc(Model):
             }
             lines.append(line_vals)
             taxes = {}
+            use_ratio = obj.amount / cred.amount_total
             for line in cred.lines:
                 cur_amt = get_model("currency").convert(
-                    line.amount * use_ratio, cred.currency_id.id, settings.currency_id.id)
+                    line.amount * use_ratio, cred.currency_id.id, settings.currency_id.id, cred.payment_id.currency_rate, round=True)
                 tax = line.tax_id
                 if tax:
                     base_amt = get_model("account.tax.rate").compute_base(tax.id, cur_amt, tax_type=cred.tax_type)
@@ -187,6 +189,19 @@ class CreditAlloc(Model):
                     "tax_base": tax_vals["amount_base"],
                     "contact_id": contact.id,
                     "tax_no": inv.tax_no,
+                }
+                lines.append(line_vals)
+            amt=0
+            for line in lines:
+                amt+=line["credit"]-line["debit"]
+            if amt:
+                if not settings.currency_gain_id:
+                    raise Exception("Missing currency gain/loss account")
+                line_vals = {
+                    "description": desc,
+                    "account_id": settings.currency_gain_id.id, # XXX
+                    "debit": amt > 0 and amt or 0,
+                    "credit": amt < 0 and -amt or 0,
                 }
                 lines.append(line_vals)
             move_vals["lines"] = [("create", vals) for vals in lines]
