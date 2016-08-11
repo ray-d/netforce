@@ -1,0 +1,185 @@
+@media (min-width: 1600px) {
+    .container {
+        width: 1600px;
+    }
+}
+
+@media (min-width: 2000px) {
+    .container {
+        width: 2000px;
+    }
+}
+
+.nf-header {
+    background-color: #369;
+}
+
+.nf-version {
+    float: left;
+    width: 40px;
+    color: #999;
+    font-size: 9px;
+    margin: 5px;
+}
+
+.nf-user-menu {
+    float: right;
+    list-style-type: none;
+    font-size: 12px;
+    margin-top: 5px;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.nf-user-menu > li > a {
+    color: #ccc;
+}
+
+.nf-company-menu a {
+    color: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    line-height: 40px;
+}
+
+.navbar-inverse.nf-navbar {
+    margin-bottom: 0;
+    background-color: #258;
+    background-image: -moz-linear-gradient(top,#258,#258);
+    background-image: -webkit-gradient(linear,0 0,0 100%,from(#258),to(#258));
+    background-image: -webkit-linear-gradient(top,#258,#258);
+    background-image: -o-linear-gradient(top,#258,#258);
+    background-image: linear-gradient(to bottom,#258,#258);
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff225588',endColorstr='#ff225588',GradientType=0);
+    border-color: #258;
+}
+
+.navbar-inverse.nf-navbar .navbar-brand {
+    color: #fff;
+}
+
+.navbar-inverse.nf-navbar .navbar-nav>li>a {
+    color: #ccc;
+}
+
+.navbar-inverse.nf-navbar .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+    color: #fff;
+    background-color: #258;
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+    color: #fff;
+    background-color: #258;
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .active > a {
+    background-image: -webkit-linear-gradient(top, #225588 0%, #225588 100%);
+    background-image: -o-linear-gradient(top, #225588 0%, #225588 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#225588), to(#225588));
+    background-image: linear-gradient(to bottom, #225588 0%, #225588 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff225588', endColorstr='#ff225588', GradientType=0);
+    background-repeat: repeat-x;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.nf-page-header h1 {
+    font-size: 24.5px;
+    font-weight: bold;
+}
+
+.nf-form {
+    border: 1px solid rgb(204, 204, 204);
+    box-shadow: rgb(102, 102, 102) 0px 5px 10px -5px;
+    margin-bottom: 20px;
+}
+
+.nf-form-body {
+    background-color: #e8f1ff;
+    padding: 10px;
+}
+
+.nf-form-foot {
+    background-color: #d7e7ff;
+    padding: 10px 10px 5px 5px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 10px;
+    margin-left: 0;
+}
+
+.nf-related-header h2 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #999;
+    border-bottom: 2px solid #999;
+    margin-bottom: 10px;
+    margin-top: 18px;
+    line-height: 1.4;
+}
+
+.nf-columns-header h2 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #999;
+    border-bottom: 2px solid #999;
+    margin-bottom: 10px;
+    margin-top: 18px;
+    line-height: 1.4;
+}
+
+.nf-field-label {
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.nf-field-input {
+    font-size: 12px;
+    height: 22px;
+    padding: 3px;
+    border-radius: 0;
+}
+
+.nf-field-input-group a {
+    font-size: 12px;
+    height: 22px;
+    padding: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.nf-board-widget-title {
+    background-color: #258;
+    color: #fff;
+    border-radius: 5px 5px 0 0;
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+
+.nf-board-widget-title h3 {
+    font-size: 14px;
+    line-height: 30px;
+}
+
+.nf-grid-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.nf-search {
+    background-color: #E8F1FF;
+}
+
+@media print { /* FIXME: don't hide when no nf-print selected */
+  body * {
+    visibility: hidden;
+  }
+  .nf-print, .nf-print * {
+    visibility: visible;
+  }
+  .nf-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
