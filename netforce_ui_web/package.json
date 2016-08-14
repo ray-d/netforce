@@ -1,6 +1,6 @@
 {
   "name": "netforce_ui_web",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "Netforce Web UI",
   "scripts": {
     "start": "npm run serve | npm run dev",
