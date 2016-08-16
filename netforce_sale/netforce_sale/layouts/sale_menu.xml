@@ -9,12 +9,6 @@
         <item string="Sales Forecast" action="sale_forecast"/>
         <item string="Activities" action="activ"/>
     </item>
-    <item string="Promotions">
-        <item string="Promotions" action="promotion"/>
-        <item string="Coupon Masters" action="coupon_master"/>
-        <item string="Coupons" action="coupon"/>
-        <item string="Events" action="sale_event"/>
-    </item>
     <item string="Reports">
         <item string="Leads Analysis" action="lead_analysis"/>
         <item string="Leads by Source" action="lead_report_source"/>

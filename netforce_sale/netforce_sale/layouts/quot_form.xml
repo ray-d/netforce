@@ -98,8 +98,6 @@
         <tab string="Other Info">
             <field name="sequence_id" condition='[["type","=","sale_quot"]]' onchange="onchange_sequence"/>
             <newline/>
-            <field name="job_template_id"/>
-            <newline/>
             <field name="lost_sale_code_id" readonly="0"/>
         </tab>
     </tabs>

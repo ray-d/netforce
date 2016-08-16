@@ -94,12 +94,6 @@
                 </list>
             </field>
         </tab>
-        <tab string="Manufacturing">
-            <field name="mfg_lead_time"/>
-            <newline/>
-            <field name="mfg_min_qty"/>
-            <field name="mfg_qty_multiple"/>
-        </tab>
         <tab string="Accounting">
             <separator string="Purchasing"/>
             <field name="purchase_account_id" condition='[["type","!=","view"],["company_id","=",context.company_id]]'/>
@@ -149,29 +143,6 @@
             <separator/>
             <field name="stock_plan_horizon"/>
             <field name="max_qty_loss"/>
-        </tab>
-        <tab string="Ecommerce">
-            <field name="is_published"/>
-            <newline/>
-            <field name="other_url"/>
-            <newline/>
-            <field name="details" wysi="1" width="800" height="200"/>
-            <newline/>
-            <field name="details2_label"/>
-            <newline/>
-            <field name="details2" wysi="1" width="800" height="200"/>
-            <newline/>
-            <field name="details3_label"/>
-            <newline/>
-            <field name="details3" wysi="1" width="800" height="200"/>
-            <newline/>
-            <field name="ecom_hide_qty"/>
-            <field name="ecom_hide_unavail"/>
-            <field name="ecom_no_order_unavail"/>
-            <field name="ecom_select_lot"/>
-            <field name="ecom_lot_before_invoice"/>
-            <newline/>
-            <field name="product_origin"/>
         </tab>
         <tab string="Other">
             <field name="id"/>

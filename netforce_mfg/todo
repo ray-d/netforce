@@ -1,3 +1,30 @@
+main_menu.xml
+
+<menu string="Main Menu">
+    <item string="Contacts" action="contact_board"/>
+    <item string="Products" action="product_board"/>
+    <item string="Accounting" action="account_board"/>
+    <item string="Inventory" action="stock_board"/>
+    <item string="Sales" action="sale_board"/>
+    <item string="Purchasing" action="purchase_board"/>
+
+
+[xxx]    <item string="Manufacturing" action="mfg_board"/>
+    <item string="Documents" action="doc_board"/>
+    <item string="HR" action="hr_board"/>
+    <item string="General" action="gen_board"/>
+</menu>
+
+
+product_form.xml
+
+        <tab string="Manufacturing">
+            <field name="mfg_lead_time"/>
+            <newline/>
+            <field name="mfg_min_qty"/>
+            <field name="mfg_qty_multiple"/>
+        </tab>
+
 sale_list.xml
 
 <list model="sale.order" colors='{"due_date,#f00":[["overdue","=",true]],"#ccc":[["state","=","done"]],"#ccc":[["state","=","done"]]}'>
