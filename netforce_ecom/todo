@@ -1,0 +1,47 @@
+sale_menu.xml
+
+<menu string="Sales">
+    <item string="Dashboard" action="sale_board"/>
+    <item string="Sales">
+        <item string="Leads" action="lead"/>
+        <item string="Opportunities" action="opport"/>
+        <item string="Quotations" action="quot"/>
+        <item string="Sales Orders" action="sale"/>
+        <item string="Sales Returns" action="sale_return"/>
+        <item string="Sales Forecast" action="sale_forecast"/>
+        <item string="Activities" action="activ"/>
+    </item>
+[xxx]    <item string="Promotions">
+        <item string="Promotions" action="promotion"/>
+        <item string="Coupon Masters" action="coupon_master"/>
+        <item string="Coupons" action="coupon"/>
+        <item string="Events" action="sale_event"/>
+    </item>
+    <item string="Reports">
+
+
+product_form.xml
+
+        <tab string="Ecommerce">
+            <field name="is_published"/>
+            <newline/>
+            <field name="other_url"/>
+            <newline/>
+            <field name="details" wysi="1" width="800" height="200"/>
+            <newline/>
+            <field name="details2_label"/>
+            <newline/>
+            <field name="details2" wysi="1" width="800" height="200"/>
+            <newline/>
+            <field name="details3_label"/>
+            <newline/>
+            <field name="details3" wysi="1" width="800" height="200"/>
+            <newline/>
+            <field name="ecom_hide_qty"/>
+            <field name="ecom_hide_unavail"/>
+            <field name="ecom_no_order_unavail"/>
+            <field name="ecom_select_lot"/>
+            <field name="ecom_lot_before_invoice"/>
+            <newline/>
+            <field name="product_origin"/>
+        </tab>
