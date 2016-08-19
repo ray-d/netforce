@@ -867,7 +867,7 @@ class SaleOrder(Model):
             "flash": "Sales order approved successfully",
         }
 
-    def find_sale_line(self, ids, roduct_id, context={}):
+    def find_sale_line(self, ids, product_id, context={}):
         obj = self.browse(ids)[0]
         for line in obj.lines:
             if line.product_id.id == product_id:
