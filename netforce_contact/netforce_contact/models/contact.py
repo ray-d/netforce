@@ -75,7 +75,7 @@ class Contact(Model):
         "default_address_id": fields.Many2One("address", "Default Address", function="get_default_address"),
         "country_id": fields.Many2One("country", "Country", search=True),
         "region": fields.Char("Region"),  # XXX: deprecated
-        "branch": fields.Char("Branch"),  # XXX: add by Cash
+        "branch": fields.Char("Branch"),  # XXX: add by Cash -deprecated use tax_no
         "industry_id": fields.Many2One("industry", "Industry", search=True),
         "region_id": fields.Many2One("region", "Region", search=True),
         "business_area_id": fields.Many2One("business.area", "Business Area", search=True),

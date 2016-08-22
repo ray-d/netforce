@@ -1,3 +1,8 @@
+
+address.py
+
+        "lead_id": fields.Many2One("sale.lead", "Lead"),
+
 contact.py
 
 _fields={

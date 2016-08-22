@@ -11,7 +11,7 @@
                 <field name="website"/>
                 <field name="phone"/>
                 <field name="email" email="1"/>
-                <field name="branch"/>
+                <field name="branch" invisible="1"/>
                 <field name="picture"/>
             </group>
             <group attrs='{"invisible": [["type","!=","person"]]}'>

@@ -140,7 +140,7 @@ class Login(Model):
             t = time.strftime("%Y-%m-%d %H:%M:%S")
             user.write({"lastlog": t})
             profile = user.profile_id
-            action = profile.home_action or "account_board"
+            action = profile.home_action or "contact_board"
             token = new_token(db_name, user_id)
             db = database.get_connection()
             res = db.get("SELECT * FROM pg_class WHERE relname='settings'")

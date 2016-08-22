@@ -33,7 +33,7 @@ class LoginToken(Controller):
     _path="/login_token"
 
     def get(self):
-        self.get_argument("token") # TODO: check token
+        self.get_argument("token") # TODO: check token and move to private module
         dbname=database.get_active_db()
         db=database.get_connection()
         try:
@@ -59,7 +59,7 @@ class LoginToken(Controller):
             self.set_cookie("user_name",quote(user.name)) # XXX: space
             self.set_cookie("company_name",quote(comp.name))
             self.set_cookie("package",comp.package)
-            self.redirect("http://%s.my.netforce.com/action#name=account_board"%dbname.replace("_","-"))
+            self.redirect("http://%s.my.netforce.com/action#name=contact_board"%dbname.replace("_","-"))
             db.commit()
         except:
             db.rollback()
