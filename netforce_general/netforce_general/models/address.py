@@ -55,8 +55,6 @@ class Address(Model):
         "contact_id": fields.Many2One("contact", "Contact"),  # XXX: use reference?
         "company_id": fields.Many2One("company","Company"),
         "settings_id": fields.Many2One("settings", "Settings"),
-        "lead_id": fields.Many2One("sale.lead", "Lead"),
-        "employee_id": fields.Many2One("hr.employee", "Employee"),
         "related_id": fields.Reference([], "Related To"),
         "address_text": fields.Text("Address Text", function="get_address_text"),
         "sequence": fields.Decimal("Sequence"),

@@ -38,36 +38,18 @@ class Contact(Model):
         "phone": fields.Char("Phone", search=True),
         "fax": fields.Char("Fax"),
         "website": fields.Char("Website"),
+
         "industry": fields.Char("Industry"),  # XXX: deprecated
-        "employees": fields.Char("Employees"),
-        "revenue": fields.Char("Annual Revenue"),
+        "employees": fields.Char("Employees"), # CRM
+        "revenue": fields.Char("Annual Revenue"), # CRM
         "description": fields.Text("Description"),
-        "tax_no": fields.Char("Tax ID Number"),
-        "tax_branch_no" : fields.Char("Tax Branch Id"),
-        "bank_account_no": fields.Char("Bank Account Number"),
-        "bank_account_name": fields.Char("Bank Account Name"),
-        "bank_account_details": fields.Char("Bank Account Details"),
+
         "active": fields.Boolean("Active"),
-        "account_receivable_id": fields.Many2One("account.account", "Account Receivable", multi_company=True),
-        "tax_receivable_id": fields.Many2One("account.tax.rate", "Account Receivable Tax"),
-        "account_payable_id": fields.Many2One("account.account", "Account Payable", multi_company=True),
-        "tax_payable_id": fields.Many2One("account.tax.rate", "Account Payable Tax"),
-        "currency_id": fields.Many2One("currency", "Default Currency"),
-        "payables_due": fields.Decimal("Payables Due"),
-        "payables_overdue": fields.Decimal("Payables Overdue"),
-        "receivables_due": fields.Decimal("Receivables Due"),
-        "receivables_overdue": fields.Decimal("Receivables Overdue"),
-        "payable_credit": fields.Decimal("Payable Credit", function="get_credit", function_multi=True),
-        "receivable_credit": fields.Decimal("Receivable Credit", function="get_credit", function_multi=True),
-        "invoices": fields.One2Many("account.invoice", "contact_id", "Invoices"),
-        "sale_price_list_id": fields.Many2One("price.list", "Sales Price List", condition=[["type", "=", "sale"]]),
-        "purchase_price_list_id": fields.Many2One("price.list", "Purchasing Price List", condition=[["type", "=", "purchase"]]),
+
         "categ_id": fields.Many2One("contact.categ", "Contact Category"),
-        "payment_terms": fields.Char("Payment Terms"),
-        "opports": fields.One2Many("sale.opportunity", "contact_id", "Open Opportunities", condition=[["state", "=", "open"]]),
+
         "addresses": fields.One2Many("address", "contact_id", "Addresses"),
         "comments": fields.One2Many("message", "related_id", "Comments"),
-        "bank_accounts": fields.One2Many("bank.account", "contact_id", "Bank Accounts"),
         "last_name": fields.Char("Last Name"),
         "first_name": fields.Char("First Name"),
         "first_name2": fields.Char("First Name (2)"),
@@ -81,36 +63,26 @@ class Contact(Model):
         "other_phone": fields.Char("Other Phone"),
         "assistant": fields.Char("Assistant"),
         "assistant_phone": fields.Char("Assistant Phone"),
-        "birth_date": fields.Date("Birth Date"),
+        "birth_date": fields.Date("Birth Date"), # CRM
         "department": fields.Char("Department"),
         "documents": fields.One2Many("document", "contact_id", "Documents"),
         "assigned_to_id": fields.Many2One("base.user", "Assigned To"),
-        "lead_source": fields.Char("Lead source"),
-        "inquiry_type": fields.Char("Type of inquiry"),
+        "lead_source": fields.Char("Lead source"), # CRM
+        "inquiry_type": fields.Char("Type of inquiry"), # CRM
         "relations": fields.One2Many("contact.relation", "from_contact_id", "Relations", function="_get_relations"),
         "contact_id": fields.Many2One("contact", "Parent"),  # XXX: not used any more, just there for migration
         "emails": fields.One2Many("email.message", "name_id", "Emails"),
         "default_address_id": fields.Many2One("address", "Default Address", function="get_default_address"),
-        "sale_orders": fields.One2Many("sale.order", "contact_id", "Sales Orders"),
         "country_id": fields.Many2One("country", "Country", search=True),
         "region": fields.Char("Region"),  # XXX: deprecated
         "branch": fields.Char("Branch"),  # XXX: add by Cash
         "industry_id": fields.Many2One("industry", "Industry", search=True),
         "region_id": fields.Many2One("region", "Region", search=True),
-        "commission_po_percent": fields.Decimal("Commission Purchase Percentage"),
         "business_area_id": fields.Many2One("business.area", "Business Area", search=True),
         "fleet_size_id": fields.Many2One("fleet.size", "Fleet Size", search=True),
         "groups": fields.Many2Many("contact.group", "Groups", search=True),
-        "sale_journal_id": fields.Many2One("account.journal", "Sales Journal"),
-        "purchase_journal_id": fields.Many2One("account.journal", "Purchase Journal"),
-        "pay_in_journal_id": fields.Many2One("account.journal", "Receipts Journal"),
-        "pay_out_journal_id": fields.Many2One("account.journal", "Disbursements Journal"),
-        "pick_in_journal_id": fields.Many2One("stock.journal", "Goods Receipt Journal"),
-        "pick_out_journal_id": fields.Many2One("stock.journal", "Goods Issue Journal"),
-        "coupons": fields.One2Many("sale.coupon", "contact_id", "Coupons"),
+
         "companies": fields.Many2Many("company", "Companies"),
-        "request_product_groups": fields.Many2Many("product.group","Request Product Groups",reltable="m2m_contact_request_product_groups",relfield="contact_id",relfield_other="group_id"),
-        "exclude_product_groups": fields.Many2Many("product.group","Exclude Product Groups",reltable="m2m_contact_exclude_product_groups",relfield="contact_id",relfield_other="group_id"),
         "picture": fields.File("Picture"),
         "users": fields.One2Many("base.user","contact_id","Users"),
     }
@@ -177,37 +149,6 @@ class Contact(Model):
                     else:
                         name = obj.last_name
                     obj.write({"name": name}, set_name=False)
-
-    def get_credit(self, ids, context={}):
-        print("contact.get_credit", ids)
-        currency_id = context.get("currency_id")
-        print("currency_id", currency_id)
-        vals = {}
-        for obj in self.browse(ids):
-            out_credit = 0
-            in_credit = 0
-            for inv in obj.invoices:
-                if inv.state != "waiting_payment":
-                    continue
-                if inv.inv_type not in ("credit", "prepay", "overpay"):
-                    continue
-                if currency_id and inv.currency_id.id != currency_id:
-                    continue
-                if inv.type == "out":
-                    if currency_id:
-                        out_credit += inv.amount_credit_remain or 0
-                    else:
-                        out_credit += inv.amount_credit_remain_cur or 0
-                elif inv.type == "in":
-                    if currency_id:
-                        in_credit += inv.amount_credit_remain or 0
-                    else:
-                        in_credit += inv.amount_credit_remain_cur or 0
-            vals[obj.id] = {
-                "receivable_credit": out_credit,
-                "payable_credit": in_credit,
-            }
-        return vals
 
     def get_address_str(self, ids, context={}):
         obj = self.browse(ids[0])

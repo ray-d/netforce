@@ -1,0 +1,21 @@
+settings.py
+
+_fields={
+        "purchase_copy_picking": fields.Boolean("Auto-copy purchase orders to goods receipt"),
+        "purchase_copy_invoice": fields.Boolean("Auto-copy purchase orders to supplier invoice"),
+}
+
+contact.py
+
+        "purchase_price_list_id": fields.Many2One("price.list", "Purchasing Price List", condition=[["type", "=", "purchase"]]),
+        "commission_po_percent": fields.Decimal("Commission Purchase Percentage"),
+
+
+contact_form.xml
+--- after tab string="General"
+        <tab string="Purchasing">
+            <field name="purchase_price_list_id"/>
+            <newline/>
+            <field name="commission_po_percent"/>
+        </tab>
+

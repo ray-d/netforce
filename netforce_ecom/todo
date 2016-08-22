@@ -45,3 +45,31 @@ product_form.xml
             <newline/>
             <field name="product_origin"/>
         </tab>
+================================================
+contact.py
+_fields={
+        "coupons": fields.One2Many("sale.coupon", "contact_id", "Coupons"),
+
+        "request_product_groups": fields.Many2Many("product.group","Request Product
+                                                   Groups",reltable="m2m_contact_request_product_groups",relfield="contact_id",relfield_other="group_id"),
+                                                   # Ecom
+        "exclude_product_groups": fields.Many2Many("product.group","Exclude Product
+                                                   Groups",reltable="m2m_contact_exclude_product_groups",relfield="contact_id",relfield_other="group_id"),
+                                                   # Ecom
+
+        }
+
+contact_form.xml
+
+--- after String "Additional Information"
+
+        <tab string="Sales">
+            <field name="sale_price_list_id"/>
+            <newline/>
+[xxx]            <field name="request_product_groups"/>
+[xxx]            <field name="exclude_product_groups"/>
+        </tab>
+
+
+<related>
+        <field name="coupons"/>

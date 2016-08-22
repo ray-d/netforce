@@ -273,3 +273,10 @@ sale_return.py
 
         "production_orders": fields.One2Many("production.order", "sale_id", "Production Orders"),
         "production_status": fields.Json("Production", function="get_production_status"),
+
+
+settings.py
+_fields={
+        "production_waiting_suborder": fields.Boolean("Wait Sub-Order"),  # XXX: check this
+        "sale_copy_production": fields.Boolean("Auto-copy sales orders to production"),
+}

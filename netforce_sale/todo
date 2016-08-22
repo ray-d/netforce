@@ -1,0 +1,39 @@
+settings.py
+
+_fields={
+        "sale_copy_picking": fields.Boolean("Auto-copy sales orders to goods issue"),
+        "sale_copy_invoice": fields.Boolean("Auto-copy sales orders to customer invoice"),
+
+        }
+
+contact.py
+
+_fields={
+        "sale_price_list_id": fields.Many2One("price.list", "Sales Price List", condition=[["type", "=", "sale"]]),
+
+        "sale_orders": fields.One2Many("sale.order", "contact_id", "Sales Orders"),
+
+}
+
+contact_form.xml
+
+        <tab string="Sales">
+            <field name="sale_price_list_id"/>
+        </tab>
+<related>
+        <field name="sale_orders"/>
+
+
+contact_group.py
+
+        "sale_price_list_id": fields.Many2One("price.list", "Sales Price List", condition=[["type", "=", "sale"]]),
+
+contact_group_form.xml
+
+    <field name="parent_id"/>
+[xxx]    <field name="sale_price_list_id"/>
+
+contact_group_list.xml
+
+    <field name="parent_id"/>
+[xxx]    <field name="sale_price_list_id"/>

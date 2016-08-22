@@ -1,0 +1,11 @@
+contact.py
+
+_fields={
+        "opports": fields.One2Many("sale.opportunity", "contact_id", "Open Opportunities",
+                                   condition=[["state", "=", "open"]]), #CRM
+
+}
+
+
+contact_form.xml
+

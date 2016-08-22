@@ -30,7 +30,8 @@ class ContactGroup(Model):
         "code": fields.Char("Group Code", search=True),
         "description": fields.Text("Description"),
         "comments": fields.One2Many("message", "related_id", "Comments"),
-        "sale_price_list_id": fields.Many2One("price.list", "Sales Price List", condition=[["type", "=", "sale"]]),
+
+
         "parent_id": fields.Many2One("contact.group","Parent"),
     }
 

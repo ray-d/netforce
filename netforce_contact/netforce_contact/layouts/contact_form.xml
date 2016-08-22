@@ -59,37 +59,6 @@
             <field name="lead_source"/>
             <field name="inquiry_type"/>
         </tab>
-        <tab string="Accounting">
-            <field name="currency_id"/>
-            <field name="tax_no"/>
-            <field name="tax_branch_no"/>
-            <field name="payment_terms"/>
-            <separator string="Accounts"/>
-            <field name="account_receivable_id"/>
-            <field name="tax_receivable_id"/>
-            <field name="account_payable_id"/>
-            <field name="tax_payable_id"/>
-            <separator string="Journals"/>
-            <field name="sale_journal_id"/>
-            <field name="purchase_journal_id"/>
-            <field name="pay_in_journal_id"/>
-            <field name="pay_out_journal_id"/>
-        </tab>
-        <tab string="Inventory">
-            <field name="pick_in_journal_id"/>
-            <field name="pick_out_journal_id"/>
-        </tab>
-        <tab string="Sales">
-            <field name="sale_price_list_id"/>
-            <newline/>
-            <field name="request_product_groups"/>
-            <field name="exclude_product_groups"/>
-        </tab>
-        <tab string="Purchasing">
-            <field name="purchase_price_list_id"/>
-            <newline/>
-            <field name="commission_po_percent"/>
-        </tab>
         <tab string="Other">
             <field name="companies"/>
         </tab>
@@ -110,25 +79,7 @@
             </form>
         </field>
         <field name="addresses"/>
-        <field name="bank_accounts">
-            <list>
-                <field name="bank_id"/>
-                <field name="branch"/>
-                <field name="number"/>
-                <field name="signatory"/>
-                <field name="online"/>
-            </list>
-            <form>
-                <field name="bank_id"/>
-                <field name="branch"/>
-                <field name="number"/>
-                <field name="signatory"/>
-                <field name="online"/>
-            </form>
-        </field>
         <field name="users"/>
-        <field name="sale_orders"/>
-        <field name="coupons"/>
         <field name="documents">
             <list>
                 <head>

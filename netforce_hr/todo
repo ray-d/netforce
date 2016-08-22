@@ -12,3 +12,13 @@ main_menu.xml
     <item string="General" action="gen_board"/>
 </menu>
 
+
+address.py
+
+#        "employee_id": fields.Many2One("hr.employee", "Employee"),
+
+org_setting.xml
+---    <field name="menu_icon"/>
+    <separator string="Working Days"/>
+    <field name="work_day_sat"/>
+    <field name="work_day_sun"/>

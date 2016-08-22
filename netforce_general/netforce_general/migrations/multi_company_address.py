@@ -14,6 +14,9 @@ class Migration(Migration):
             comp_vals={}
             for addr in get_model("address").search_browse([]):
                 company_id=default_company_id
+
+                #XXX: move to hr module
+
                 emp=addr.employee_id
                 if emp and emp.company_id:
                     company_id=emp.company_id.id

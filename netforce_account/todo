@@ -1,0 +1,223 @@
+product.py
+
+        "stock_in_account_id": fields.Many2One("account.account", "Stock Input Account"),
+        "stock_out_account_id": fields.Many2One("account.account", "Stock Output Account"),
+
+setting.py
+
+_days = [
+    ["1", "1"],
+    ["2", "2"],
+    ["3", "3"],
+    ["4", "4"],
+    ["5", "5"],
+    ["6", "6"],
+    ["7", "7"],
+    ["8", "8"],
+    ["9", "9"],
+    ["10", "10"],
+    ["11", "11"],
+    ["12", "12"],
+    ["13", "13"],
+    ["14", "14"],
+    ["15", "15"],
+    ["16", "16"],
+    ["17", "17"],
+    ["18", "18"],
+    ["19", "19"],
+    ["20", "20"],
+    ["21", "21"],
+    ["22", "22"],
+    ["23", "23"],
+    ["24", "24"],
+    ["25", "25"],
+    ["26", "26"],
+    ["27", "27"],
+    ["28", "28"],
+    ["29", "29"],
+    ["30", "30"],
+    ["31", "31"],
+]
+
+_months = [
+    ["1", "January"],
+    ["2", "February"],
+    ["3", "March"],
+    ["4", "April"],
+    ["5", "May"],
+    ["6", "June"],
+    ["7", "July"],
+    ["8", "August"],
+    ["9", "September"],
+    ["10", "October"],
+    ["11", "November"],
+    ["12", "December"],
+]
+
+_fields={
+
+        "currency_id": fields.Many2One("currency", "Default Currency", multi_company=True),
+        "year_end_day": fields.Selection(_days, "Financial Year End (Day)"),
+        "year_end_month": fields.Selection(_months, "Financial Year End (Month)"),
+
+        "account_receivable_id": fields.Many2One("account.account", "Account Receivable", multi_company=True),
+        "tax_receivable_id": fields.Many2One("account.tax.rate", "Account Receivable Tax"),
+        "account_payable_id": fields.Many2One("account.account", "Account Payable", multi_company=True),
+        "tax_payable_id": fields.Many2One("account.tax.rate", "Account Payable Tax"),
+
+        "currency_gain_id": fields.Many2One("account.account", "Currency Gain Account", multi_company=True),
+        "currency_loss_id": fields.Many2One("account.account", "Currency Loss Account", multi_company=True),
+        "unpaid_claim_id": fields.Many2One("account.account", "Unpaid Expense Claims Account", multi_company=True),
+        "retained_earnings_account_id": fields.Many2One("account.account", "Retained Earnings Account", multi_company=True),
+
+        "sale_journal_id": fields.Many2One("account.journal", "Sales Journal"),
+        "purchase_journal_id": fields.Many2One("account.journal", "Purchase Journal"),
+        "pay_in_journal_id": fields.Many2One("account.journal", "Receipts Journal"),
+        "pay_out_journal_id": fields.Many2One("account.journal", "Disbursements Journal"),
+        "general_journal_id": fields.Many2One("account.journal", "General Journal"),
+
+        "ar_revenue_id": fields.Many2One("account.account", "Revenue Account", multi_company=True),
+        # XXX: rename for report
+        "input_report_id": fields.Many2One("account.account", "Input Vat Account", multi_company=True),
+        # XXX: rename for report
+        "output_report_id": fields.Many2One("account.account", "Output Vat Account", multi_company=True),
+        # XXX: rename for report
+        "wht3_report_id": fields.Many2One("account.account", "WHT3 Account", multi_company=True),
+        # XXX: rename for report
+        "wht53_report_id": fields.Many2One("account.account", "WHT53 Account", multi_company=True),
+
+        "rounding_account_id": fields.Many2One("account.account", "Rounding Account", multi_company=True),
+
+        "landed_cost_variance_account_id": fields.Many2One("account.account","Landed Cost Variance Account",multi_company=True),
+        "est_ship_account_id": fields.Many2One("account.account","Estimate Shipping Account",multi_company=True),
+        "est_duty_account_id": fields.Many2One("account.account","Estimate Duty Account",multi_company=True),
+        "act_ship_account_id": fields.Many2One("account.account","Actual Shipping Account",multi_company=True),
+        "act_duty_account_id": fields.Many2One("account.account","Actual Duty Account",multi_company=True),
+}
+    def get_fiscal_year_end(self, date=None):
+        if date:
+            d0 = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        else:
+            d0 = datetime.date.today()
+        settings = self.browse(1)
+        if not settings.year_end_month or not settings.year_end_day:
+            raise Exception("Missing fiscal year end")
+        month = int(settings.year_end_month)
+        day = int(settings.year_end_day)
+        d = datetime.date(d0.year, month, day)
+        if d < d0:
+            d += relativedelta(years=1)
+        return d.strftime("%Y-%m-%d")
+
+    def get_fiscal_year_start(self, date=None):
+        d1 = self.get_fiscal_year_end(date)
+        d = datetime.datetime.strptime(d1, "%Y-%m-%d") - relativedelta(years=1) + datetime.timedelta(days=1)
+        return d.strftime("%Y-%m-%d")
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+contact.py
+_fields={
+        "currency_id": fields.Many2One("currency", "Default Currency"),
+
+        "account_receivable_id": fields.Many2One("account.account", "Account Receivable", multi_company=True),
+        "tax_receivable_id": fields.Many2One("account.tax.rate", "Account Receivable Tax"),
+        "account_payable_id": fields.Many2One("account.account", "Account Payable", multi_company=True),
+        "tax_payable_id": fields.Many2One("account.tax.rate", "Account Payable Tax"),
+
+
+        "invoices": fields.One2Many("account.invoice", "contact_id", "Invoices"),
+
+        "bank_accounts": fields.One2Many("bank.account", "contact_id", "Bank Accounts"),
+
+        "bank_account_no": fields.Char("Bank Account Number"),
+        "bank_account_name": fields.Char("Bank Account Name"),
+        "bank_account_details": fields.Char("Bank Account Details"),
+
+        "sale_journal_id": fields.Many2One("account.journal", "Sales Journal"),
+        "purchase_journal_id": fields.Many2One("account.journal", "Purchase Journal"),
+        "pay_in_journal_id": fields.Many2One("account.journal", "Receipts Journal"),
+        "pay_out_journal_id": fields.Many2One("account.journal", "Disbursements Journal"),
+
+
+        "payables_due": fields.Decimal("Payables Due"),
+        "payables_overdue": fields.Decimal("Payables Overdue"),
+        "receivables_due": fields.Decimal("Receivables Due"),
+        "receivables_overdue": fields.Decimal("Receivables Overdue"),
+        "payable_credit": fields.Decimal("Payable Credit", function="get_credit", function_multi=True),
+        "receivable_credit": fields.Decimal("Receivable Credit", function="get_credit", function_multi=True),
+
+        "tax_no": fields.Char("Tax ID Number"),
+        "tax_branch_no" : fields.Char("Tax Branch Id"),
+
+        "payment_terms": fields.Char("Payment Terms"),
+
+}
+
+    def get_credit(self, ids, context={}):
+        print("contact.get_credit", ids)
+        currency_id = context.get("currency_id")
+        print("currency_id", currency_id)
+        vals = {}
+        for obj in self.browse(ids):
+            out_credit = 0
+            in_credit = 0
+            for inv in obj.invoices:
+                if inv.state != "waiting_payment":
+                    continue
+                if inv.inv_type not in ("credit", "prepay", "overpay"):
+                    continue
+                if currency_id and inv.currency_id.id != currency_id:
+                    continue
+                if inv.type == "out":
+                    if currency_id:
+                        out_credit += inv.amount_credit_remain or 0
+                    else:
+                        out_credit += inv.amount_credit_remain_cur or 0
+                elif inv.type == "in":
+                    if currency_id:
+                        in_credit += inv.amount_credit_remain or 0
+                    else:
+                        in_credit += inv.amount_credit_remain_cur or 0
+            vals[obj.id] = {
+                "receivable_credit": out_credit,
+                "payable_credit": in_credit,
+            }
+        return vals
+
+
+
+contact_form.xml
+
+        <field name="bank_accounts">
+            <list>
+                <field name="bank_id"/>
+                <field name="branch"/>
+                <field name="number"/>
+                <field name="signatory"/>
+                <field name="online"/>
+            </list>
+            <form>
+                <field name="bank_id"/>
+                <field name="branch"/>
+                <field name="number"/>
+                <field name="signatory"/>
+                <field name="online"/>
+            </form>
+        </field>
+
+<!-- after Additional info -->
+        <tab string="Accounting">
+            <field name="currency_id"/>
+            <field name="tax_no"/>
+            <field name="tax_branch_no"/>
+            <field name="payment_terms"/>
+            <separator string="Accounts"/>
+            <field name="account_receivable_id"/>
+            <field name="tax_receivable_id"/>
+            <field name="account_payable_id"/>
+            <field name="tax_payable_id"/>
+            <separator string="Journals"/>
+            <field name="sale_journal_id"/>
+            <field name="purchase_journal_id"/>
+            <field name="pay_in_journal_id"/>
+            <field name="pay_out_journal_id"/>
+        </tab>

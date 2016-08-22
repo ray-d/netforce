@@ -1,0 +1,36 @@
+settings.py
+_fields={
+        "pick_in_journal_id": fields.Many2One("stock.journal", "Goods Receipt Journal"),
+        "pick_out_journal_id": fields.Many2One("stock.journal", "Goods Issue Journal"),
+        "pick_internal_journal_id": fields.Many2One("stock.journal", "Goods Transfer Journal"),
+        "stock_count_journal_id": fields.Many2One("stock.journal", "Stock Count Journal"),
+        "landed_cost_journal_id": fields.Many2One("stock.journal", "Landed Cost Journal"),
+        "transform_journal_id": fields.Many2One("stock.journal", "Transform Journal"),
+        "production_journal_id": fields.Many2One("stock.journal", "Production Journal"),
+        "product_borrow_journal_id": fields.Many2One("stock.journal","Borrow Request Journal"),
+
+        "stock_cost_mode": fields.Selection([["periodic","Periodic"],["perpetual","Perpetual"]],"Inventory Costing Mode"),
+        "stock_cost_auto_compute": fields.Boolean("Auto Compute Cost"),
+        "lot_expiry_journal_id": fields.Many2One("stock.journal", "Lot Expiry Journal"),
+
+        }
+    _defaults = {
+        "stock_cost_mode": "periodic",
+        'stock_cost_auto_compute': True,
+    }
+
+contact.py
+
+_fields = {
+        "pick_in_journal_id": fields.Many2One("stock.journal", "Goods Receipt Journal"),
+        "pick_out_journal_id": fields.Many2One("stock.journal", "Goods Issue Journal"),
+
+}
+
+
+contact_form.xml
+
+        <tab string="Inventory">
+            <field name="pick_in_journal_id"/>
+            <field name="pick_out_journal_id"/>
+        </tab>

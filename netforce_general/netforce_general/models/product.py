@@ -37,8 +37,6 @@ class Product(Model):
         "image": fields.File("Image"),
         "cost_method": fields.Selection([["standard", "Standard Cost"], ["average", "Weighted Average"], ["fifo", "FIFO"], ["lifo", "LIFO"]], "Costing Method"),
         "cost_price": fields.Decimal("Cost Price"),
-        "stock_in_account_id": fields.Many2One("account.account", "Stock Input Account"),
-        "stock_out_account_id": fields.Many2One("account.account", "Stock Output Account"),
         "uuid": fields.Char("UUID"),
     }
     _defaults = {
