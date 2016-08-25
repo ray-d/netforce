@@ -208,4 +208,9 @@ class JsonRpc(Controller):
             pprint(resp)
             traceback.print_exc()
 
+    def options(self):
+        self.add_header("Access-Control-Allow-Origin","*")
+        self.add_header("Access-Control-Allow-Headers","Content-Type")
+        self.add_header("Access-Control-Allow-Methods","POST, GET, OPTIONS")
+
 JsonRpc.register()
