@@ -1,6 +1,6 @@
 <action>
     <field name="string">Tasks</field>
-    <field name="view_cls">multi_view</field>
+    <field name="view">multi_view</field>
     <field name="model">task</field>
     <field name="tabs">[["All",[]],["Open",[["state","=","open"]]],["Closed",[["state","=","closed"]]]]</field>
     <field name="modes">list,calendar,form</field>

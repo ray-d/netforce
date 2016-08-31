@@ -1,6 +1,6 @@
 <action>
-    <field name="view_cls">list_view</field>
+    <field name="view">list_view</field>
     <field name="model">stock.picking</field>
     <field name="condition">[["type", "=", "in"], ["state", "=", "pending"]]</field>
-    <field name="view_xml">pick_in_widget</field>
+    <field name="layout">pick_in_widget</field>
 </action>

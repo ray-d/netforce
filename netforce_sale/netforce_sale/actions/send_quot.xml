@@ -1,5 +1,5 @@
 <action>
-    <field name="view_cls">form_popup</field>
+    <field name="view">form_popup</field>
     <field name="string">Send Quotation</field>
     <field name="model">send.wizard</field>
     <field name="print_model">sale.quot</field>

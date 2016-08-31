@@ -1,6 +1,6 @@
 <action>
     <field name="string">Purchases By Product Category</field>
-    <field name="view_cls">report_view</field>
+    <field name="view">report_view</field>
     <field name="model">purchase.order.line</field>
     <field name="condition">[["order_id.state","in",["confirmed","done"]]]</field>
     <field name="group_select">order_id.year,order_id.quarter,order_id.month,order_id.week,order_id.contact_id,order_id.contact_id.categ_id,product_id,product_id.categ_id,order_id.state</field>

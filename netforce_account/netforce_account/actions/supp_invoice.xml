@@ -4,6 +4,6 @@
     <field name="model">account.invoice</field>
     <field name="condition">[["type","=","in"]]</field>
     <field name="tabs">[["Summary","payable_summary"],["All",[]],["Draft",[["state","=","draft"]]],["Waiting Approval",[["state","=","waiting_approval"]]],["Waiting Payment",[["state","=","waiting_payment"]]],["Paid",[["state","=","paid"]]]]</field>
-    <field name="list_view_xml">supp_invoice_list</field>
+    <field name="list_layout">supp_invoice_list</field>
     <field name="menu">account_menu</field>
 </action>

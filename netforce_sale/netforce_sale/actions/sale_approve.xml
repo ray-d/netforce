@@ -1,5 +1,5 @@
 <action>
-    <field name="view_cls">form_popup</field>
+    <field name="view">form_popup</field>
     <field name="string">Approve Sales Order</field>
     <field name="model">approve.wizard</field>
     <field name="approve_model">sale.order</field>

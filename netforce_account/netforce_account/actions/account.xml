@@ -1,5 +1,5 @@
 <action>
-    <field name="view">multi_view</field>
+    <field name="view">list_container</field>
     <field name="string">Chart of Accounts</field>
     <field name="model">account.account</field>
     <field name="tabs">[["All",[]],["Archived",[["active","=",false]]]]</field>

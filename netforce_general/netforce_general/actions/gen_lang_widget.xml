@@ -1,5 +1,5 @@
 <action>
     <field name="view">list_view</field>
     <field name="model">language</field>
-    <field name="view_xml">gen_lang_widget</field>
+    <field name="layout">gen_lang_widget</field>
 </action>

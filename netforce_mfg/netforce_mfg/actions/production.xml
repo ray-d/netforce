@@ -1,5 +1,5 @@
 <action>
-    <field name="view_cls">multi_view</field>
+    <field name="view">multi_view</field>
     <field name="string">Production Orders</field>
     <field name="model">production.order</field>
     <field name="tabs">[["All",[]],["Draft",[["state","=","draft"]]],["Waiting Confirmation",[["state","=","waiting_confirm"],["parent_id","=",null]]],["Waiting Suborder",[["state","=","waiting_suborder"]]],["Waiting Material",[["state","=","waiting_material"]]],["Ready To Start",[["state","=","ready"]]],["In Progress",[["state","=","in_progress"]]],["Completed",[["state","=","done"]]]]</field>

@@ -1,5 +1,5 @@
 <action>
     <field name="name">service_layout</field>
-    <field name="view_cls">nf_layout</field>
-    <field name="view_xml">service_menu</field>
+    <field name="view">nf_layout</field>
+    <field name="layout">service_menu</field>
 </action>

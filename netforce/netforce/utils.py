@@ -287,9 +287,12 @@ def new_token(dbname, user_id):
     return token
 
 
-def check_token(dbname, user_id, token):
+def check_token(dbname, user_id, token, schema=None):
     # print("check_token",dbname,user_id,token)
-    user = "%s %s" % (dbname, user_id)
+    if schema:
+        user = "%s.%s %s" % (dbname, schema, user_id)
+    else:
+        user = "%s %s" % (dbname, user_id)
     secret=get_token_secret()
     val = to_unicode(_decode_signed_value(secret, "user", token))
     return val == user

@@ -1,6 +1,6 @@
 <action>
-    <field name="view_cls">list_view</field>
+    <field name="view">list_view</field>
     <field name="model">production.order</field>
     <field name="condition">[["overdue","=",true]]</field>
-    <field name="view_xml">production_overdue_widget</field>
+    <field name="layout">production_overdue_widget</field>
 </action>

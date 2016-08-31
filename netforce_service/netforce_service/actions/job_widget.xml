@@ -1,8 +1,8 @@
 <action>
-    <field name="view_cls">list_view</field>
+    <field name="view">list_view</field>
     <field name="model">job</field>
     <field name="condition">[["state","in",["allocated","in_progress"]]]</field>
     <field name="order">due_date</field>
-    <field name="view_xml">job_widget</field>
+    <field name="layout">job_widget</field>
     <field name="noselect">1</field>
 </action>
