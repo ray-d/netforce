@@ -4,7 +4,7 @@
     <field name="view">multi_view</field>
     <field name="model">document</field>
     <field name="tabs">[["All",[]],["Draft",[["state","=","draft"]]],["Verified",[["state","=","verified"]]],["Archived",[["active","=",false]]]]</field>
-    <field name="modes">list,calendar,page,form</field>
+    <field name="modes">list,calendar</field>
     <field name="search_condition">[]</field>
     <field name="menu">doc_menu</field>
 </action>
