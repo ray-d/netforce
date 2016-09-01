@@ -6,5 +6,4 @@
     <field name="order">name</field>
     <field name="layout">warehouse_widget</field>
     <field name="no_title">1</field>
-    <field name="menu">stock_menu</field>
 </action>

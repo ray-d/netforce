@@ -1,6 +1,6 @@
 <action>
-    <field name="view_cls">list_view</field>
+    <field name="view">list</field>
     <field name="model">hr.employee</field>
     <field name="condition">[["work_status","=","working"]]</field>
-    <field name="view_xml">attend_widget</field>
+    <field name="layout">attend_widget</field>
 </action>

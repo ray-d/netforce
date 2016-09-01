@@ -8,6 +8,6 @@
     <field name="form_layout">pick_out_form</field>
     <field name="model_string">Goods Issue</field>
     <field name="context">{"pick_type":"out"}</field>
-    <field name="modes">list,form,calendar</field>
+    <field name="modes">list,calendar</field>
     <field name="menu">stock_menu</field>
 </action>

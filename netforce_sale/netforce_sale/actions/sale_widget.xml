@@ -1,5 +1,5 @@
 <action>
-    <field name="view">list_view</field>
+    <field name="view">list</field>
     <field name="model">sale.order</field>
     <field name="condition">[["state", "=", "confirmed"]]</field>
     <field name="layout">sale_widget</field>

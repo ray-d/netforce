@@ -831,4 +831,7 @@ class Picking(Model):
             "flash": "%d delivery orders created"%len(ids),
         }
 
+    def copy_to_delivery(self,ids,context={}):
+        print("Picking.copy_to_delivery",ids)
+
 Picking.register()

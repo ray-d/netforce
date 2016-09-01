@@ -1,5 +1,5 @@
 <action>
-    <field name="view">list_view</field>
+    <field name="view">list</field>
     <field name="model">production.order</field>
     <field name="condition">[["state","=","released"]]</field>
     <field name="layout">production_widget</field>

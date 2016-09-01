@@ -1,5 +1,5 @@
 <action>
-    <field name="view">list_view</field>
+    <field name="view">list</field>
     <field name="model">sale.quot</field>
     <field name="condition">[["state", "in", ["waiting_approval", "approved"]]]</field>
     <field name="layout">quot_widget</field>

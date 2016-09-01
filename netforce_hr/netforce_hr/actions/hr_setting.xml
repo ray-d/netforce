@@ -3,6 +3,6 @@
     <field name="view">form_view</field>
     <field name="model">settings</field>
     <field name="active_id">1</field>
-    <field name="view_xml">hr_setting</field>
+    <field name="layout">hr_setting</field>
     <field name="menu">hr_menu</field>
 </record>

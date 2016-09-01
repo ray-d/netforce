@@ -1,5 +1,5 @@
 <action>
-    <field name="view">list_view</field>
+    <field name="view">list</field>
     <field name="model">activity</field>
     <field name="condition">[["state", "!=", "done"]]</field>
     <field name="layout">activ_widget</field>

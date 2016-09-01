@@ -60,7 +60,7 @@ class Address(Model):
         "sequence": fields.Decimal("Sequence"),
         "company_id": fields.Many2One("company","Company"),
         "comments": fields.Text("Comments"),
-        "coordinates": fields.Char("Coordinates"),
+        "coords": fields.Char("Coordinates"),
         "mobile": fields.Char("Mobile"),
         "name": fields.Char("Address Name"),
     }

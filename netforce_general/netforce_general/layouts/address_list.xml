@@ -8,5 +8,5 @@
     <field name="country_id"/>
     <field name="province_id"/>
     <field name="phone"/>
-    <field name="coordinates"/>
+    <field name="coords"/>
 </list>

@@ -1,9 +1,0 @@
-<form model="create.delivery.route" title="Create Delivery Routes">
-    <field name="date"/>
-    <foot>
-        <button string="Create Routes" method="create_routes"/>
-    </foot>
-    <related>
-        <field name="routes"/>
-    </related>
-</form>

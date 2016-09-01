@@ -13,5 +13,5 @@
     <field name="mobile"/>
     <field name="sequence"/>
     <field name="comments"/>
-    <field name="coordinates"/>
+    <field name="coords"/>
 </form>

@@ -10,7 +10,7 @@
     <item string="HR" action="hr_board"/>
     <item string="Website" action="cms_board"/>
     <item string="Ecommerce" action="ecom_board"/>
-    <item string="Delivery" action="delivery_board"/>
+    <item string="Delivery" action="nd_board"/>
     <item string="POS" action="pos_board"/>
     <item string="Documents" action="doc_board"/>
     <item string="Messaging" action="msg_board"/>

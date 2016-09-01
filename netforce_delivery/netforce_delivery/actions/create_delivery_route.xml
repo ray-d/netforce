@@ -1,5 +1,0 @@
-<action>
-    <field name="view_cls">form_view</field>
-    <field name="model">create.delivery.route</field>
-    <field name="menu">delivery_menu</field>
-</action>

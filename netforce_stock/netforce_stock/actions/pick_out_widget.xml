@@ -1,5 +1,5 @@
 <action>
-    <field name="view">list_view</field>
+    <field name="view">list</field>
     <field name="model">stock.picking</field>
     <field name="condition">[["type", "=", "out"], ["state", "=", "pending"]]</field>
     <field name="layout">pick_out_widget</field>

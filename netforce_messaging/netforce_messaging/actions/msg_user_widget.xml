@@ -1,6 +1,5 @@
 <action>
-    <field name="view_cls">list_view</field>
+    <field name="view">list</field>
     <field name="model">base.user</field>
-    <field name="view_xml">msg_user_widget</field>
-    <field name="reload_event">user_online_status_change</field>
+    <field name="layout">msg_user_widget</field>
 </action>

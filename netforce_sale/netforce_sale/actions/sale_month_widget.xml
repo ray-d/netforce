@@ -1,5 +1,5 @@
 <action>
-    <field name="view">chart_view</field>
+    <field name="view">chart</field>
     <field name="model">report.sale</field>
     <field name="method">sales_per_month</field>
     <field name="chart_type">bar</field>
