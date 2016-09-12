@@ -66,6 +66,7 @@ class Move(Model):
         "alloc_costs": fields.One2Many("landed.cost.alloc","move_id","Allocated Costs"),
         "alloc_cost_amount": fields.Decimal("Allocated Costs",scale=6,function="get_alloc_cost_amount"),
         "track_id": fields.Many2One("account.track.categ","Track"),
+        "parent_id": fields.Many2One("stock.move","Parent"),
     }
     _order = "date desc,id desc"
 

@@ -26,6 +26,7 @@
             <field name="qty2"/>
             <separator/>
             <field name="move_id"/>
+            <field name="parent_id"/>
         </tab>
         <tab string="Other">
             <field name="journal_id"/>

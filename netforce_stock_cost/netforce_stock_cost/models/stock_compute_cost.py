@@ -167,7 +167,7 @@ class ComputeCost(Model):
             int_locs[loc.id]=True
         db=get_connection()
         print("reading...")
-        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id FROM stock_move m,product p WHERE p.cost_method='fifo' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
+        q="SELECT m.id,m.date,m.product_id,p.cost_method,p.uom_id as prod_uom_id,m.qty,m.uom_id,m.cost_amount,m.location_from_id,m.location_to_id,m.move_id,m.parent_id FROM stock_move m,product p WHERE p.cost_method='fifo' AND p.type='stock' AND p.id=m.product_id AND m.state='done'"
         args=[]
         product_ids=context.get("product_ids")
         if product_ids:
@@ -175,7 +175,10 @@ class ComputeCost(Model):
             args.append(tuple(product_ids))
         res=db.query(q,*args)
         prod_moves={}
+        move_ids={}
         for r in res:
+            if r.parent_id:
+                continue
             print("MOVE date=%s prod=%s from=%s to=%s qty=%s method=%s"%(r.date,r.product_id,r.location_from_id,r.location_to_id,r.qty,r.cost_method))
             prod_id=r.product_id
             ratio=uoms[r.uom_id]/uoms[r.prod_uom_id]
@@ -200,6 +203,19 @@ class ComputeCost(Model):
                 move["unit_price"]=None
                 move["cost"]=0
             prod_moves.setdefault(prod_id,[]).append(move)
+            move_ids[r.id]=move
+        for r in res:
+            if not r.parent_id:
+                continue
+            print("LC MOVE date=%s prod=%s from=%s to=%s qty=%s method=%s"%(r.date,r.product_id,r.location_from_id,r.location_to_id,r.qty,r.cost_method))
+            parent=move_ids.get(r.parent_id)
+            if not parent:
+                continue
+            if not parent["qty_in"]:
+                continue
+            parent["cost"]+=r.cost_amount or 0
+            unit_price=parent["cost"]/parent["qty_in"]
+            parent["unit_price"]=unit_price
         prod_ids=sorted(prod_moves.keys())
         print("computing...")
         for prod_id in prod_ids:
@@ -275,7 +291,8 @@ class ComputeCost(Model):
         for prod_id in prod_ids:
             moves=prod_moves[prod_id]
             for m in moves:
-                if m["qty"]==0: # XXX: don't overwrite LC stock moves
+                loc_from=int_locs.get(m["location_from_id"])
+                if not loc_from: # cost of incoming moves are not calculated
                     continue
                 if m["unit_price"] is not None:
                     new_cost_amount=m["unit_price"]*m["conv_qty"]

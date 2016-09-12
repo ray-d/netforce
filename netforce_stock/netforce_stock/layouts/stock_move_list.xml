@@ -14,4 +14,5 @@
     <field name="picking_id"/>
     <field name="related_id"/>
     <field name="move_id"/>
+    <field name="parent_id"/>
 </list>

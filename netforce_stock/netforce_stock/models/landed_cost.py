@@ -163,6 +163,7 @@ class LandedCost(Model):
                 "cost_price": 0,
                 "cost_amount": line.amount*ratio,
                 "move_id": account_move_id,
+                "parent_id": line.move_id.id,
             }
             stock_move_id=get_model("stock.move").create(vals)
             stock_move_ids.append(stock_move_id)
