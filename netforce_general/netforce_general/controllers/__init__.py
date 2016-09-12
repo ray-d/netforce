@@ -21,7 +21,6 @@
 from . import root
 from . import function_store
 from . import call
-from . import login_token
 from . import listen
 from . import listen_poll
 from . import trigger

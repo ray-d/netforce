@@ -1,5 +1,5 @@
 <action>
-    <field name="view_cls">multi_view</field>
+    <field name="view">multi_view</field>
     <field name="string">Production Components</field>
     <field name="model">production.component</field>
     <field name="tabs">[["All",[]],["To Issue",[["issue_method","=","manual"],["order_id.state","=","released"]]]]</field>

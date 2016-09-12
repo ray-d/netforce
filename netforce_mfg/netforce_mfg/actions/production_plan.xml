@@ -1,6 +1,6 @@
 <action>
     <field name="string">Production Plan</field>
-    <field name="view_cls">multi_view</field>
+    <field name="view">multi_view</field>
     <field name="model">production.plan</field>
     <field name="tabs">[["Open",[["state","=","open"]]],["Closed",[["state","=","closed"]]]]</field>
     <field name="menu">mfg_menu</field>

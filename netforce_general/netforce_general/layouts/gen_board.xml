@@ -1,5 +1,4 @@
 <board>
-    <alert action="gen_board_alert"/>
     <vpanel>
         <widget string="Users" action="gen_user_widget"/>
     </vpanel>

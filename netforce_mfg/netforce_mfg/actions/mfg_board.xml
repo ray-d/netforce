@@ -1,5 +1,6 @@
 <action>
-    <field name="view_cls">board</field>
-    <field name="view_xml">mfg_board</field>
+    <field name="string">Manufacturing Dashboard</field>
+    <field name="view">board</field>
+    <field name="layout">mfg_board</field>
     <field name="menu">mfg_menu</field>
 </action>

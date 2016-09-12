@@ -1,8 +1,0 @@
-<form model="delivery.route.line">
-    <field name="route_id"/>
-    <field name="sequence"/>
-    <field name="picking_id"/>
-    <field name="contact_id"/>
-    <field name="ship_address_id"/>
-    <field name="state"/>
-</form>

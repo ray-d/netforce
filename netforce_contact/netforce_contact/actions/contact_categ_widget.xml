@@ -1,6 +1,6 @@
 <action>
     <field name="name">contact_categ_widget</field>
-    <field name="view_cls">chart_view</field>
+    <field name="view">chart</field>
     <field name="chart_type">pie</field>
     <field name="model">report.contact</field>
     <field name="method">contacts_per_categ</field>

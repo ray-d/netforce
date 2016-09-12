@@ -1,5 +1,5 @@
 <action>
-    <field name="view_cls">multi_view</field>
+    <field name="view">multi_view</field>
     <field name="string">Workcenters</field>
     <field name="model">workcenter</field>
     <field name="menu">mfg_menu</field>

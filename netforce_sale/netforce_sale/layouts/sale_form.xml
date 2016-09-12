@@ -78,7 +78,7 @@
             </field>
             <group span="8">
                 <field name="payment_terms"/>
-                <NEwline/>
+                <newline/>
                 <field name="other_info"/>
             </group>
             <group span="4" columns="1" horizontal="1">

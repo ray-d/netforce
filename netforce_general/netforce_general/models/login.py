@@ -23,7 +23,6 @@ from netforce.model import Model, fields, get_model
 from netforce import database
 import json
 from netforce import config
-import xmlrpc.client
 import time
 from netforce.utils import get_ip_country, new_token, get_file_path
 from netforce.logger import audit_log

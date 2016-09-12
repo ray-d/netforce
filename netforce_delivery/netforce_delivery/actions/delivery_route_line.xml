@@ -1,7 +1,0 @@
-<action>
-    <field name="string">Delivery Destinations</field>
-    <field name="view_cls">multi_view</field>
-    <field name="modes">columns,map,list,form</field>
-    <field name="model">delivery.route.line</field>
-    <field name="menu">delivery_menu</field>
-</action>

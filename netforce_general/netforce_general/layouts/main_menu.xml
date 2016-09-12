@@ -5,9 +5,14 @@
     <item string="Inventory" action="stock_board"/>
     <item string="Sales" action="sale_board"/>
     <item string="Purchasing" action="purchase_board"/>
-    <!--<item string="Services" action="service_board"/>-->
+    <item string="Services" action="service_board"/>
     <item string="Manufacturing" action="mfg_board"/>
+    <item string="HR" action="hr_board"/>
+    <item string="Website" action="cms_board"/>
+    <item string="Ecommerce" action="ecom_board"/>
+    <item string="Delivery" action="nd_board"/>
+    <item string="POS" action="pos_board"/>
     <item string="Documents" action="doc_board"/>
-    <!--<item string="HR" action="hr_board"/>-->
+    <item string="Messaging" action="msg_board"/>
     <item string="General" action="gen_board"/>
 </menu>

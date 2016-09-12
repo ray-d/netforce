@@ -5,7 +5,7 @@
     <field name="condition">[["type","in",["bank","cash","cheque"]]]</field>
     <field name="order">name</field>
     <field name="modes">grid,page</field>
-    <field name="grid_view_xml">bank_grid</field>
-    <field name="page_view_xml">bank_page</field>
+    <field name="grid_layout">bank_grid</field>
+    <field name="page_layout">bank_page</field>
     <field name="menu">account_menu</field>
 </action>

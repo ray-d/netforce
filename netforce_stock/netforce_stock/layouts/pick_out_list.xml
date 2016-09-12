@@ -4,6 +4,7 @@
     </top>
     <head>
         <button string="Print" icon="print" action="report_pick_out_form" action_options="convert=pdf"/>
+        <button string="Copy To Delivery Order" method="copy_to_delivery"/>
     </head>
     <field name="journal_id"/>
     <field name="number"/>

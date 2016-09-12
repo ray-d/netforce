@@ -29,7 +29,7 @@ from datetime import *
 import time
 import random
 from netforce.locale import translate
-from netforce.utils import timeout, json_dumps
+from netforce.utils import timeout, json_dumps, check_token
 from netforce.log import rpc_log
 import traceback
 
@@ -63,6 +63,13 @@ class JsonRpc(Controller):
                     cookies = {}
                 if "locale" in cookies:
                     set_active_locale(cookies["locale"])
+                if "user_id" in cookies:
+                    user_id=int(cookies["user_id"])
+                    token=cookies.get("token")
+                    dbname=database.get_active_db()
+                    schema=database.get_active_schema()
+                    if check_token(dbname, user_id, token, schema=schema):
+                        access.set_active_user(user_id)
                 user_id = access.get_active_user()
                 rpc_log.info("EXECUTE db=%s model=%s method=%s user=%s" %
                              (database.get_active_db(), model, method, user_id))
@@ -210,7 +217,7 @@ class JsonRpc(Controller):
 
     def options(self):
         self.add_header("Access-Control-Allow-Origin","*")
-        self.add_header("Access-Control-Allow-Headers","Content-Type")
+        self.add_header("Access-Control-Allow-Headers","Content-Type, X-Database, X-Schema")
         self.add_header("Access-Control-Allow-Methods","POST, GET, OPTIONS")
 
 JsonRpc.register()

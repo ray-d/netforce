@@ -1,4 +1,4 @@
-<grid model="stock.location" action="warehouse" action_options='{"mode":"page","active_id":id}'>
+<list_details model="stock.location" action="warehouse" action_options='{"mode":"page","active_id":id}'>
     <head>
         <field name="name"/>
         <button string="Manage Warehouse" dropdown="1">
@@ -13,5 +13,5 @@
     <group span="4" form_layout="stacked" columns="1">
         <field name="balance" strong="1"/>
     </group>
-    <field name="balance_90d" span="8" view="chart_line"/>
-</grid>
+    <field name="balance_90d" span="8" view="field_chart" view_props='{"chart_type":"area"}'/>
+</list_details>

@@ -53,7 +53,7 @@ app.post("/",function(req,res) {
                 if (err) {
                     console.log("Failed to write html");
                 }
-                var cmd='xvfb-run --server-args="-screen 0, 1024x768x24" wkhtmltopdf --encoding utf-8 -O '+orient+' /tmp/report.html /tmp/report.pdf';
+                var cmd='xvfb-run --server-args="-screen 0, 1024x768x24" wkhtmltopdf -L 0 -R 0 -T 0 -B 0 --encoding utf-8 -O '+orient+' /tmp/report.html /tmp/report.pdf';
                 exec(cmd,function(error,stdout,stderr) {
                     fs.readFile("/tmp/report.pdf",function(err,pdf_data) {
                         res.setHeader('Content-type', 'application/pdf');

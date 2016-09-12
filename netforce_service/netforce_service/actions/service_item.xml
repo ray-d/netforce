@@ -1,5 +1,5 @@
 <action>
-    <field name="view_cls">multi_view</field>
+    <field name="view">multi_view</field>
     <field name="string">Service Items</field>
     <field name="model">service.item</field>
     <field name="condition">[["parent_id","=",null]]</field>

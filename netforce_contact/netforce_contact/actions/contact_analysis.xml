@@ -1,6 +1,6 @@
 <action>
     <field name="string">Contact Analysis</field>
-    <field name="view_cls">report_view</field>
+    <field name="view">report_view</field>
     <field name="model">contact</field>
     <field name="group_select">categ_id,industry_id,business_area_id,fleet_size_id,user_id,type,country_id</field>
     <field name="menu">contact_menu</field>

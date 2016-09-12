@@ -1,6 +1,6 @@
 <action>
     <field name="string">Work Time Analysis</field>
-    <field name="view_cls">report_view</field>
+    <field name="view">report_view</field>
     <field name="model">work.time</field>
     <field name="group_select">project_id,resource_id</field>
     <field name="function_select">agg_actual_hours_total,agg_bill_hours_total</field>

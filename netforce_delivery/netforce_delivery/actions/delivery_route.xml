@@ -1,6 +1,0 @@
-<action>
-    <field name="string">Delivery Routes</field>
-    <field name="view_cls">multi_view</field>
-    <field name="model">delivery.route</field>
-    <field name="menu">delivery_menu</field>
-</action>

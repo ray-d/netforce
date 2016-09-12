@@ -1,6 +1,6 @@
 <action>
-    <field name="name">contact_board</field>
-    <field name="view_cls">board</field>
-    <field name="view_xml">contact_board</field>
+    <field name="string">Contact Dashboard</field>
+    <field name="view">board</field>
+    <field name="layout">contact_board</field>
     <field name="menu">contact_menu</field>
 </action>

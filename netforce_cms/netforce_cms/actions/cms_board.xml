@@ -1,7 +1,7 @@
 <action>
     <field name="name">cms_board</field>
     <field name="string">Website Dashboard</field>
-    <field name="view_cls">board</field>
-    <field name="view_xml">cms_board</field>
+    <field name="view">board</field>
+    <field name="layout">cms_board</field>
     <field name="menu">cms_menu</field>
 </action>

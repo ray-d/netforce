@@ -1,6 +1,6 @@
 <action>
     <field name="string">Stock Aging</field>
-    <field name="view_cls">report</field>
+    <field name="view">report</field>
     <field name="model">report.stock.aging</field>
     <field name="report_template">report_stock_aging</field>
     <field name="report_template_xls">report_stock_aging</field>

@@ -1,6 +1,0 @@
-<action>
-    <field name="string">Delivery Dashboard</field>
-    <field name="view_cls">board</field>
-    <field name="view_xml">delivery_board</field>
-    <field name="menu">delivery_menu</field>
-</action>
