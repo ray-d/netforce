@@ -32,9 +32,9 @@
                 <field name="bill_address_id" span="2" condition='[["settings_id","=",1]]'/>
                 <field name="ship_address_id" span="2" condition='[["settings_id","=",1]]'/>
                 <field name="p/r_no" span="2"/>
-                <field name="department" span="2"/>
                 <field name="job_no" span="2"/>
                 <field name="quotation_date" span="2"/>
+                <field name="department" span="2"/>
                 <newline/>
                 <field name="attn" span="2"/>
                 <field name="email" span="2"/>
