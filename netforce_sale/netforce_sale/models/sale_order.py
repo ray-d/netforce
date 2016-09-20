@@ -587,8 +587,8 @@ class SaleOrder(Model):
                         if categ and not sale_acc_id:
                             sale_acc_id=categ.sale_account_id and categ.sale_account_id.id or None
 
-                    if not sale_acc_id:
-                        raise Exception("Missing sale account for product [%s] " % prod.name )
+                    #if not sale_acc_id:
+                        #raise Exception("Missing sale account for product [%s] " % prod.name )
 
 
                     line_vals = {

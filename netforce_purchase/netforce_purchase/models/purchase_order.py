@@ -79,6 +79,16 @@ class PurchaseOrder(Model):
         "agg_amount_subtotal": fields.Decimal("Total Amount w/o Tax", agg_function=["sum", "amount_subtotal"]),
         "user_id": fields.Many2One("base.user", "Owner", search=True),
         "emails": fields.One2Many("email.message", "related_id", "Emails"),
+        "quotation_date": fields.Date("Quotation Date"),                        ## for report purchase order aes
+        "attn": fields.Text("ATTN"),                                            ## for report purchase order aes
+        "email": fields.Text("Email"),                                          ## for report purchase order aes
+        "project_code": fields.Text("Project Code"),                            ## for report purchase order aes
+        "job_no": fields.Char("Job No."),                                       ## for report purchase order aes
+        "department": fields.Text("Department"),                                ## for report purchase order aes
+        "p/r_no": fields.Char("P/R NO."),                                       ## for report purchase order aes
+        "delivery_date_destination": fields.Text("Delivery Date / Destination"),## for report purchase order aes
+        "warranty": fields.Text("Warranty"),                                    ## for report purchase order aes
+        "penalty": fields.Text("Penalty"),                                      ## for report purchase order aes
     }
     _order = "date desc,number desc"
 
