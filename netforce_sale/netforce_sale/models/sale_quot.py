@@ -762,8 +762,17 @@ class SaleQuot(Model):
     def update_cost_amount(self,context={}):
         data=context['data']
         path=context['path']
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
         line=get_data_path(data,path,parent=True)
-        line['amount']=(line['qty'] or 0) *(line['landed_cost'] or 0)
+        if data.get("date"):
+           amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id, date=data.get("date"), rate_type="buy")
+           line['amount']=amount
+        else:
+           amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id,rate_type="buy")
+           line['amount']=amount
+
+        line['amount_cur']=(line['qty'] or 0) *(line['landed_cost'] or 0)
         return data
 
 SaleQuot.register()

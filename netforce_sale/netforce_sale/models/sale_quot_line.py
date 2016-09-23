@@ -77,9 +77,9 @@ class SaleQuotLine(Model):
         for quot in get_model("sale.quot").browse(quot_ids):
             for cost in quot.est_costs:
                 amt=cost.amount or 0
-                if cost.currency_id:
-                    rate=quot.get_relative_currency_rate(cost.currency_id.id)
-                    amt=amt*rate
+                #if cost.currency_id:
+                #    rate=quot.get_relative_currency_rate(cost.currency_id.id)
+                #    amt=amt*rate
                 comps=[]
                 if cost.sequence:
                     for comp in cost.sequence.split("."):

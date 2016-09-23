@@ -106,8 +106,9 @@
                     <field name="purchase_duty_percent" onchange="update_cost_amount"/>
                     <field name="landed_cost" onchange="update_cost_amount"/>
                     <field name="qty" onchange="update_cost_amount"/>
+                    <field name="amount_cur" onchange="update_cost_amount"/>
                     <field name="amount" onchange="update_cost_amount"/>
-                    <field name="currency_id"/>
+                    <field name="currency_id" onchange="update_cost_amount"/>
                 </list>
             </field>
             <group form_layout="stacked">

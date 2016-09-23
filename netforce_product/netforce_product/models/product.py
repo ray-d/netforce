@@ -278,7 +278,8 @@ class Product(Model):
     def get_landed_cost(self, ids, context={}):
         vals = {}
         for obj in self.browse(ids):
-            amt = Decimal(obj.purchase_price or 0) * Decimal(1 + (obj.purchase_duty_percent or 0) / 100) * Decimal(1 + (obj.purchase_ship_percent or 0) / 100)
+            amt = Decimal(obj.purchase_price or 0) + (Decimal(obj.purchase_price or 0) * Decimal((obj.purchase_duty_percent or 0) / 100)) + (Decimal(obj.purchase_price or 0) * Decimal((obj.purchase_ship_percent or 0) / 100))
+            #amt = Decimal(obj.purchase_price or 0) * Decimal(1 + (obj.purchase_duty_percent or 0) / 100) * Decimal(1 + (obj.purchase_ship_percent or 0) / 100)
             amt_cur = amt*Decimal(obj.purchase_currency_rate or 1)
             vals[obj.id] = {
                 "landed_cost": amt,
@@ -321,8 +322,9 @@ class Product(Model):
         purchase_duty_percent = data.get("purchase_duty_percent")
         purchase_ship_percent = data.get("purchase_ship_percent")
         if purchase_price:
-            landed_cost = purchase_price * \
-                (1 + (purchase_duty_percent or 0) / 100) * (1 + (purchase_ship_percent or 0) / 100)
+            landed_cost = purchase_price + (purchase_price * Decimal((purchase_duty_percent or 0) / 100)) + (purchase_price * Decimal((purchase_ship_percent or 0) / 100))
+            #landed_cost = purchase_price * \
+                #(1 + (purchase_duty_percent or 0) / 100) * (1 + (purchase_ship_percent or 0) / 100)
             landed_cost_conv = landed_cost * (purchase_currency_rate or 1) 
         else:
             landed_cost = None

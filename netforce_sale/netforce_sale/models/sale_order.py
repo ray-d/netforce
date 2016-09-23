@@ -1321,4 +1321,32 @@ class SaleOrder(Model):
             "order_id": sale_id,
         }
 
+    def update_cost_amount(self,context={}):
+        data=context['data']
+        path=context['path']
+        line=get_data_path(data,path,parent=True)
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
+        if data.get("number"):
+           objs_sale = get_model("sale.order").search_browse([["number","=",data.get("number")]])
+           for sale in objs_sale:
+               if sale.quot_id.date:
+                   amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id, date=sale.quot_id.date, rate_type="buy")
+                   line['amount']=amount
+               else:
+                   if data.get("date"):
+                        amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id, date=data.get("date"), rate_type="buy")
+                        line['amount']=amount
+                   else:
+                        amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id, rate_type="buy")
+                        line['amount']=amount
+
+        else:
+           amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id,rate_type="buy")
+           line['amount']=amount
+
+        line['amount_cur']=(line['qty'] or 0) *(line['landed_cost'] or 0)
+        return data
+
+
 SaleOrder.register()

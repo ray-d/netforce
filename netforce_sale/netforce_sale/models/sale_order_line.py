@@ -214,9 +214,9 @@ class SaleOrderLine(Model):
                 if k not in item_costs:
                     item_costs[k]=0
                 amt=cost.amount or 0
-                if cost.currency_id:
-                    rate=sale.get_relative_currency_rate(cost.currency_id.id)
-                    amt=amt*rate
+                #if cost.currency_id:
+                #    rate=sale.get_relative_currency_rate(cost.currency_id.id)
+                #    amt=amt*rate
                 item_costs[k]+=amt
         vals={}
         for line in self.browse(ids):

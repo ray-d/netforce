@@ -39,6 +39,7 @@ class QuotCost(Model):
         "landed_cost": fields.Decimal("Landed Cost"),
         "qty": fields.Decimal("Qty"),
         "uom_id": fields.Many2One("uom","UoM"), # XXX deprecated
+        "amount_cur": fields.Decimal("Cost Amount",function="get_amount_cur"),
         "amount": fields.Decimal("Cost Amount",function="get_amount"),
         "currency_id": fields.Many2One("currency","Currency"),
         "currency_rate": fields.Decimal("Currency Rate"), # XXX deprecated
@@ -50,6 +51,19 @@ class QuotCost(Model):
     }
 
     def get_amount(self,ids,context={}):
+        vals={}
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
+        for obj in self.browse(ids):
+            if obj.quot_id.date:
+                date_rate = obj.quot_id.date
+                amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, date=date_rate, rate_type="buy")
+            else:
+                amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id,rate_type="buy")
+            vals[obj.id]=amount
+        return vals
+
+    def get_amount_cur(self,ids,context={}):
         vals={}
         for obj in self.browse(ids):
             vals[obj.id]=(obj.qty or 0)*(obj.landed_cost or 0)
