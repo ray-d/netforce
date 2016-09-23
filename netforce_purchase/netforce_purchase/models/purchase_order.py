@@ -85,7 +85,7 @@ class PurchaseOrder(Model):
         "project_code": fields.Char("Project Code"),                            ## for report purchase order aes
         "job_no": fields.Char("Job No."),                                       ## for report purchase order aes
         "department": fields.Text("Department"),                                ## for report purchase order aes
-        "p/r_no": fields.Char("P/R NO."),                                       ## for report purchase order aes
+        "pr_no": fields.Char("P/R NO."),                                       ## for report purchase order aes
         "delivery_date_destination": fields.Char("Delivery Date / Destination"),## for report purchase order aes
         "warranty": fields.Char("Warranty"),                                    ## for report purchase order aes
         "penalty": fields.Char("Penalty"),                                      ## for report purchase order aes
