@@ -39,7 +39,7 @@ class QuotCost(Model):
         "landed_cost": fields.Decimal("Landed Cost"),
         "qty": fields.Decimal("Qty"),
         "uom_id": fields.Many2One("uom","UoM"), # XXX deprecated
-        "amount_cur": fields.Decimal("Cost Amount",function="get_amount_cur"),
+        "amount_cur": fields.Decimal("Cost Amount (Cur)",function="get_amount_cur"),
         "amount": fields.Decimal("Cost Amount",function="get_amount"),
         "currency_id": fields.Many2One("currency","Currency"),
         "currency_rate": fields.Decimal("Currency Rate"), # XXX deprecated
