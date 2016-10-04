@@ -19,7 +19,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from netforce.model import Model, fields, get_model
-from netforce.utils import get_data_path
+from netforce.utils import get_data_path, roundup
 from netforce.database import get_active_db
 import time
 import uuid
@@ -249,11 +249,12 @@ class SaleQuot(Model):
             if not line:
                 continue
             amt = (line.get("qty") or 0) * (line.get("unit_price") or 0)
+            amt = Decimal(roundup(amt))
             if line.get("discount"):
                 disc = amt * line["discount"] / Decimal(100)
                 amt -= disc
-            else:
-                disc = 0
+            if line.get("discount_amount"):
+                amt -= line["discount_amount"]
             line["amount"] = amt
             #===============>>>
             k=None
@@ -430,6 +431,7 @@ class SaleQuot(Model):
                 "uom_id": line.uom_id.id,
                 "unit_price": line.unit_price,
                 "discount": line.discount,
+                "discount_amount": line.discount_amount,
                 "tax_id": line.tax_id.id,
                 'amount': line.amount,
                 'sequence': line.sequence,
@@ -482,6 +484,7 @@ class SaleQuot(Model):
                 "uom_id": line.uom_id.id,
                 "unit_price": line.unit_price if not line.is_hidden else 0,
                 "discount": line.discount if not line.is_hidden else 0,
+                "discount_amount": line.discount_amount if not line.is_hidden else 0,
                 "tax_id": line.tax_id.id if not line.is_hidden else None,
                 "location_id": prod.location_id.id if prod else None,
             }

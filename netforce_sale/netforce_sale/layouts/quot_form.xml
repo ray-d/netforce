@@ -39,6 +39,7 @@
                     <field name="uom_id" onchange="onchange_uom"/>
                     <field name="unit_price" onchange="update_amounts"/>
                     <field name="discount" onchange="update_amounts"/>
+                    <field name="discount_amount" onchange="update_amounts"/>
                     <field name="tax_id" onchange="update_amounts"/>
                     <field name="amount"/>
                     <field name="retail_price"/>

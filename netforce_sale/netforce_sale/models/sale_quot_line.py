@@ -31,6 +31,7 @@ class SaleQuotLine(Model):
         "uom_id": fields.Many2One("uom", "UoM"),
         "unit_price": fields.Decimal("Unit Price", scale=6),
         "discount": fields.Decimal("Disc %"),
+        "discount_amount": fields.Decimal("Disc Amt"),
         "tax_id": fields.Many2One("account.tax.rate", "Tax Rate"),
         "amount": fields.Decimal("Amount",readonly=True),
         "contact_id": fields.Many2One("contact", "Contact", function="_get_related", function_search="_search_related", function_context={"path": "quot_id.contact_id"}, search=True),
