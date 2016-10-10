@@ -439,7 +439,7 @@ class Move(Model):
             "journal_id": obj.journal_id.id,
             "ref": obj.ref,
             "default_line_desc": obj.default_line_desc,
-            "narration": obj.narration,
+            "narration": "Reversed "+obj.narration,
             "lines": [],
         }
         if context.get("reverse_date"):

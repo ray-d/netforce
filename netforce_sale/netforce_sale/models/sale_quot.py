@@ -435,6 +435,7 @@ class SaleQuot(Model):
                 "tax_id": line.tax_id.id,
                 'amount': line.amount,
                 'sequence': line.sequence,
+                'hide_sub': line.hide_sub,
             }
             vals["lines"].append(("create", line_vals))
         new_id = self.create(vals, context=context)
