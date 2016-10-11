@@ -306,9 +306,37 @@ class SaleOrder(Model):
         for obj in self.browse(ids):
             obj.write({"state": "draft"})
 
+    def onchange_get_currency(self, context):
+        data = context["data"]
+        path = context["path"]
+        line = get_data_path(data, path, parent=True)
+        currency_id = line.get("currency_id")
+        if not currency_id:
+            return {}
+        so_date = data.get("date")
+        if so_date:
+            rate = get_model("currency").get_rate([currency_id],date=so_date)
+        else:
+            rate = get_model("currency").get_rate([currency_id])
+        line["rate"]=rate
+        return data
+
     def onchange_currency(self,context={}):
         settings=get_model("settings").browse(1)
         data = context["data"]
+        ## update currency at custom currency
+        currency_id = int(data.get("currency_id"))
+        if not currency_id:
+            return {}
+        so_date = data.get("date")
+        if so_date:
+            rate = get_model("currency").get_rate([currency_id],date=so_date)
+        else:
+            rate = get_model("currency").get_rate([currency_id])
+        custom_currency_line = {'currency_id': currency_id,
+                                'rate': rate}
+        data["currency_rates"]=[custom_currency_line]
+        ## -------------------------------------------
         for line in data["lines"]:
             if not line:
                 continue

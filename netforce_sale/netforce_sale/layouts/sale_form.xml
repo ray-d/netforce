@@ -140,7 +140,7 @@
         <tab string="Currencies">
             <field name="currency_rates" nolabel="1">
                 <list>
-                    <field name="currency_id"/>
+                    <field name="currency_id" onchange="onchange_get_currency"/>
                     <field name="rate"/>
                 </list>
             </field>

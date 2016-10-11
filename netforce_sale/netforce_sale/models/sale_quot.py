@@ -314,6 +314,38 @@ class SaleQuot(Model):
         data["amount_total"] = data["amount_subtotal"] + data["amount_tax"]
         return data
 
+    def onchange_get_currency(self, context):
+        data = context["data"]
+        path = context["path"]
+        line = get_data_path(data, path, parent=True)
+        currency_id = line.get("currency_id")
+        if not currency_id:
+            return {}
+        quot_date = data.get("date")
+        if quot_date:
+            rate = get_model("currency").get_rate([currency_id],date=quot_date)
+        else:
+            rate = get_model("currency").get_rate([currency_id])
+        line["rate"]=rate
+        return data
+
+    def onchange_currency(self, context):
+        data = context["data"]
+        ## update currency at custom currency
+        currency_id = int(data.get("currency_id"))
+        if not currency_id:
+            return {}
+        quot_date = data.get("date")
+        if quot_date:
+            rate = get_model("currency").get_rate([currency_id],date=quot_date)
+        else:
+            rate = get_model("currency").get_rate([currency_id])
+        custom_currency_line = {'currency_id': currency_id,
+                                'rate': rate}
+        data["currency_rates"]=[custom_currency_line]
+        ## -------------------------------------------
+        return data
+
     def onchange_product(self, context):
         data = context["data"]
         contact_id = data.get("contact_id")
@@ -408,6 +440,21 @@ class SaleQuot(Model):
         if prod.sale_price is not None:
             line["unit_price"] = prod.sale_price * uom.ratio / prod.uom_id.ratio
         data = self.update_amounts(context)
+        return data
+
+    def onchange_get_currency(self, context):
+        data = context["data"]
+        path = context["path"]
+        line = get_data_path(data, path, parent=True)
+        currency_id = line.get("currency_id")
+        if not currency_id:
+            return {}
+        quot_date = data.get("date")
+        if quot_date:
+            rate = get_model("currency").get_rate([currency_id],date=quot_date)
+        else:
+            rate = get_model("currency").get_rate([currency_id])
+        line["rate"]=rate
         return data
 
     def copy(self, ids, context):

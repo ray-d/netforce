@@ -46,23 +46,26 @@ class SaleCost(Model):
         "supplier_id": fields.Many2One("contact","Supplier"),
     }
 
+    def get_amount_cur(self,ids,context={}):
+        vals={}
+        for obj in self.browse(ids):
+            vals[obj.id]=(obj.qty or 0)*(obj.landed_cost or 0)
+        return vals
+
     def get_amount(self,ids,context={}):
         vals={}
         settings = get_model("settings").browse(1)
         default_currency_id = settings.currency_id.id
         for obj in self.browse(ids):
-            if obj.sale_id.quot_id.date:
-                date_rate = obj.sale_id.quot_id.date
-                amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, date=date_rate, rate_type="buy")
+            so_rate = get_model("custom.currency.rate").search_browse([["related_id","=","sale.order,%s"%obj.sale_id.id],["currency_id","=",obj.sale_id.currency_id.id]])
+            if len(so_rate) > 0:
+                amount = (so_rate[0].rate or 0) * (obj.amount_cur or 0)
             else:
-                amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id,rate_type="buy")
+                if obj.sale_id.date:
+                    amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, date=obj.sale_id.date, rate_type="buy")
+                else:
+                    amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, rate_type="buy")
             vals[obj.id]=amount
-        return vals
-
-    def get_amount_cur(self,ids,context={}):
-        vals={}
-        for obj in self.browse(ids):
-            vals[obj.id]=(obj.qty or 0)*(obj.landed_cost or 0)
         return vals
 
 SaleCost.register()

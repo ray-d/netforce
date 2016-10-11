@@ -21,7 +21,7 @@
                 <field name="ref" span="2"/>
                 <field name="exp_date" span="2"/>
                 <newline/>
-                <field name="currency_id" span="2"/>
+                <field name="currency_id" span="2" onchange="onchange_currency"/>
                 <field name="tax_type" span="2" onchange="update_amounts"/>
                 <field name="user_id" span="2"/>
                 <field name="opport_id" span="2"/>
@@ -91,7 +91,7 @@
         <tab string="Currencies">
             <field name="currency_rates" nolabel="1">
                 <list>
-                    <field name="currency_id"/>
+                    <field name="currency_id" onchange="onchange_get_currency"/>
                     <field name="rate"/>
                 </list>
             </field>
