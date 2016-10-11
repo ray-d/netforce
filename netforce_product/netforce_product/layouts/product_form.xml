@@ -115,6 +115,7 @@
             <field name="cost_method"/>
             <field name="cost_price"/>
             <field name="cogs_account_id" condition='[["type","!=","view"],["company_id","=",context.company_id]]'/>
+            <field name="stock_account_id" condition='[["type","!=","view"],["company_id","=",context.company_id]]'/>
         </tab>
         <tab string="Inventory">
             <field name="weight"/>

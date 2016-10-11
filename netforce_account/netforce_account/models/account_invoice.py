@@ -92,6 +92,7 @@ class Invoice(Model):
         "quarter": fields.Char("Quarter", sql_function=["quarter", "date"]),
         "month": fields.Char("Month", sql_function=["month", "date"]),
         "week": fields.Char("Week", sql_function=["week", "date"]),
+        "note" : fields.Text("Note"),
     }
     _order = "date desc,number desc"
 

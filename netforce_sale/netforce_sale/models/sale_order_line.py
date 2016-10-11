@@ -67,7 +67,7 @@ class SaleOrderLine(Model):
         "production_id": fields.Many2One("production.order","Production Order"),
     }
 
-    _order_expression="(substring(sequence, '^[0-9]+'))::int,sequence"
+    _order_expression="case when tbl0.sequence is not null then (substring(tbl0.sequence, '^[0-9]+'))::int else tbl0.id end, tbl0.sequence"
 
     def create(self, vals, context={}):
         id = super(SaleOrderLine, self).create(vals, context)

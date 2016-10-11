@@ -277,14 +277,16 @@ var ListView=NFView.extend({
                     var view=Button.make_view(opts);
                     html.append("<div id=\""+view.cid+"\" class=\"view\"></div>");
                 }
-                var opts={
-                    string: "Export",
-                    size: "small",
-                    method: "_export2",
-                    context: context
-                };
-                var view=Button.make_view(opts);
-                html.append("<div id=\""+view.cid+"\" class=\"view\"></div>");
+                if(allow_import_export(that.context)){
+                    var opts={
+                        string: "Export",
+                        size: "small",
+                        method: "_export2",
+                        context: context
+                    };
+                    var view=Button.make_view(opts);
+                    html.append("<div id=\""+view.cid+"\" class=\"view\"></div>");
+                }
             }
         }
         this.$list.find("head").children().each(function() {
@@ -335,15 +337,17 @@ var ListView=NFView.extend({
                 };
                 var view=Button.make_view(opts);
                 html.append("<div id=\""+view.cid+"\" class=\"view\"></div>");
-                var opts={
-                    string: "Import",
-                    action: "import_data",
-                    action_options: "import_model="+that.options.model+"&next="+this.options.action_name,
-                    icon: "download",
-                    context: that.data.context
-                };
-                var view=Button.make_view(opts);
-                html.append("<div id=\""+view.cid+"\" class=\"view\"></div>");
+                if(allow_import_export(that.context)){
+                    var opts={
+                        string: "Import",
+                        action: "import_data",
+                        action_options: "import_model="+that.options.model+"&next="+this.options.action_name,
+                        icon: "download",
+                        context: that.data.context
+                    };
+                    var view=Button.make_view(opts);
+                    html.append("<div id=\""+view.cid+"\" class=\"view\"></div>");
+                }
             }
         }
         this.$list.find("top").children().each(function() {
@@ -367,6 +371,9 @@ var ListView=NFView.extend({
                     dropdown: $el.attr("dropdown"),
                     context: context
                 };
+                if (opts.action=="import_data" || opts.action=="export_data"){
+                    if(!allow_import_export(that.context)) return;
+                }
                 if (opts.dropdown) {
                     var inner="";
                     $el.children().each(function() {

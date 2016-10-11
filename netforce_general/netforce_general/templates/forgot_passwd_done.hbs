@@ -1,32 +1,21 @@
-<div class="navbar navbar-inverse nf-navbar" style="margin-bottom:0">
-    <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-                <img src="/static/img/menu_icon.png"/> Netforce
+<div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="#">
+                <img src="/static/img/netforce_logo_16.png" style="margin-right:5px">
+                <span style="position:relative;top:1px">Netforce</span>
             </a>
         </div>
     </div>
 </div>
 <div class="container">
     <div class="span8">
-        {{#view "page" title="Forgot Password" context=context}}
+        {{#view "page" title="Forgot password" context=context}}
             <p>An email has been sent to you, to change your password follow the instructions there.</p>
-            {{#if context.data.email}}
-                <p> &nbsp; </p>
-                <div class="col-sm-12 pull-left">
-                    <form class="form-horizontal pull-left">
-                        <div class="form-group">
-                            <div class="control-label col-sm-5"><strong>Your Email <span style="color:red">*</span></strong></div>
-                            <div class="control-label col-sm-7" style="text-align:left"><span>{{context.data.email}}</span></div>
-                        </div>
-                    </form>
-                </div>
-            {{/if}}
-            <p> &nbsp; </p>
-            <p>If you didn&#39;t receive email <a href="mailto:support@netforce.com">contact us</a></p>
-            <div style="margin-top:30px">
-                <a href="#name=login"><i class="icon-arrow-left"></i> {{t 'Back to login'}}</a>
-            </div>
+            <br>If you didn't receive email <a href="mailto:support@netforce.com">contact us</a>. 
+            {{#view "form_actions" context=context}}
+                {{view "button" string="Return to login page" action="login" context=context}}
+            {{/view}}
         {{/view}}
     </div>
 </div>

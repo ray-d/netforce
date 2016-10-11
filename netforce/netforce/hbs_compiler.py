@@ -35,6 +35,8 @@ import time
 from netforce import access
 import json
 import tempfile
+from . import utils
+from . import utils2
 try:
     import barcode
     from barcode.writer import ImageWriter
@@ -371,6 +373,53 @@ def _currency(this, context, nogroup=False, zero=None):
     except:
         return ""
 
+def _num2word_en(this, value, currency=None, sub_currency=None):
+    n2w = utils2.num2word
+    words = ""
+    if not value:
+        return ""
+    try:
+        val = str(value)
+        val_split= val.split(".")
+        main_val = val_split[0]
+        if main_val:
+            m_val = n2w(float(main_val),'en_US')
+            words += m_val + ' %s'%(currency or '')
+        if len(val_split) > 1:
+            sub_val = val_split[1]
+            words += ' AND '
+            s_val = n2w(float(sub_val),'en_US')
+            words += s_val + ' %s'%(sub_currency or '')
+        return words
+    except:
+        return ""
+
+def _num2word_th(this, value, currency=None, sub_currency=None):
+    n2w = utils2.num2word
+    old_n2w = utils.num2word
+    words = ""
+    if not value:
+        return ""
+    try:
+        if currency and sub_currency:
+         #open this if you want to support the currency and subcurrency
+            val = str(value)
+            val_split= val.split(".")
+            main_val = val_split[0]
+            if main_val:
+                m_val = n2w(float(main_val),'th_TH')
+                words += m_val + '%s'%(currency or '')
+            if len(val_split) > 1:
+                if not int(val_split[1]):
+                    return words+'ถ้วน'
+                sub_val = val_split[1]
+                s_val = n2w(float(sub_val),'th_TH')
+                words += s_val + '%s'%(sub_currency or '')
+        else:
+            words = old_n2w(value,'th_TH')
+        return words
+    except:
+        return ""
 
 def _compare(this, options, val1, val2, operator="="):
     if operator == "=":
@@ -773,6 +822,9 @@ _globals_ = {
         "if_perm": _if_perm,
         "barcode": _barcode,
         "odt_linebreak": _odt_linebreak,
+        #num2word
+        "num2word_en": _num2word_en,
+        "num2word_th": _num2word_th,
     },
 }
 

@@ -45,7 +45,7 @@ class Move(Model):
         "number": fields.Char("Number", search=True, required=True),
         "default_line_desc": fields.Boolean("Default narration to line description"),
         "comments": fields.One2Many("message", "related_id", "Comments"),
-        "related_id": fields.Reference([["account.invoice", "Invoice"], ["account.payment", "Payment"], ["account.transfer", "Transfer"], ["hr.expense", "Expense Claim"], ["service.contract", "Service Contract"], ["pawn.loan", "Loan"], ["landed.cost","Landed Cost"], ["stock.picking","Stock Picking"]], "Related To"),
+        "related_id": fields.Reference([["account.invoice", "Invoice"], ["account.payment", "Payment"], ["account.transfer", "Transfer"], ["hr.expense", "Expense Claim"], ["service.contract", "Service Contract"], ["pawn.loan", "Loan"], ["landed.cost","Landed Cost"], ["stock.picking","Stock Picking"], ['account.advance','Advance']], "Related To"),
         "company_id": fields.Many2One("company", "Company"),
         "track_entries": fields.One2Many("account.track.entry","move_id","Tracking Entries"),
         "difference" : fields.Float("Difference",function="get_difference",function_multi=True),

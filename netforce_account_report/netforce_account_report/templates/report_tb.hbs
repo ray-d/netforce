@@ -6,6 +6,18 @@
         {{company_name}}
         <br/>
         As at {{fmt_date date}}
+        {{#if track_name}}
+        <br/>
+        Tracking: {{track_name}}
+        {{/if}}
+        {{#if track2_name}}
+        <br/>
+        Tracking-2: {{track2_name}}
+        {{/if}}
+        {{#if contact_name}}
+        <br/>
+        Contact: {{contact_name}}
+        {{/if}}
     </h3>
 </center>
 <table class="table">

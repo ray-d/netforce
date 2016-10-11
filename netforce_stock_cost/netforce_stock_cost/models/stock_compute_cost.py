@@ -134,15 +134,13 @@ class ComputeCost(Model):
             for m in moves:
                 loc_from=locations.get(m["loc_from_id"])
                 if loc_from:
-                    cost_price=loc_from["amt"]/loc_from["qty"] if loc_from["qty"] else 0
                     if not m["cost_fixed"]:
-                        m["cost_amount"]=round(cost_price*m["conv_qty"],2)
+                        if loc_from["qty"]>0 and loc_from["amt"]>0:
+                            m["cost_amount"]=round(min(m["conv_qty"],loc_from["qty"])*loc_from["amt"]/loc_from["qty"],2)
+                        else:
+                            m["cost_amount"]=0
                     loc_from["qty"]-=m["conv_qty"]
-                    if loc_from["qty"]<0:
-                        loc_from["qty"]=0
                     loc_from["amt"]-=m["cost_amount"]
-                    if loc_from["amt"]<0:
-                        loc_from["amt"]=0
                 #print("[%s] move #%s: %s -> %s, %s @ %s (%s)"%(m["date"],m["id"],m["loc_from_id"],m["loc_to_id"],m["conv_qty"],m["cost_amount"],"calc" if loc_from else "read"))
                 loc_to=locations.get(m["loc_to_id"])
                 if loc_to:

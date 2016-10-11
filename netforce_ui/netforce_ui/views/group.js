@@ -60,7 +60,7 @@ var Group=NFView.extend({
             var tag=$el.prop("tagName");
             if (tag=="field") {
                 var name=$el.attr("name");
-                if(nf_hidden['field']){
+                if(!_.isEmpty(nf_hidden) && nf_hidden['field']){
                     var hide_field=nf_hidden['field'][context.model.name];
                     if(hide_field && hide_field[name]){
                         return;

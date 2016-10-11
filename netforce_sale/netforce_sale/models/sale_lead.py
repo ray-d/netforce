@@ -85,6 +85,44 @@ class Lead(Model):
     def copy_to_contact(self, ids, context={}):
         obj = self.browse(ids)[0]
         messages = []
+        addresses = []
+        for addr in obj.addresses:
+            addr_vals={
+                "type": addr.type,
+                "first_name": addr.first_name,
+                "last_name": addr.last_name,
+                "company": addr.company,
+                "unit_no": addr.unit_no,
+                "floor": addr.floor,
+                "bldg_name": addr.bldg_name,
+                "bldg_no": addr.bldg_no,
+                "village": addr.village,
+                "soi": addr.soi,
+                "moo": addr.moo,
+                "street": addr.street,
+                "sub_district": addr.sub_district,
+                "district": addr.district,
+                "address": addr.address,
+                "address2": addr.address2,
+                "city": addr.city,
+                "postal_code": addr.postal_code,
+                "province": addr.province,
+                "province_id": addr.province_id.id,
+                "district_id": addr.district_id.id,
+                "subdistrict_id": addr.subdistrict_id.id,
+                "country_id": addr.country_id.id,
+                "phone": addr.phone,
+                "fax": addr.fax,
+                "contact_id": addr.contact_id.id,
+                "company_id": addr.company_id.id,
+                "settings_id": addr.settings_id.id,
+                "lead_id": addr.lead_id.id,
+                "employee_id": addr.employee_id.id,
+                #"related_id": addr.related_id.id, #XXX
+                "address_text": addr.address_text,
+                "sequence": addr.sequence,
+            }
+            addresses.append(('create',addr_vals))
         if obj.company:
             res = get_model("contact").search([["name", "=", obj.company]])
             if res:
@@ -99,6 +137,7 @@ class Lead(Model):
                     "industry": obj.industry,
                     "employees": obj.employees,
                     "revenue": obj.revenue,
+                    'addresses': addresses,
                 }
                 comp_contact_id = get_model("contact").create(vals, context=context)
                 messages.append("Contact created for %s." % obj.company)
@@ -122,6 +161,7 @@ class Lead(Model):
                 "title": obj.title,
                 "phone": obj.phone,
                 "email": obj.email,
+                'addresses': addresses,
             }
             # TODO: copy address
             contact_id = get_model("contact").create(vals, context=context)

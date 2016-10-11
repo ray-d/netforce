@@ -78,13 +78,19 @@ class Opportunity(Model):
         }
         prod = obj.product_id
         if prod:
+            qty=obj.qty or 1
+            unit_price=obj.amount or prod.sale_price
+            amount=qty*unit_price
             line_vals = {
                 "product_id": prod.id,
                 "description": prod.name_get()[0][1],
-                "qty": obj.qty or 1,
+                "qty": qty,
                 "uom_id": prod.uom_id.id,
-                "unit_price": obj.amount or prod.sale_price,
+                "unit_price": unit_price,
+                "amount": amount,
             }
+            if prod.sale_tax_id:
+                line_vals['tax_id']=prod.sale_tax_id.id
             vals["lines"].append(("create", line_vals))
         quot_id = get_model("sale.quot").create(vals, context=context)
         quot = get_model("sale.quot").browse(quot_id)

@@ -808,7 +808,7 @@ class SaleOrder(Model):
             if not prod.suppliers:
                 raise Exception("Missing supplier for product '%s'" % prod.name)
             supplier_id = prod.suppliers[0].supplier_id.id
-            suppliers.setdefault(supplier_id, []).append((prod.id, line.qty, line.uom_id.id))
+            suppliers.setdefault(supplier_id, []).append((prod.id, line.qty, line.uom_id.id, line.location_id.id))
         if not suppliers:
             raise Exception("No purchase orders to create")
         po_ids = []
@@ -818,7 +818,7 @@ class SaleOrder(Model):
                 "ref": obj.number,
                 "lines": [],
             }
-            for prod_id, qty, uom_id in lines:
+            for prod_id, qty, uom_id, location_id in lines:
                 prod = get_model("product").browse(prod_id)
                 line_vals = {
                     "product_id": prod_id,
@@ -828,6 +828,7 @@ class SaleOrder(Model):
                     "unit_price": prod.purchase_price or 0,
                     "tax_id": prod.purchase_tax_id.id,
                     "sale_id": obj.id,
+                    'location_id': location_id,
                 }
                 purch_vals["lines"].append(("create", line_vals))
             po_id = get_model("purchase.order").create(purch_vals)

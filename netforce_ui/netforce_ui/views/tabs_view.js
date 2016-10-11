@@ -56,7 +56,7 @@ var TabsView=NFView.extend({ // XXX: rename to tabs
                 tab_id: _.uniqueId("tab"),
                 tab_layout: $el
             }
-            if(nf_hidden['tab']){
+            if(!_.isEmpty(nf_hidden) && nf_hidden['tab']){
                 var hide_tab=nf_hidden['tab'][that.context.model.name];
                 if(hide_tab && hide_tab[tab['string']]){
                     return;

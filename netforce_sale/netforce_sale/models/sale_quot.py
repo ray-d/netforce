@@ -492,7 +492,7 @@ class SaleQuot(Model):
                 line_vals["location_id"] = prod.locations[0].location_id.id
                 for loc in prod.locations:
                     if loc.stock_qty:
-                        line_vals['location_id']=prod.location_id.id
+                        line_vals['location_id']=loc.location_id.id
                         break
             sale_vals["lines"].append(("create",line_vals))
         for cost in obj.est_costs:

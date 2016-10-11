@@ -65,6 +65,7 @@ var FieldChar=NFView.extend({
             this.data.readonly=true;
         }
         if (this.options.password) this.data.input_type="password";
+        else if (field.password) this.data.input_type="password";
         else if (this.options.email && Modernizr.inputtypes.email) this.data.input_type="email";
         else this.data.input_type="text";
         var form_layout=this.options.form_layout||"stacked";

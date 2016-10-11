@@ -1,33 +1,22 @@
-<div class="navbar navbar-inverse nf-navbar" style="margin-bottom:0">
-    <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-                <img src="/static/img/menu_icon.png"/> Netforce
+<div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="#">
+                <img src="/static/img/netforce_logo_16.png" style="margin-right:5px">
+                <span style="position:relative;top:1px">Netforce</span>
             </a>
         </div>
     </div>
 </div>
 <div class="container">
-    <div class="page-header nf-page-header">
-        <h1>Change Password</h1>
-    </div>
-    {{#if context.data.is_reset}}
-        <div class="alert alert-warning">
-            <strong>Warning!</strong> &nbsp;This key is already to set a new password. Please request for reset again.
-        </div>
-        <div style="margin-top:30px">
-            <a href="#name=forgot_passwd"><i class="icon-arrow-left"></i> {{t 'Back to forgot password'}}</a>
-        </div>
-    {{else}}
-        <div class="col-sm-4">
+    <div class="span8">
+        {{#view "page" title="Change password" context=context}}
             {{view "flash" context=context}}
-            {{#view "form" context=context}}
-                {{view "field" name="new_password" password="1" context=context}}
-                {{view "field" name="new_password_repeat" password="1" context=context}}
-                <div>
-                    {{view "button" string="Change password" type="primary" method="change_passwd" method_options="nosave=1" context=context}}
-                </div>
+            {{view "field" name="new_password" password="1" context=context}}
+            {{view "field" name="new_password_repeat" password="1" context=context}}
+            {{#view "form_actions" context=context}}
+                {{view "button" string="Change password" type="primary" method="change_passwd" context=context}}
             {{/view}}
-        {{/if}}
+        {{/view}}
     </div>
 </div>

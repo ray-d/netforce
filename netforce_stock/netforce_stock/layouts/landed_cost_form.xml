@@ -1,4 +1,4 @@
-<form model="landed.cost" attrs='{"readonly":[["state","in",["posted","reversed"]]]}'>
+<form model="landed.cost" attrs='{"readonly":[["state","in",["posted","reversed"]]]}' show_company="1">
     <head>
         <field name="state"/>
         <button string="Print" icon="print" action="report_landed_cost_form"/>
@@ -45,6 +45,7 @@
             <field name="est_duty"/>
             <field name="act_ship"/>
             <field name="act_duty"/>
+            <field name="company_id" invisible="1"/>
         </tab>
         <tab string="Allocate">
             <field name="alloc_amount"/>

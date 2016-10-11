@@ -152,6 +152,7 @@ var InlineForm=NFView.extend({
                     link: $el.attr("link"),
                     action: $el.attr("action"),
                     target: $el.attr("target"),
+                    click_action: $el.attr("click_action"),
                     form_layout: form_layout,
                     context: context
                 };

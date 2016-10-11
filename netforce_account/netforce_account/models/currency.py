@@ -135,13 +135,18 @@ class Currency(Model):
         if rate:
             amt2 = amt * rate
         else:
-            amt2 = Decimal(amt) * Decimal(from_rate) / Decimal(to_rate) if to_rate else 0
+            amt2 = amt * from_rate / Decimal(to_rate) if to_rate else 0
         if round:
             return self.round(cur_to_id, amt2)
         else:
             return amt2
 
     def round(self, cur_id, amt):
+        x,y = divmod(amt,1)
+        #XXX: temporary fix by SPP
+        #if computed is exactly this number
+        if y==Decimal('0.225'):
+            amt -= Decimal('0.005')
         decimal.getcontext().rounding=ROUND_HALF_UP
         return Decimal(amt).quantize(Decimal("0.01"))
 

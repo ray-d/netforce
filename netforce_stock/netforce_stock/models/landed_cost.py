@@ -18,15 +18,17 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from netforce.model import Model, fields, get_model
 import time
-from netforce.utils import get_data_path
+
+from netforce.model import Model, fields, get_model
+from netforce.access import get_active_company
 
 class LandedCost(Model):
     _name = "landed.cost"
     _name_field = "number"
     _string = "Landed Costs"
     _audit_log = True
+    _multi_company=True
     _fields = {
         "number": fields.Char("Number",required=True,search=True),
         "date": fields.DateTime("Date",required=True,search=True),
@@ -43,6 +45,7 @@ class LandedCost(Model):
         "alloc_cost_type": fields.Selection([["est_ship","Est Shipping"],["est_duty","Estimate Duty"],["act_ship","Actual Shipping"],["act_duty","Actual Duty"]],"Cost Type"),
         "reverse_move_id": fields.Many2One("account.move","Reverse Journal Entry"),
         "stock_moves": fields.One2Many("stock.move","related_id","Stock Movements"),
+        'company_id': fields.Many2One("company","Company"),
     }
 
     def _get_number(self, context={}):
@@ -61,6 +64,7 @@ class LandedCost(Model):
         "date": lambda *a: time.strftime("%Y-%m-%d %H:%M:%S"),
         "cost_alloc_method": "amount",
         "number": _get_number,
+        'company_id': lambda *a: get_active_company(),
     }
 
     def post(self, ids, context={}):

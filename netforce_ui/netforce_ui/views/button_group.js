@@ -82,7 +82,7 @@ var ButtonGroup=NFView.extend({
             this.$el.find("ul").addClass("pull-"+this.options.align);
         }
 
-        if(nf_hidden['button'] && this.context.model){
+        if(!_.isEmpty(nf_hidden) && nf_hidden['button'] && this.context.model){
             var hide_button=nf_hidden['button'][this.context.model.name];
             if(hide_button && hide_button[this.options.string]){
                 this.$el.hide();

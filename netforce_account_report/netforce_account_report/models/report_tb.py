@@ -52,14 +52,20 @@ class ReportTB(Model):
             date_to = date.today().strftime("%Y-%m-%d")
         date_from = datetime.strptime(date_to, "%Y-%m-%d").strftime("%Y-%m-01")
         track_id = params.get("track_id") or None
+        track = None
         if track_id:
             track_id = int(track_id)
+            track = get_model("account.track.categ").browse(track_id)
         track2_id = params.get("track2_id") or None
+        track2 = None
         if track2_id:
             track2_id = int(track2_id)
+            track2=get_model("account.track.categ").browse(track2_id)
         contact_id = params.get("contact_id") or None
+        contact = None
         if contact_id:
             contact_id = int(contact_id)
+            contact = get_model("contact").browse(contact_id)
         show_period_totals = params.get("show_period_totals")
         ctx = {
             "date_to": date_to,
@@ -206,6 +212,11 @@ class ReportTB(Model):
         data = {
             "date": date_to,
             "track_id": track_id,
+            "track2_id": track2_id,
+            "contact_id": contact_id,
+            "track_name": track.name if track else None,
+            "track2_name": track2.name if track2 else None,
+            "contact_name": contact.name if contact else None,
             "month_date_from": date_from,
             "begin_date_to": begin_date_to,
             "lines": lines,

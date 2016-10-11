@@ -236,6 +236,7 @@ class Job(Model):
                 "uom_id": line.uom_id.id,
                 "location_from_id": prod_loc_id and prod_loc_id.id or wh_loc_id,
                 "location_to_id": obj.location_id.id or cust_loc_id,
+                "tracking_id": obj.tracking_id.id,
             }
             vals["lines"].append(("create", line_vals))
         if not vals["lines"]:

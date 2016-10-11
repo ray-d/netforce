@@ -47,7 +47,10 @@
                     <field name="amount" attrs='{"readonly":[["unit_price","!=",null]]}' onchange="update_amounts"/>
                 </list>
             </field>
-            <group offset="8" span="4" columns="1">
+            <group span="8">
+                <field name="note"/>
+            </group>
+            <group span="4" columns="1">
                 <field name="amount_subtotal"/>
                 <field name="amount_tax"/>
                 <field name="amount_rounding" attrs='{"invisible":[["amount_rounding","=",0]]}'/>

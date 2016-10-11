@@ -23,10 +23,11 @@ from .field import Field
 
 class Char(Field):
 
-    def __init__(self, string, size=256, password=False, **kw):
+    def __init__(self, string, size=256, password=False, encrypt=True, **kw):
         super(Char, self).__init__(string=string, **kw)
         self.size = size
         self.password = password
+        self.encrypt = encrypt
         if not self.function:
             self.eager_load = True
 

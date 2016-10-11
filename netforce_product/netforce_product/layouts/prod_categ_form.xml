@@ -19,7 +19,8 @@
             <field name="purchase_account_id"/>
             <field name="purchase_tax_id"/>
             <field name="cost_method"/>
-            <field name="cogs_account_id"/>
+            <field name="cogs_account_id" condition='[["type","!=","view"]]'/>
+            <field name="stock_account_id" condition='[["type","!=","view"]]'/>
         </tab>
     </tabs>
     <related>
