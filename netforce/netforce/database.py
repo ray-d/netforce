@@ -186,7 +186,10 @@ class Connection():
             raise Exception("Connection is closed")
         try:
             cr = self._db.cursor()
-            cr.execute(query, args)
+            if args:
+                cr.execute(query, args)
+            else:
+                cr.execute(query)
             col_names = [d[0] for d in cr.description]
             #print("  ...done")
             return [Row(zip(col_names, r)) for r in cr]
