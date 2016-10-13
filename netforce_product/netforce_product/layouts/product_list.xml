@@ -13,5 +13,6 @@
     <field name="brand_id"/>
     <field name="sale_price"/>
     <field name="purchase_price"/>
+    <field name="purchase_currency_id"/>
     <field name="state"/>
 </list>

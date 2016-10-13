@@ -45,6 +45,7 @@ class SaleCost(Model):
         "currency_rate": fields.Decimal("Currency Rate"), # XXX: deprecated
         "supplier_id": fields.Many2One("contact","Supplier"),
     }
+    _order="sequence::numeric"
 
     def get_amount_cur(self,ids,context={}):
         vals={}
@@ -65,6 +66,23 @@ class SaleCost(Model):
                     amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, date=obj.sale_id.date, rate_type="buy")
                 else:
                     amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, rate_type="buy")
+
+            if obj.sale_id.currency_id.id == default_currency_id:
+                if obj.product_id.id:
+                ## check sale is THB and default is THB ,but set currency is not THB in product 
+                #if obj.sale_id.currency_id.id == default_currency_id:
+                    if obj.product_id.purchase_currency_id.id != default_currency_id:
+                        if obj.sale_id.date:
+                            amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.product_id.purchase_currency_id.id, default_currency_id, date=obj.sale_id.date, rate_type="buy")
+                        else:
+                            amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.product_id.purchase_currency_id.id, default_currency_id, rate_type="buy")
+                else:
+                    if obj.sale_id.date:
+                        amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, date=obj.sale_id.date, rate_type="buy")
+                    else:
+                        amount = get_model("currency").convert(((obj.qty or 0)*(obj.landed_cost or 0)), obj.currency_id.id, default_currency_id, rate_type="buy")
+
+
             vals[obj.id]=amount
         return vals
 

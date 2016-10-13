@@ -25,7 +25,7 @@ from pprint import pprint
 from netforce.access import get_active_company
 from netforce.database import get_connection
 
-def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, track2_id=None, contact_id=None, acc_type=None, account_id=None ,hide_contact=None, hide_zero=None):
+def get_totals(date_from=None, date_to=None, excl_date_to=False, track_categ_ids=None, track_id=None, track2_id=None, contact_id=None, acc_type=None, account_id=None ,hide_contact=None, hide_zero=None):
     pl_types = ("revenue", "other_income", "cost_sales", "expense", "other_expense")
     db = get_connection()
     q = "SELECT l.account_id,l.contact_id,l.track_id,l.track2_id,SUM(l.debit) AS total_debit,SUM(l.credit) AS total_credit FROM account_move_line l JOIN account_move m ON m.id=l.move_id JOIN account_account a ON a.id=l.account_id WHERE m.state='posted'"
@@ -39,6 +39,9 @@ def get_totals(date_from=None, date_to=None, excl_date_to=False, track_id=None, 
         else:
             q += " AND m.date<=%s"
         args.append(date_to)
+    if track_categ_ids:
+        q += " AND l.track_id IN %s"
+        args.append(track_categ_ids)
     if track_id:
         q += " AND l.track_id=%s"
         args.append(track_id)
@@ -76,7 +79,8 @@ class ReportTBDetails(Model):
     _transient = True
     _fields = {
         "date": fields.Date("Date", required=True),
-        "track_id": fields.Many2One("account.track.categ", "Tracking"),
+        "track_categ_id": fields.Many2One("account.track.categ", "Tracking Category",condition=[["parent_id","=",None]]),
+        "track_id": fields.Many2One("account.track.categ", "Tracking",condition=[["parent_id","!=",None]]),
         "track2_id": fields.Many2One("account.track.categ", "Tracking-2"),
         "contact_id": fields.Many2One("contact", "Contact"),
         "account_id": fields.Many2One("account.account", "Account"),
@@ -102,6 +106,7 @@ class ReportTBDetails(Model):
         date_to = params.get("date")
         if not date_to:
             date_to = date.today().strftime("%Y-%m-%d")
+        track_categ_id = params.get("track_categ_id")
         track_id = params.get("track_id")
         track2_id = params.get("track2_id")
         contact_id = params.get("contact_id")
@@ -114,22 +119,26 @@ class ReportTBDetails(Model):
         month_begin_date_to = (
             datetime.strptime(date_to, "%Y-%m-%d") + relativedelta(day=1) - timedelta(days=1)).strftime("%Y-%m-%d")
         year_date_from = get_model("settings").get_fiscal_year_start(date_to)
-        totals_begin_bs = get_totals(date_from=None, date_to=month_begin_date_to,
+        track_categ_ids=None
+        if track_categ_id:
+            track_categ_ids = get_model("account.track.categ").search([["id", "child_of", track_categ_id]])
+            track_categ_ids = tuple(track_categ_ids)
+        totals_begin_bs = get_totals(date_from=None, date_to=month_begin_date_to, track_categ_ids=track_categ_ids,
                                      track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="bs",
                                      account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
-        totals_begin_pl = get_totals(date_from=year_date_from, date_to=month_begin_date_to,
+        totals_begin_pl = get_totals(date_from=year_date_from, date_to=month_begin_date_to, track_categ_ids=track_categ_ids,
                                      track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl",
                                      account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_period = get_totals(
-            date_from=month_date_from, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id,
-            account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
+            date_from=month_date_from, date_to=date_to, track_categ_ids=track_categ_ids, track_id=track_id, track2_id=track2_id,
+            contact_id=contact_id,account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_ytd_bs = get_totals(
-            date_from=None, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="bs",
-            account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
+            date_from=None, date_to=date_to, track_categ_ids=track_categ_ids, track_id=track_id, track2_id=track2_id, 
+            contact_id=contact_id, acc_type="bs",account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals_ytd_pl = get_totals(
-            date_from=year_date_from, date_to=date_to, track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl",
-            account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
-        totals_pl_prev = get_totals(date_from=None, date_to=year_date_from, excl_date_to=True,
+            date_from=year_date_from, date_to=date_to, track_categ_ids=track_categ_ids, track_id=track_id, track2_id=track2_id, 
+            contact_id=contact_id, acc_type="pl",account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
+        totals_pl_prev = get_totals(date_from=None, date_to=year_date_from, excl_date_to=True,track_categ_ids=track_categ_ids,
                                     track_id=track_id, track2_id=track2_id, contact_id=contact_id, acc_type="pl",
                                     account_id=account_id, hide_contact=hide_contact, hide_zero=hide_zero)
         totals = {}

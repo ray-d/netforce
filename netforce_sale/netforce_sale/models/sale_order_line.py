@@ -210,14 +210,24 @@ class SaleOrderLine(Model):
         item_costs={}
         for sale in get_model("sale.order").browse(sale_ids):
             for cost in sale.est_costs:
-                k=(sale.id,cost.sequence)
-                if k not in item_costs:
-                    item_costs[k]=0
                 amt=cost.amount or 0
+                comps=[]
+                if cost.sequence:
+                    for comp in cost.sequence.split("."):
+                        comps.append(comp)
+                        path=".".join(comps)
+                        k=(sale.id,path)
+                        item_costs.setdefault(k,0)
+                        item_costs[k]+=amt
+
+                #k=(sale.id,cost.sequence)
+                #if k not in item_costs:
+                #    item_costs[k]=0
+                #amt=cost.amount or 0
                 #if cost.currency_id:
                 #    rate=sale.get_relative_currency_rate(cost.currency_id.id)
                 #    amt=amt*rate
-                item_costs[k]+=amt
+                #item_costs[k]+=amt
         vals={}
         for line in self.browse(ids):
             k=(line.order_id.id,line.sequence)

@@ -630,6 +630,7 @@ class SaleOrder(Model):
                         "account_id": sale_acc_id,
                         "tax_id": line.tax_id.id,
                         "amount": remain_qty*line.unit_price*(1-(line.discount or Decimal(0))/100)-(line.discount_amount or Decimal(0)),
+                        "track_id": obj.track_id.id,
                     }
                     inv_vals["lines"].append(("create", line_vals))
                     if line.promotion_amount:
@@ -1133,6 +1134,9 @@ class SaleOrder(Model):
         for obj in self.browse(ids):
             cost=0
             for line in obj.lines:
+                ## get main est 
+                if  line.sequence.find(".") > 0:
+                    continue
                 cost+=line.est_cost_amount or 0
             profit=obj.amount_subtotal-cost
             margin=profit*100/obj.amount_subtotal if obj.amount_subtotal else None
@@ -1146,11 +1150,22 @@ class SaleOrder(Model):
     def get_track_entries(self,ids,context={}):
         vals={}
         for obj in self.browse(ids):
+            res_ids=[]
             if not obj.track_id:
                 vals[obj.id]=[]
                 continue
-            res=get_model("account.track.entry").search([["track_id","child_of",obj.track_id.id]])
-            vals[obj.id]=res
+            for track_entry in get_model("account.track.entry").search_browse([["track_id","child_of",obj.track_id.id]]):
+                ## don't get from invoice
+                if track_entry.move_id.related_id._model == 'account.invoice':
+                    inv = get_model("account.invoice").browse(track_entry.move_id.related_id.id)
+                    ## invoice type = in = supp = buy
+                    ## invoice type = out = cust = sale
+                    if inv.type == 'out':
+                        continue
+                res_ids.append(track_entry.id)
+            vals[obj.id]=res_ids
+            #res=get_model("account.track.entry").search([["track_id","child_of",obj.track_id.id]])
+            #vals[obj.id]=res
         return vals
 
     def write_track_entries(self,ids,field,val,context={}):
@@ -1355,6 +1370,15 @@ class SaleOrder(Model):
         line=get_data_path(data,path,parent=True)
         settings = get_model("settings").browse(1)
         default_currency_id = settings.currency_id.id
+        if line.get("list_price"):
+            line["purchase_price"]=line.get("list_price")
+            line["landed_cost"]=line.get("list_price")
+        if not line.get("currency_id"):
+            if line.get("product_id"):
+                prod=get_model("product").browse(line.get("product_id"))
+                line["currency_id"]=prod.purchase_currency_id.id if prod.purchase_currency_id.id else data.get("currency_id")
+            else:
+                line["currency_id"]=data.get("currency_id")
         if data.get("number"):
            objs_sale = get_model("sale.order").search_browse([["number","=",data.get("number")]])
            for sale in objs_sale:

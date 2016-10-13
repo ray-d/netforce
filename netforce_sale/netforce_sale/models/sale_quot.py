@@ -26,6 +26,7 @@ import uuid
 from netforce.access import get_active_company, set_active_user, get_active_user
 from . import utils
 from decimal import *
+from pprint import pprint
 
 
 class SaleQuot(Model):
@@ -675,6 +676,8 @@ class SaleQuot(Model):
         for obj in self.browse(ids):
             cost=0
             for line in obj.lines:
+                if  line.sequence.find(".") > 0:
+                    continue
                 cost+=line.est_cost_amount or 0
             profit = (obj.amount_subtotal or 0) - cost
             margin=profit*100/obj.amount_subtotal if obj.amount_subtotal else None
@@ -705,7 +708,7 @@ class SaleQuot(Model):
                 continue
             vals={
                 "quot_id": obj.id,
-                "sequence": line.sequence if not line.is_hidden else line.parent_sequence,
+                "sequence": line.sequence ,#if not line.is_hidden else line.parent_sequence,
                 "product_id": prod.id,
                 "description": prod.name,
                 "supplier_id": prod.suppliers[0].supplier_id.id if prod.suppliers else None,
@@ -816,6 +819,15 @@ class SaleQuot(Model):
         settings = get_model("settings").browse(1)
         default_currency_id = settings.currency_id.id
         line=get_data_path(data,path,parent=True)
+        if line.get("list_price"):
+            line["purchase_price"]=line.get("list_price")
+            line["landed_cost"]=line.get("list_price")
+        if not line.get("currency_id"):
+            if line.get("product_id"):
+                prod=get_model("product").browse(line.get("product_id"))
+                line["currency_id"]=prod.purchase_currency_id.id if prod.purchase_currency_id.id else data.get("currency_id")
+            else:
+                line["currency_id"]=data.get("currency_id")
         if data.get("date"):
            amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id, date=data.get("date"), rate_type="buy")
            line['amount']=amount
