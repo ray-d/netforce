@@ -60,12 +60,15 @@ var InlineForm=NFView.extend({
         var model_name=this.options.model;
         var field_names=[];
         this.$form.find("field").each(function() {
+            // remove this to show many2many data but it is BUG ?
+            /*
             if ($(this).parents("field").length>0) {
                 return;
             }
             if ($(this).parents("related").length>0) {
                 return;
             }
+            */
             field_names.push($(this).attr("name"));
         });
         if (this.options.active_id) {

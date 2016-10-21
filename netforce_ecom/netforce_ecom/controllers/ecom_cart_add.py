@@ -37,6 +37,7 @@ class CartAdd(BaseController):
         db = get_connection()
         try:
             cart_id = self.get_cookie("cart_id", None)
+            user_id = self.get_cookie("user_id", None)
             if cart_id:
                 cart_id = int(cart_id)
                 res = get_model("ecom.cart").search([["id", "=", cart_id]])

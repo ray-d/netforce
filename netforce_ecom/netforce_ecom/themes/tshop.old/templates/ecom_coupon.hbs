@@ -1,0 +1,132 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/cms_account">บัญชีของฉัน</a> </li>
+                <li> <a href="/ecom_coupons">Coupons</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span>Coupon</span>
+    </h1>
+    {{#if error_message}}
+        <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{error_message}}
+        </div>
+    {{/if}}
+    <form action="/ecom_coupon" method="post">
+        <input type="hidden" name="coupon_id" value="{{coupon.id}}"/>
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div class="thumbnail coupon">
+                    {{#if coupon.master_id.image}}
+                        <img id="{{coupon.master_id.name}}" src={{file_path coupon.master_id.image}} class="img-responsive {{coupon.state}}" alt="{{coupon.master_id.name}}">
+                    {{else}}
+                        <img id="{{coupon.master_id.name}}" src="http://placehold.it/2420x2000&text=No+Image" class="img-responsive {{coupon.state}}" alt="{{coupon.master_id.name}}">
+                    {{/if}}
+                    <div class="caption">
+                        <h3>
+                            {{coupon.master_id.name}}
+                            <small>
+                                <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                                <span id="expire" data-expire="{{coupon.expiry_date}}">{{coupon.expiry_date}}</span>
+                            </small>
+                            </h3>
+                        <p class="coupon--caption">{{coupon.master_id.description}}</p>
+                        <p class="coupon--caption">{{coupon.master_id.instructions}}</p>
+                        <p class="coupon--caption">{{coupon.master_id.notes}}</p>
+                        <p>
+                            {{#if coupon.use_date}}
+                                Usage date: {{fmt_datetime coupon.use_date}}<br/>
+                            {{/if}}
+                            {{#if coupon.expiry_date}}
+                                Expiry date: {{fmt_datetime coupon.expiry_date}}<br/>
+                            {{/if}}
+                            Coupon ID: {{coupon.id}}
+                        </p>
+                        <div>
+                            {{#ifeq coupon.state "available"}}
+                                <button type="submit" name="action" value="use_coupon" class="btn btn-success pull-right">Use Coupon</button>
+                            {{/ifeq}}
+                            <a class="btn btn-default" href="/ecom_coupons">Go Back</a>
+                        </div>
+                    </div> <!-- .caption -->
+                    <div id="{{coupon.master_id.name}}" class="watermark {{coupon.state}} darken"></div>
+                </div> <!-- .thumbnail -->
+            </div>
+        </div>
+    </form>
+    <div class="gap"></div>
+</div>
+
+<script>
+    function updateCoupon(next_state) {
+        var watermarks  = document.getElementsByClassName("watermark {{coupon.state}}"),
+            imgs        = document.getElementsByClassName("img-responsive {{coupon.state}}"),
+            i;
+        for (i = 0; i < watermarks.length; i++) {
+            if (watermarks[i].id === "{{coupon.master_id.name}}") {
+                watermarks[i].className = "watermark " + next_state + " darken";
+            }
+        }
+        for (i = 0; i < imgs.length; i++) {
+            if (imgs[i].id === "{{coupon.master_id.name}}") {
+                imgs[i].className = "img-responsive " + next_state;
+            }
+        }
+    }
+
+    function prettyExpire() {
+        var expire  = document.getElementById("expire"),
+            state   = "{{coupon.state}}",
+            date    = prettyDate(expire.dataset.expire, "left");
+        console.log(date);
+        if (typeof(date) !== "undefined") {
+            expire.innerHTML = date + " until coupon expired.";
+        }
+        else {
+            if (state === "available") {
+                updateCoupon("expired");
+                expire.innerHTML = "Expired.";
+            }
+            else if (state === "in_use") {
+                updateCoupon("used");
+                expire.innerHTML = "Used.";
+            }
+        }
+    }
+    prettyExpire();
+    setInterval(prettyExpire, 1000);
+</script>
+
+<style>
+    p.coupon--caption { white-space: pre; }
+    p.coupon--caption:nth-last-child(3) { margin-bottom: 20px; }
+
+    .coupon img.used, .coupon img.expired {
+        -webkit-filter: grayscale(1);
+        filter: grayscale(1);
+    }
+
+    .darken { opacity: .4; }
+
+    .watermark {
+        position: absolute;
+        display: block;
+        font-size: 5em;
+        text-align: center;
+        color: #ff0000;
+        top: 35%;
+        left: 10%;
+        width: 80%;
+        border-style: solid;
+        border-width: 5px 0 5px;
+        transform: rotate(-35deg);
+    }
+    .watermark.used:after { content: "USED"; }
+    .watermark.expired:after { content: "EXPIRED"; }
+    .watermark.available, .watermark.in_use { display: none; }
+</style>

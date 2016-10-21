@@ -5,3 +5,5 @@ for mod in netforce*; do
     ./setup.py develop
     cd ..
 done
+
+pip install https://bitbucket.org/whitie/python-barcode/get/tip.tar.gz

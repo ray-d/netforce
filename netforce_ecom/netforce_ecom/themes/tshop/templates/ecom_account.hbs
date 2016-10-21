@@ -1,0 +1,104 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/cms_account">บัญชีของฉัน</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span><i class="fa fa-user"></i>บัญชีของฉัน</span>
+    </h1>
+    {{#if change_pass}}
+        <div class="alert alert-success" style="font-weight:bold">
+            <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">×</span><span class="sr-only">Close</span>
+            </button>
+            {{t "You have successfully changed password"}}
+        </div>
+    {{/if}}
+    <div class="row">
+        <div class="col-sm-8" style="overflow:auto">
+            {{#if customer.sale_orders}}
+                <table class="table">
+                    <thead>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Payment Status</th>
+                        <th>Shipment Status</th>
+                        <th>Total</th>
+                        <th>Order Status</th>
+                        <th>Tracking</th>
+                    </thead>
+                    {{#each customer.sale_orders}}
+                        <tr class="order-rows" onclick="window.document.location='/ecom_order_details?order_id={{id}}';">
+                            <td>{{number}}</td>
+                            <td>{{date}}</td>
+                            <td>{{#if is_paid}}Paid{{else}}Not Paid{{/if}}</td>
+                            <td>{{#if is_delivered}}Shipped{{else}}Not Shipped{{/if}}</td>
+                            <td>{{currency amount_total}} ฿</td>
+                            <td>{{state_label}}</td>
+                            <td>{{ship_tracking}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{else}}
+                คุณยังไม่มีการทำรายการซื้อ
+            {{/if}}
+        </div>
+        <div class="cols-xs-12 col-sm-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                  <h3 class="panel-title"><strong><a href="/ecom_addresses">ที่อยู่ ({{length customer.addresses}})</a></strong></h3>
+              </div>
+              <div class="panel-body">
+                <ul>
+                    <li> <span class="address-name"> <strong>{{customer.name}}</strong></span></li>
+                    <li> <span> <strong>{{customer.email}}</strong></span></li>
+                    {{#with customer.default_address_id}}
+                      <li> <span class="address-line1"> {{address}} </span></li>
+                      <li> <span class="address-line2"> {{address2}} </span></li>
+                      <li> <span class="address-company"> {{city}} {{district_id.name}} {{province_id.name}} {{country_id.name}} {{postal_code}} </span></li>
+                      <li> <span> <strong>Phone</strong> : {{phone}} </span></li>
+                    {{/with}}
+                </ul>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                  <h3 class="panel-title"><strong><a href="/ecom_coupons">Coupons ({{length customer.coupons}})</a></strong></h3>
+              </div>
+              <div class="panel-body">
+                <ul>
+                    {{#each customer.coupons}}
+                        <li><a href="/ecom_coupon?coupon_id={{id}}"><span style="font-style:italic;font-weight:bold">&quot;{{master_id.name}}&quot;</span>
+                            {{#if expiry_date}}
+                                (expires on {{fmt_datetime expiry_date}})
+                            {{/if}}
+                            </a>
+                        </li>
+                    {{/each}}
+                </ul>
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+      <ul class="myAccountList row" style="margin-right:0px;margin-left:0px">
+        <li class="col-lg-2 col-md-2 col-sm-3 col-xs-4  text-center ">
+          <div class="thumbnail equalheight" style="height: 116px;"> <a title="My addresses" href="/ecom_addresses"><i class="fa fa-map-marker"></i>ที่อยู่ของฉัน</a> </div>
+        </li>
+        <!--
+        <li class="col-lg-2 col-md-2 col-sm-3 col-xs-4  text-center ">
+          <div class="thumbnail equalheight" style="height: 116px;"> <a title="My wishlists" href="/ecom_wishlist"><i class="fa fa-heart"></i>สิ่งที่ฉันปรารถนา</a> </div>
+        </li>
+        -->
+        <li class="col-lg-2 col-md-2 col-sm-3 col-xs-4  text-center ">
+          <div class="thumbnail equalheight" style="height: 116px;"> <a title="Change Password" href="/cms_change_pass"><i class="fa fa-cog"></i>เปลี่ยนพาสเวิร์ด</a> </div>
+        </li>
+      </ul>
+      <div class="clear clearfix"> </div>
+    </div>
+    <div class="gap"></div>
+</div>

@@ -1,0 +1,62 @@
+<div class="container main-container headerOffset">
+
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/ecom_register">สมัครสมาชิก</a> </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class "row">
+        <div class="register-login">
+            <div class="cool-block">
+                <div class="cool-block-bor">
+                    <h1 class="section-title-inner">
+                        <span><i class="fa fa-user"></i> สมัครสมาชิก </span>
+                    </h1>
+                    {{#if error_message}}
+                        <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            {{error_message}}
+                        </div>
+                    {{/if}}
+                    <form class="form-horizontal" action="/cms_register" role="form" method="post">
+                        <div class="form-group {{#if field_errors.first_name}}has-error{{/if}}">
+                            <label for="inputFirstName" class="col-sm-3 control-label">ชื่อ*</label>
+                            <div class="col-sm-9">
+                                <input class="form-control" name="first_name" id="inputFirstName" type="text" value="{{form_vals.first_name}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group {{#if field_errors.last_name}}has-error{{/if}}">
+                            <label for="inputLastName" class="col-sm-3 control-label">นามสกุล*</label>
+                            <div class="col-sm-9">
+                                <input class="form-control" name="last_name" id="inputLastName" type="text" value="{{form_vals.last_name}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group {{#if field_errors.email}}has-error{{/if}}">
+                            <label for="inputEmail" class="col-sm-3 control-label">อีเมลล์*</label>
+                            <div class="col-sm-9">
+                                <input class="form-control" name="email" id="inputEmail" type="email" value="{{form_vals.email}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group {{#if field_errors.password}}has-error{{/if}}">
+                            <label for="inputPassword" class="col-sm-3 control-label">พาสเวิร์ด*</label>
+                            <div class="col-sm-9">
+                                <input class="form-control" name="password" id="inputPassword" type="password" value="{{form_vals.password}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-offset-3 col-lg-9">
+                                <button type="submit" class="btn btn-info">ยืนยัน</button>
+                                <button type="reset" class="btn btn-default">ล้าง</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sep-bor"></div>
+</div>

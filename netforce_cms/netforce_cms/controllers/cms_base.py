@@ -29,6 +29,10 @@ class BaseController(Controller):
         print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         print("prepare")
         super(BaseController,self).prepare()
+        user_id=self.get_cookie("user_id",None)
+        #if not user_id :
+            #self.redirect("/cms_login")
+            #return
         website_id=self.request.headers.get("X-Website-ID")
         if website_id:
             website_id=int(website_id)
@@ -66,7 +70,6 @@ class BaseController(Controller):
                 ctx["cart"]=get_model("ecom.cart").browse(cart_id)
             else: # handle invalid cart_id cookie
                 self.clear_cookie("cart_id")
-        user_id=self.get_cookie("user_id",None)
         if user_id:
             user_id=int(user_id)
             user=get_model("base.user").browse(user_id)

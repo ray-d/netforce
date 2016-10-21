@@ -1,0 +1,51 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> ค้นหา </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span><i class="fa fa-search"></i> ค้นหา </span>
+    </h1>
+
+    <div class="row xsResponse">
+        {{#if search.results}}
+            {{#each search.results}}
+            <div class="item col-lg-3 col-md-3 col-sm-4 col-xs-6">
+                <div class="product">
+                  <!--
+                  <a class="add-fav tooltipHere add-wishlist" data-product-id="{{id}}" data-toggle="tooltip" data-original-title="Add to Wishlist" data-placement="left" style="z-index:100">
+                      <i class="glyphicon glyphicon-heart" data-product-id="{{id}}"></i>
+                </a>
+                --> 
+                    <div class="image"> <a href="/ecom_product?product_id={{id}}"><img src="{{file_path image thumbnail=1}}" alt="img" class="img-responsive"></a>
+                        <div class="promotion"> 
+                            {{#if discount_text}}
+                                <span class="discount">{{discount_text}}</span>
+                            {{/if}}
+                        </div>
+                    </div>
+                    <div class="description">
+                        <h4><a href="/ecom_product?product_id={{id}}">{{name}}</a></h4>
+                        <p>{{description}}</p>
+                    </div>
+                    <div class="price"> 
+                        <span>{{currency ecom_sale_price}} ฿</span>
+                        {{#if ecom_has_discount}}
+                            <span class="old-price">{{currency sale_price}}</span>
+                        {{/if}}
+                    </div>
+                    <div class="action-control"> <a class="btn btn-primary" href="/ecom_product?product_id={{id}}"> <span class="add2cart"><i class="glyphicon glyphicon-shopping-cart"> </i> ซื้อ </span> </a> </div>
+                </div>
+            </div>
+            {{/each}}
+            <!--/.item--> 
+        {{else}}
+            ขออภัย ไม่พบสินค้าที่คุณค้นหา
+        {{/if}}
+    </div>
+    <div class="gap"></div>
+</div>

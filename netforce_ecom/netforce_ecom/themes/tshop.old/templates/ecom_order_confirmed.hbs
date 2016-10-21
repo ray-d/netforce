@@ -1,0 +1,47 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="#">รายการสั่งซื้อ</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h4>การทำรายการสำเร็จ</h4>
+    <p>
+    {{#if sale.is_paid}}
+        การทำรายการของคุณสำเร็จ และได้รับการชำระแล้ว ขอบคุณค่ะ
+    {{else}}
+        การทำรายการของคุณสำเร็จ กำลังรอรายการชำระ ขอบคุณค่ะ
+    {{/if}}
+    </p>
+    <p>
+    หมายเลขการสั่งซื้อ: <span style="font-size:18px; font-weight:bold;margin-left:5px">{{sale.number}}</span>
+    </p>
+    {{#if payment_slip_report_url}}
+        <a href="{{payment_slip_report_url}}" class="btn btn-primary"><span class="glyphicon glyphicon-print"></span>พิมพ์ Pay-in Slip</a>
+    {{/if}}
+    <hr/>
+    <a href="/cms_index" class="btn btn-default"><i class="fa fa-arrow-left"></i>กลับสู่ร้านค้า</a>
+</div>
+<footer style="height:50px">
+</footer>
+<script src="/static/db/{{database}}/themes/ecom/js/jquery.min.js"></script>
+<script src="/static/db/{{database}}/themes/ecom/js/bootstrap.min.js"></script>
+<script>
+$(function() {
+    $(".register-btn").click(function(e) {
+        e.preventDefault();
+        $(".register-btn").hide();
+        $(".register-form").show();
+    });
+
+    $(".register-cancel").click(function(e) {
+        e.preventDefault();
+        $(".register-form").hide();
+        $(".register-btn").show();
+    });
+});
+</script>
+</body>
+</html>

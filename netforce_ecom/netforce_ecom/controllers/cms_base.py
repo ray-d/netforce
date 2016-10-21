@@ -30,6 +30,10 @@ class BaseController(Controller):
     def prepare(self):
         print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         print("prepare")
+        user_id=self.get_cookie("user_id",None)
+        if not user_id:
+            self.redirect("/cms_login")
+            return
         super(BaseController,self).prepare()
         website_id=self.request.headers.get("X-Website-ID")
         if website_id:
@@ -53,13 +57,13 @@ class BaseController(Controller):
             set_active_locale(lang)
             self.set_cookie("locale",lang)
         ctx={}
-        user_id=self.get_cookie("user_id",None)
         if user_id:
             user_id=int(user_id)
             user=get_model("base.user").browse(user_id)
             contact = user.contact_id
-            if contact.sale_price_list_id.id:
-                browse_ctx["pricelist_id"] =contact.sale_price_list_id.id 
+            #if contact.sale_price_list_id.id:
+            if contact.sale_price_list_id:
+                browse_ctx["pricelist_id"] =contact.sale_price_list_id.id
             ctx["customer"]=contact
         ctx["website"]=website
         ctx["database"]=get_active_db()

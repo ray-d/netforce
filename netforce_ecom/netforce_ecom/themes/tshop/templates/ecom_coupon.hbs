@@ -1,0 +1,45 @@
+<div class="container main-container headerOffset">
+    <div class="row">
+        <div class="breadcrumbDiv col-lg-12">
+            <ul class="breadcrumb">
+                <li> <a href="/cms_index">หน้าหลัก</a> </li>
+                <li> <a href="/cms_account">บัญชีของฉัน</a> </li>
+                <li> <a href="/ecom_coupons">Coupons</a> </li>
+            </ul>
+        </div>
+    </div>
+    <h1 class="section-title-inner">
+        <span>Coupon</span>
+    </h1>
+    {{#if error_message}}
+        <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{error_message}}
+        </div>
+    {{/if}}
+    <form action="/ecom_coupon" method="post">
+        <input type="hidden" name="coupon_id" value="{{coupon.id}}"/>
+        <h1>
+            {{coupon.master_id.name}}
+        </h1>
+        <p style="white-space: pre">{{coupon.master_id.description}}</p>
+        <p style="white-space: pre">{{coupon.master_id.instructions}}</p>
+        <p style="white-space: pre; margin-bottom: 20px">{{coupon.master_id.notes}}</p>
+        <p>
+            {{#if coupon.use_date}}
+                Usage date: {{fmt_datetime coupon.use_date}}<br/>
+            {{/if}}
+            {{#if coupon.expiry_date}}
+                Expiry date: {{fmt_datetime coupon.expiry_date}}<br/>
+            {{/if}}
+            Coupon ID: {{coupon.id}}
+        </p>
+        <div>
+            {{#ifeq coupon.state "available"}}
+                <button type="submit" name="action" value="use_coupon" class="btn btn-success btn-lg">Use Coupon</button>
+            {{/ifeq}}
+            <a class="btn btn-default btn-lg" href="/ecom_coupons">Go Back</a>
+        </div>
+    </form>
+    <div class="gap"></div>
+</div>

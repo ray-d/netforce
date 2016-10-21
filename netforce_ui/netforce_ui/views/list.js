@@ -250,7 +250,6 @@ var List=NFView.extend({
 
     line_click: function(model) {
         log("list.line_click",this,model);
-        /*e.preventDefault();*/
         if (this.options.on_click_item && this.options.data) {
             this.options.on_click_item(this.options.data.id);
         }

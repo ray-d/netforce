@@ -191,11 +191,10 @@
         <field name="attributes">
             <list>
                 <field name="attribute_id"/>
-                <field name="option_id"/>
             </list>
             <form>
                 <field name="attribute_id"/>
-                <field name="option_id" condition='[["attribute_id","=",attribute_id]]'/>
+                <field name="options" condition='[["attribute_id","=",attribute_id]]'/>
             </form>
         </field>
         <field name="components">

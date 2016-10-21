@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" type="image/png" href="/static/db/{{database}}/themse/tshop/images/favicon.png">
+<link href="/static/db/{{database}}/themes/tshop/css/bootstrap.css" rel="stylesheet">
+<link id="pagestyle" rel="stylesheet" type="text/css" href="/static/db/{{database}}/themes/tshop/css/skin-3.css">
+<link href="/static/db/{{database}}/themes/tshop/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div style="height:110px;margin-top:30px">
+        {{#editable_block "logo_order"}}
+            <a href="/cms_index"><img src="http://shopicc.netforce.com/static/db/shopicc_test1/files/LogoColor,VmHNEOb49Vw=.png" alt="" /></a>
+        {{/editable_block}}
+    </div>
+    <h4>Order Canceled</h4>
+    Your order {{sale.number}} was canceled.
+    <hr/>
+    <a href="/cms_index" class="btn btn-default"><i class="fa fa-arrow-left"></i> {{t "Return to store"}}</a>
+</div>
+<footer style="height:50px">
+</footer>
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+</body>
+</html>
