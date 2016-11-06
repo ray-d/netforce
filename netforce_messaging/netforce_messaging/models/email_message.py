@@ -1,15 +1,15 @@
 # Copyright (c) 2012-2015 Netforce Co. Ltd.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -627,8 +627,7 @@ class EmailMessage(Model):
             msg.set_charset("utf-8")
             msg["From"] = obj.from_addr
             msg["To"] = obj.to_addrs
-            if obj.cc_addrs:
-                msg["CC"] = [a.strip() for a in obj.cc_addrs.split(",")]
+            msg["CC"] = obj.cc_addrs
             msg["Subject"] = Header(obj.subject, "utf-8")
             msg.attach(MIMEText(obj.body, "html", "utf-8"))
             for attach in obj.attachments:
@@ -639,7 +638,7 @@ class EmailMessage(Model):
                 encode_base64(part)
                 part.add_header('Content-Disposition', 'attachment; filename="%s"' % attach.file)
                 msg.attach(part)
-            to_addrs = obj.to_addrs.split(",")
+            to_addrs = obj.to_addrs.split(",") + obj.cc_addrs.split(",")
             server.sendmail(obj.from_addr, to_addrs, msg.as_string())
             obj.write({"state": "sent"})
             server.quit()
