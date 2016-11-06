@@ -627,7 +627,8 @@ class EmailMessage(Model):
             msg.set_charset("utf-8")
             msg["From"] = obj.from_addr
             msg["To"] = obj.to_addrs
-            msg["CC"] = obj.cc_addrs
+            if obj.cc_addrs:
+                msg["CC"] = obj.cc_addrs
             msg["Subject"] = Header(obj.subject, "utf-8")
             msg.attach(MIMEText(obj.body, "html", "utf-8"))
             for attach in obj.attachments:
@@ -638,7 +639,9 @@ class EmailMessage(Model):
                 encode_base64(part)
                 part.add_header('Content-Disposition', 'attachment; filename="%s"' % attach.file)
                 msg.attach(part)
-            to_addrs = obj.to_addrs.split(",") + obj.cc_addrs.split(",")
+            to_addrs = obj.to_addrs.split(",")
+            if obj.cc_addrs:
+                to_addrs += obj.cc_addrs.split(",")
             server.sendmail(obj.from_addr, to_addrs, msg.as_string())
             obj.write({"state": "sent"})
             server.quit()
