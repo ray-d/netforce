@@ -13,7 +13,4 @@
     <field name="root_url"/>
     <field name="anon_profile_id"/>
     <field name="menu_icon"/>
-    <separator string="Working Days"/>
-    <field name="work_day_sat"/>
-    <field name="work_day_sun"/>
 </form>

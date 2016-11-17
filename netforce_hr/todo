@@ -22,3 +22,4 @@ org_setting.xml
     <separator string="Working Days"/>
     <field name="work_day_sat"/>
     <field name="work_day_sun"/>
+
