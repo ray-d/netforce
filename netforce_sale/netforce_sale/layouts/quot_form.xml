@@ -51,6 +51,8 @@
                     <field name="est_margin_percent"/>
                     <field name="hide_sub" onchange="update_amounts"/>
                     <field name="est_margin_percent_input" onchange="update_amounts"/>
+                    <field name="supp_price_list" invisible="1"/>
+                    <field name="cif" invisible="1"/>
                 </list>
             </field>
             <group span="8">

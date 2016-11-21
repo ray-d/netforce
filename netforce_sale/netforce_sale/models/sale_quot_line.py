@@ -19,7 +19,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from netforce.model import Model, fields, get_model
-
+from decimal import Decimal
 
 class SaleQuotLine(Model):
     _name = "sale.quot.line"
@@ -52,6 +52,8 @@ class SaleQuotLine(Model):
         "parent_sequence": fields.Char("Parent Sequence",function="get_is_hidden",function_multi=True),
         "est_margin_percent_input": fields.Decimal("Est. Margin % Input"),
         "unit_price_dis": fields.Decimal("Unit Price (Discount)", scale=6),
+        "supp_price_list": fields.Decimal("Supplier price list", scale=6,function="get_supp_price_list"),
+        "cif": fields.Decimal("CIF", scale=6,function="get_cif"),
     }
     _order = "sequence::numeric,id"
 
@@ -68,6 +70,66 @@ class SaleQuotLine(Model):
         vals = {}
         for line in self.browse(ids):
             vals[line.id] = (line.retail_price or 0) * (line.qty or 0)
+        return vals
+
+    def get_supp_price_list(self,ids,context={}):
+        quot_ids=[]
+        for line in self.browse(ids):
+            quot_ids.append(line.quot_id.id)
+        quot_ids=list(set(quot_ids))
+        item_costs={}
+        ## get currency default == THB
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
+        for quot in get_model("sale.quot").browse(quot_ids):
+            for cost in quot.est_costs:
+                comps=[]
+                if cost.sequence:
+                    for comp in cost.sequence.split("."):
+                        comps.append(comp)
+                        path=".".join(comps)
+                        k=(quot.id,path)
+                        item_costs.setdefault(k,0)
+                        item_costs[k]+=cost.list_price or 0
+        vals={}
+        for line in self.browse(ids):
+            k=(line.quot_id.id,line.sequence)
+            supp_price_list=item_costs.get(k,0)
+            if line.qty:
+                vals[line.id]=supp_price_list
+            else:
+                vals[line.id]=0
+        return vals
+
+    def get_cif(self,ids,context={}):
+        quot_ids=[]
+        for line in self.browse(ids):
+            quot_ids.append(line.quot_id.id)
+        quot_ids=list(set(quot_ids))
+        item_costs={}
+        ## get currency default == THB
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
+        for quot in get_model("sale.quot").browse(quot_ids):
+            for cost in quot.est_costs:
+                comps=[]
+                if cost.sequence and cost.purchase_duty_percent and cost.purchase_ship_percent:
+                    for comp in cost.sequence.split("."):
+                        purchase_duty_percent = (cost.list_price * Decimal((cost.purchase_duty_percent or 0) / 100)) or 0
+                        purchase_ship_percent = (cost.list_price * Decimal((cost.purchase_ship_percent or 0) / 100)) or 0
+                        comps.append(comp)
+                        path=".".join(comps)
+                        k=(quot.id,path)
+                        item_costs.setdefault(k,0)
+                        item_costs[k]+= purchase_duty_percent + purchase_ship_percent
+        vals={}
+        for line in self.browse(ids):
+            k=(line.quot_id.id,line.sequence)
+            if line.qty:
+                cif=item_costs.get(k,0)
+            else:
+                cif=0
+            vals[line.id]=cif
         return vals
 
     def get_est_profit(self,ids,context={}):

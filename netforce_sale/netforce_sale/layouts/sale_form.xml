@@ -70,6 +70,8 @@
                     <field name="act_profit_amount"/>
                     <field name="act_margin_percent"/>
                     <field name="production_id"/>
+                    <field name="supp_price_list"/>
+                    <field name="cif"/>
                 </list>
             </field>
             <group span="8">
