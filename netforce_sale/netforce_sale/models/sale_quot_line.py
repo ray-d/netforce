@@ -51,8 +51,9 @@ class SaleQuotLine(Model):
         "is_hidden": fields.Boolean("Hidden",function="get_is_hidden",function_multi=True),
         "parent_sequence": fields.Char("Parent Sequence",function="get_is_hidden",function_multi=True),
         "est_margin_percent_input": fields.Decimal("Est. Margin % Input"),
+        "unit_price_dis": fields.Decimal("Unit Price (Discount)", scale=6),
     }
-    _order = "sequence,id"
+    _order = "sequence::numeric,id"
 
     def create(self, vals, context={}):
         id = super(SaleQuotLine, self).create(vals, context)
@@ -74,10 +75,16 @@ class SaleQuotLine(Model):
         for line in self.browse(ids):
             quot_ids.append(line.quot_id.id)
         quot_ids=list(set(quot_ids))
+        ## get currency default == THB
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
         item_costs={}
         for quot in get_model("sale.quot").browse(quot_ids):
             for cost in quot.est_costs:
-                amt=cost.amount or 0
+                if line.quot_id.currency_id.id != default_currency_id:
+                    amt=cost.amount_cur or 0
+                else:
+                    amt=cost.amount or 0
                 #if cost.currency_id:
                 #    rate=quot.get_relative_currency_rate(cost.currency_id.id)
                 #    amt=amt*rate
@@ -95,6 +102,10 @@ class SaleQuotLine(Model):
             cost=item_costs.get(k,0)
             profit = (line.amount or 0) - cost
             margin=profit*100/line.amount if line.amount else 0
+            if not line.hide_sub and not line.qty :
+                cost = 0
+                profit = 0
+                margin = 0
             vals[line.id]={
                 "est_cost_amount": cost,
                 "est_profit_amount": profit,

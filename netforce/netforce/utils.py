@@ -578,6 +578,8 @@ def get_last_day(month):
 
 currency={ 'th_TH': {'name': 'บาท',  'partial': 'สตางค์',  'end': 'ถ้วน'}
            , 'en_US': {'name': 'BAHT', 'partial': 'SATANG', 'end': 'ONLY'}
+           , 'en_US_USD': {'name': 'DOLLAR', 'partial': 'CENT', 'end': 'ONLY'}
+           , 'en_US_GBP': {'name': 'POUND', 'partial': 'PENNY', 'end': 'ONLY'}
            }
 sym={
     "en_US": {
@@ -593,6 +595,35 @@ sym={
         "1M": "MILLION",
         "and": "AND",
     },
+
+    "en_US_USD": {
+        "positive": "",
+        "negative": "MINUS",
+        "sep": " ",
+        "0": "ZERO",
+        "x": ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"],
+        "1x": ["TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN", "EIGHTEEN", "NINETEEN"],
+        "x0": ["TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"],
+        "100": "HUNDRED",
+        "1K": "THOUSAND",
+        "1M": "MILLION",
+        "and": "AND",
+    },
+
+    "en_US_GBP": {
+        "positive": "",
+        "negative": "MINUS",
+        "sep": " ",
+        "0": "ZERO",
+        "x": ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"],
+        "1x": ["TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN", "EIGHTEEN", "NINETEEN"],
+        "x0": ["TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"],
+        "100": "HUNDRED",
+        "1K": "THOUSAND",
+        "1M": "MILLION",
+        "and": "AND",
+    },
+
     "th_TH": {
         "positive": "",
         "negative": "ลบ",

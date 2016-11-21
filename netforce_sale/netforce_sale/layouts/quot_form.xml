@@ -10,6 +10,7 @@
             <item string="To Draft" method="to_draft"/>
             <divider/>
             <item string="Create Estimated Costs" method="create_est_costs"/>
+            <item string="Update Estimated Costs" method="update_est_costs"/>
         </button>
     </head>
     <tabs>
@@ -38,17 +39,18 @@
                     <field name="qty" onchange="onchange_qty"/>
                     <field name="uom_id" onchange="onchange_uom"/>
                     <field name="unit_price" onchange="update_amounts"/>
+                    <field name="unit_price_dis" onchange="update_amounts" invisible="1"/>
                     <field name="discount" onchange="update_amounts"/>
                     <field name="discount_amount" onchange="update_amounts"/>
                     <field name="tax_id" onchange="update_amounts"/>
                     <field name="amount"/>
-                    <field name="retail_price"/>
+                    <field name="retail_price" onchange="update_amounts"/>
                     <field name="retail_amount"/>
                     <field name="est_cost_amount"/>
                     <field name="est_profit_amount"/>
                     <field name="est_margin_percent"/>
                     <field name="hide_sub" onchange="update_amounts"/>
-                    <field name="est_margin_percent_input" onchange="onchange_est_margin"/>
+                    <field name="est_margin_percent_input" onchange="update_amounts"/>
                 </list>
             </field>
             <group span="8">

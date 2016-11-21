@@ -4,7 +4,7 @@
         <button string="Print" icon="print" dropdown="1">
             <item string="PDF" action="report_supp_invoice_form" action_options='{"invoice_id":id,"convert":"pdf"}'/>
             <item string="ODT" action="report_supp_invoice_form" action_options='{"invoice_id":id}'/>
-            <item string="Select Template" action="print_select_template" action_options="report_action=report_supp_invoice_form&amp;template_type=supp_credit_note"/>
+            <item string="Select Template" action="print_select_template" action_options="report_action=report_supp_credit_from&amp;template_type=supp_credit_note"/>
         </button>
         <button string="Options" dropdown="1">
             <item string="Copy" method="copy"/>

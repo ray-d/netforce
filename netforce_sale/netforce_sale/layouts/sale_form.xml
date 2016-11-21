@@ -19,6 +19,7 @@
             <item string="Void" method="void" confirm="Are you sure you want to void this sales order?" states="confirmed,done" perm="void_sale_order"/>
             <divider/>
             <item string="Create Estimated Costs" method="create_est_costs"/>
+            <item string="Update Estimated Costs" method="update_est_costs"/>
             <item string="Create Tracking Codes" method="create_track"/>
         </button>
     </head>
@@ -52,6 +53,7 @@
                     <field name="qty" onchange="onchange_qty"/>
                     <field name="uom_id" onchange="onchange_uom"/>
                     <field name="unit_price" onchange="update_amounts"/>
+                    <field name="unit_price_dis" onchange="update_amounts" invisible="1"/>
                     <field name="discount" onchange="update_amounts"/>
                     <field name="discount_amount" onchange="update_amounts"/>
                     <field name="promotion_amount"/>
@@ -124,6 +126,7 @@
                     <field name="track_id"/>
                     <field name="date"/>
                     <field name="related_id"/>
+                    <field name="move_id"/>
                     <field name="product_id"/>
                     <field name="description"/>
                     <field name="qty"/>

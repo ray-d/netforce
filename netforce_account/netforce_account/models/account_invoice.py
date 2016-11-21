@@ -201,6 +201,8 @@ class Invoice(Model):
         sale_ids = []
         purch_ids = []
         for inv in self.browse(ids):
+            if inv.related_id._model == "sale.order":
+                sale_ids.append(inv.related_id.id)
             for line in inv.lines:
                 if line.sale_id:
                     sale_ids.append(line.sale_id.id)

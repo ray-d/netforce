@@ -64,7 +64,9 @@ class SaleOrderLine(Model):
         "promotion_amount": fields.Decimal("Prom Amt",function="get_amount",function_multi=True),
         "agg_act_profit": fields.Decimal("Total Actual Profit", agg_function=["sum", "act_profit_amount"]),
         "production_id": fields.Many2One("production.order","Production Order"),
+        "unit_price_dis": fields.Decimal("Unit Price (Discount)", scale=6),
     }
+    _order="sequence::numeric"
 
     def create(self, vals, context={}):
         id = super(SaleOrderLine, self).create(vals, context)
@@ -208,9 +210,15 @@ class SaleOrderLine(Model):
             sale_ids.append(line.order_id.id)
         sale_ids=list(set(sale_ids))
         item_costs={}
+        ## get currency default == THB
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
         for sale in get_model("sale.order").browse(sale_ids):
             for cost in sale.est_costs:
-                amt=cost.amount or 0
+                if line.order_id.currency_id.id != default_currency_id:
+                    amt=cost.amount_cur or 0
+                else:
+                    amt=cost.amount or 0
                 comps=[]
                 if cost.sequence:
                     for comp in cost.sequence.split("."):
@@ -249,14 +257,36 @@ class SaleOrderLine(Model):
         item_costs={}
         for sale in get_model("sale.order").browse(sale_ids):
             for line in sale.track_entries:
-                k=(sale.id,line.track_id.code)
-                if k not in item_costs:
-                    item_costs[k]=0
+                t=[]
+                if line.track_id.code:
+                    xx=line.track_id.code.split(" / ")
+                    print(">>>>> xx : ",xx)
+                    if len(xx) <= 1:
+                        print("1111111")
+                        k=(sale.id,line.track_id.code)
+                        if k not in item_costs:
+                            item_costs[k]=0
+                        # TODO: convert currency
+                        item_costs[k]-=line.amount
+                    elif len(xx) > 1:
+                        print("222222")
+                        for comp in xx[1].split("."):
+                            t.append(comp)
+                            path=".".join(t)
+                            path="%s / %s"%(sale.number,path)
+                            k=(sale.id,path)
+                            item_costs.setdefault(k,0)
+                            item_costs[k]-=line.amount 
+                #k=(sale.id,line.track_id.code)
+                #if k not in item_costs:
+                #    item_costs[k]=0
                 # TODO: convert currency
-                item_costs[k]-=line.amount
+                #item_costs[k]-=line.amount
+        print(">>>>>>> ",item_costs)
         vals={}
         for line in self.browse(ids):
             track_code="%s / %s"%(line.order_id.number,line.sequence)
+            print("track code ",track_code)
             k=(line.order_id.id,track_code)
             cost=item_costs.get(k,0)
             profit=line.amount-cost

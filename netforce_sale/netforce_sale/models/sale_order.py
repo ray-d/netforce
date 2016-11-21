@@ -361,6 +361,11 @@ class SaleOrder(Model):
             if line.get("discount_amount"):
                 amt -= line["discount_amount"]
             line["amount"] = amt
+            ## unit price after discount
+            line["unit_price_dis"]=(line["amount"] or 0)/(line.get("qty") or 1)
+            if line["unit_price_dis"] == 0:
+                line["unit_price_dis"] = None
+
             new_cur=get_model("currency").convert(amt, int(data.get("currency_id")), settings.currency_id.id)
             line['amount_cur']=new_cur and new_cur or None
             tax_id = line.get("tax_id")
@@ -500,7 +505,6 @@ class SaleOrder(Model):
         if not res:
             raise Exception("Warehouse not found")
         wh_loc_id = res[0]
-
         for obj_line in obj.lines:
             picking_key = obj_line.ship_method_id and obj_line.ship_method_id.id or 0
             if picking_key in pick_vals: continue
@@ -516,7 +520,7 @@ class SaleOrder(Model):
                 "state": "draft",
                 "ship_method_id": obj_line.ship_method_id.id or obj.ship_method_id.id,
                 "company_id": obj.company_id.id,
-                "date": obj.due_date+" 00:00:00",
+                "date": obj.due_date+" "+datetime.today().strftime("%H:%M:%S"),
             }
             if contact and contact.pick_out_journal_id:
                 pick_vals[picking_key]["journal_id"] = contact.pick_out_journal_id.id
@@ -1131,13 +1135,22 @@ class SaleOrder(Model):
 
     def get_est_profit(self, ids, context={}):
         vals = {}
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
         for obj in self.browse(ids):
             cost=0
-            for line in obj.lines:
+            #for line in obj.lines:
                 ## get main est 
-                if  line.sequence.find(".") > 0:
-                    continue
-                cost+=line.est_cost_amount or 0
+            #    if  line.sequence.find(".") > 0:
+            #        continue
+            #    cost+=line.est_cost_amount or 0
+            for line in obj.est_costs:
+                ## if THB
+                if obj.currency_id.id == default_currency_id:
+                    cost+=line.amount or 0
+                ## if USD
+                else: 
+                    cost+=line.amount_cur or 0
             profit=obj.amount_subtotal-cost
             margin=profit*100/obj.amount_subtotal if obj.amount_subtotal else None
             vals[obj.id] = {
@@ -1187,11 +1200,24 @@ class SaleOrder(Model):
 
     def get_act_profit(self, ids, context={}):
         vals = {}
+        settings = get_model("settings").browse(1)
+        default_currency_id = settings.currency_id.id
         for obj in self.browse(ids):
             cost=0
             for line in obj.track_entries:
+                print("==> ", line.amount, cost)
                 cost-=line.amount
-            subtotal=obj.amount_subtotal or 0
+            ## check is THB
+            if obj.currency_id.id == default_currency_id: 
+                subtotal=obj.amount_subtotal or 0
+            else:
+                f_rate = get_model("currency").get_rate([default_currency_id])  ## get rate STD currency
+                ## get rate from tab currency in order
+                so_rate = get_model("custom.currency.rate").search_browse([["related_id","=","sale.order,%s"%obj.id],["currency_id","=",obj.currency_id.id]])
+                if len(so_rate) > 0:
+                        subtotal = get_model("currency").convert(Decimal(obj.amount_subtotal or 0),obj.currency_id.id , default_currency_id, from_rate=Decimal(so_rate[0].rate or 1), to_rate=Decimal(f_rate or 1))
+                else:
+                        subtotal = get_model("currency").convert(Decimal(obj.amount_subtotal), default_currency_id ,obj.currency_id.id, rate_type="buy")
             profit=subtotal-cost
             margin=profit*100/subtotal if subtotal else None
             vals[obj.id] = {
@@ -1240,9 +1266,22 @@ class SaleOrder(Model):
             "flash": "%d tracking codes created"%count,
         }
 
-    def create_est_costs(self,ids,context={}):
+    def create_act_costs(self,ids,context={}):
+        ## update function store
+        if ids:
+            self.function_store(ids)
+        else:
+            return True
+
+    def update_est_costs(self,ids,context={}):
         obj=self.browse(ids[0])
-        obj.write({"est_costs":[("delete_all",)]})
+        seq_ids=[]
+        check_ids=[]
+        for cost in obj.est_costs:
+            if cost.sequence:
+                seq_ids.append(cost.sequence)
+            else:
+                check_ids.append(cost.product_id.id)
         for line in obj.lines:
             prod=line.product_id
             if not prod:
@@ -1251,11 +1290,55 @@ class SaleOrder(Model):
                 continue
             if "bundle" == prod.type:
                 continue
+            if prod.id in check_ids and prod.purchase_price == 0:
+                continue
+            if line.sequence in seq_ids:
+                continue
             vals={
                 "sale_id": obj.id,
                 "sequence": line.sequence,
                 "product_id": prod.id,
-                "description": prod.name,
+                "description": line.description,
+                "supplier_id": prod.suppliers[0].supplier_id.id if prod.suppliers else None,
+                "list_price": prod.purchase_price,
+                "purchase_price": prod.purchase_price,
+                "landed_cost": prod.landed_cost,
+                "purchase_duty_percent": prod.purchase_duty_percent,
+                "purchase_ship_percent": prod.purchase_ship_percent,
+                "qty": line.qty,
+                "currency_id": prod.purchase_currency_id.id,
+                "currency_rate": prod.purchase_currency_rate,
+            }
+            get_model("sale.cost").create(vals)
+
+    def create_est_costs(self,ids,context={}):
+        obj=self.browse(ids[0])
+        #obj.write({"est_costs":[("delete_all",)]})
+        del_ids=[]
+        check_ids=[]
+        for cost in obj.est_costs:
+            if cost.product_id:
+                if cost.product_id.purchase_price:
+                    del_ids.append(cost.id)
+                else:
+                    check_ids.append(cost.product_id.id)
+        get_model("sale.cost").delete(del_ids)
+
+        for line in obj.lines:
+            prod=line.product_id
+            if not prod:
+                continue
+            if not line.sequence:
+                continue
+            if "bundle" == prod.type:
+                continue
+            if prod.id in check_ids and prod.purchase_price == 0:
+                continue
+            vals={
+                "sale_id": obj.id,
+                "sequence": line.sequence,
+                "product_id": prod.id,
+                "description": line.description,
                 "supplier_id": prod.suppliers[0].supplier_id.id if prod.suppliers else None,
                 "list_price": prod.purchase_price,
                 "purchase_price": prod.purchase_price,
@@ -1373,6 +1456,13 @@ class SaleOrder(Model):
         if line.get("list_price"):
             line["purchase_price"]=line.get("list_price")
             line["landed_cost"]=line.get("list_price")
+            purchase_price = line["purchase_price"]
+        purchase_duty_percent = line.get("purchase_duty_percent")
+        purchase_ship_percent = line.get("purchase_ship_percent")
+        if purchase_price:
+            landed_cost = purchase_price + (purchase_price * Decimal((purchase_duty_percent or 0) / 100)) + (purchase_price * Decimal((purchase_ship_percent or 0) / 100))
+            line["landed_cost"]=landed_cost
+
         if not line.get("currency_id"):
             if line.get("product_id"):
                 prod=get_model("product").browse(line.get("product_id"))
@@ -1397,7 +1487,20 @@ class SaleOrder(Model):
            amount = get_model("currency").convert(((line['qty'] or 0)*(line["landed_cost"] or 0)),line["currency_id"], default_currency_id,rate_type="buy")
            line['amount']=amount
 
-        line['amount_cur']=(line['qty'] or 0) *(line['landed_cost'] or 0)
+        ## update amount cur ---------------------------------------
+        currency_id = data.get('currency_id')    ## get currency sale order
+        amt = (line['qty'] or 0) *(line['landed_cost'] or 0) ## amount total
+        std_currency = line.get("currency_id")           ## get currency in line cost
+        f_rate = get_model("currency").get_rate([std_currency])  ## get rate currency in line cost
+        obj_so = get_model("sale.order").search_browse([["number","=",data.get('number')]])
+        ## get rate from tab currency in order
+        so_rate = get_model("custom.currency.rate").search_browse([["related_id","=","sale.order,%s"%obj_so[0].id],["currency_id","=",currency_id]])
+        if len(so_rate) > 0:
+                total = get_model("currency").convert(amt, std_currency, currency_id ,from_rate=f_rate, to_rate=so_rate[0].rate)
+        else:
+                total = get_model("currency").convert(amt, std_currency, currency_id, rate_type="buy")
+
+        line['amount_cur']=total
         return data
 
 

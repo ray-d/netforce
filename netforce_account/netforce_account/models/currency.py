@@ -135,7 +135,7 @@ class Currency(Model):
         if rate:
             amt2 = amt * rate
         else:
-            amt2 = amt * from_rate / Decimal(to_rate) if to_rate else 0
+            amt2 = amt * from_rate / to_rate if to_rate else 0
         if round:
             return self.round(cur_to_id, amt2)
         else:

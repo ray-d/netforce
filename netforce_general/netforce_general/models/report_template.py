@@ -31,6 +31,7 @@ class ReportTemplate(Model):
         "type": fields.Selection([
             ["cust_invoice", "Customer Invoice"],
             ["cust_credit_note", "Customer Credit Note"],
+            ["supp_credit_note", "Supplier Credit Note"],
             ["supp_invoice", "Supplier Invoice"],
             ["payment", "Payment"],
             ["account_move", "Journal Entry"],

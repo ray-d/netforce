@@ -28,11 +28,11 @@ class SaleCost(Model):
     _string = "Cost"
     _fields = {
         "sale_id": fields.Many2One("sale.order","Sales Order",required=True,on_delete="cascade"),
-        "sequence": fields.Char("Apply To Item No."),
+        "sequence": fields.Char("Apply To Item No.",required=True),
         "product_id": fields.Many2One("product","Cost Product"),
         "description": fields.Text("Description",required=True,search=True),
         "unit_price": fields.Decimal("Unit Price"), # XXX deprecated
-        "list_price": fields.Decimal("Supplier List Price"),
+        "list_price": fields.Decimal("Supplier List Price",required=True),
         "purchase_price": fields.Decimal("Purchase Price"),
         "purchase_duty_percent": fields.Decimal("Import Duty (%)"),
         "purchase_ship_percent": fields.Decimal("Shipping Charge (%)"),
@@ -50,7 +50,23 @@ class SaleCost(Model):
     def get_amount_cur(self,ids,context={}):
         vals={}
         for obj in self.browse(ids):
-            vals[obj.id]=(obj.qty or 0)*(obj.landed_cost or 0)
+            currency_id = obj.sale_id.currency_id.id    ## get currency sale order
+            amt = (obj.qty or 0)*(obj.landed_cost or 0) ## amount total
+            std_currency = obj.currency_id.id           ## get currency in line cost
+            f_rate = get_model("currency").get_rate([std_currency])  ## get rate currency in line cost
+            ## get rate from tab currency in order
+            so_rate = get_model("custom.currency.rate").search_browse([["related_id","=","sale.order,%s"%obj.sale_id.id],["currency_id","=",obj.sale_id.currency_id.id]])             
+            if len(so_rate) > 0 and obj.currency_id.id != std_currency:
+                if obj.sale_id.date: 
+                    total = get_model("currency").convert(amt, std_currency, currency_id ,from_rate=f_rate,date=obj.sale_id.date, to_rate=so_rate[0].rate)
+                else:
+                    total = get_model("currency").convert(amt, std_currency, currency_id ,from_rate=f_rate, to_rate=so_rate[0].rate)
+            else:
+                if obj.sale_id.date:
+                    total = get_model("currency").convert(amt, std_currency, currency_id, date=obj.sale_id.date, rate_type="buy")
+                else:
+                    total = get_model("currency").convert(amt, std_currency, currency_id, rate_type="buy")
+            vals[obj.id]=total
         return vals
 
     def get_amount(self,ids,context={}):
